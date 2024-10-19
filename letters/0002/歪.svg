@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <g stroke="black" stroke-width="3">
+    <!-- 左の土の部首 -->
+    <line x1="20" y1="10" x2="20" y2="30" />
+    <line x1="10" y1="30" x2="30" y2="30" />
+    
+    <!-- 中央の横棒 -->
+    <line x1="40" y1="20" x2="70" y2="20" />
+    
+    <!-- 中央の縦棒 -->
+    <line x1="55" y1="20" x2="55" y2="80" />
+    
+    <!-- 右側の与の部首 -->
+    <path d="M70,10 Q80,25 70,40" fill="none" stroke="black"/>
+    <line x1="70" y1="40" x2="70" y2="80" stroke="black"/>
+  </g>
+</svg>
