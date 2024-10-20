@@ -1,7 +1,7 @@
 <svg width="100" height="100" xmlns="http://www.w3.org/2000/svg">
 
   <!-- 四角い枠 --> 
-  <rect x="10" y="10" width="95" height="95" fill="none" stroke-width="3"/>
+  <rect x="10" y="10" width="90" height="90" fill="none" stroke-width="3"/>
   
   <!-- 下部の横線 -->
   <line x1="10" y1="80" x2="90" y2="80" stroke="black" stroke-width="3"/>
