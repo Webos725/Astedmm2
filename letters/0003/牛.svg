@@ -1,16 +1,16 @@
 <svg width="100" height="100" xmlns="http://www.w3.org/2000/svg">
-  <!-- 瓦のような形を作るための縦の線 -->
-  <line x1="20" y1="20" x2="20" y2="80" stroke="black" stroke-width="5"/>
-  <line x1="80" y1="20" x2="80" y2="80" stroke="black" stroke-width="5"/>
+  <!-- 瓦の形 -->
+  <line x1="20" y1="20" x2="80" y2="20" stroke="black" stroke-width="3"/>
+  <line x1="20" y1="20" x2="20" y2="80" stroke="black" stroke-width="3"/>
+  <line x1="80" y1="20" x2="80" y2="80" stroke="black" stroke-width="3"/>
+  <line x1="20" y1="80" x2="80" y2="80" stroke="black" stroke-width="3"/>
   
-  <!-- 瓦の上部 -->
-  <line x1="20" y1="20" x2="50" y2="10" stroke="black" stroke-width="5"/>
-  <line x1="50" y1="10" x2="80" y2="20" stroke="black" stroke-width="5"/>
+  <!-- 中央の縦線 -->
+  <line x1="50" y1="20" x2="50" y2="80" stroke="black" stroke-width="3"/>
   
-  <!-- 斜めの線 -->
-  <line x1="30" y1="60" x2="50" y2="30" stroke="black" stroke-width="5"/>
-  <line x1="70" y1="60" x2="50" y2="30" stroke="black" stroke-width="5"/>
+  <!-- 横線 -->
+  <line x1="35" y1="50" x2="65" y2="50" stroke="black" stroke-width="3"/>
   
-  <!-- 下部の横線 -->
-  <line x1="30" y1="80" x2="70" y2="80" stroke="black" stroke-width="5"/>
+  <!-- 上部の右の点 -->
+  <line x1="65" y1="20" x2="65" y2="35" stroke="black" stroke-width="3"/>
 </svg>
