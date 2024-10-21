@@ -1,0 +1,16 @@
+<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg">
+  <!-- 上部の横線 -->
+  <line x1="20" y1="20" x2="80" y2="20" stroke="black" stroke-width="3"/>
+  
+  <!-- 中央の縦線 -->
+  <line x1="50" y1="20" x2="50" y2="80" stroke="black" stroke-width="3"/>
+  
+  <!-- 左側の縦線 -->
+  <line x1="30" y1="40" x2="30" y2="80" stroke="black" stroke-width="3"/>
+  
+  <!-- 右側の縦線 -->
+  <line x1="70" y1="40" x2="70" y2="80" stroke="black" stroke-width="3"/>
+  
+  <!-- 下部の横線 -->
+  <line x1="20" y1="80" x2="80" y2="80" stroke="black" stroke-width="3"/>
+</svg>
