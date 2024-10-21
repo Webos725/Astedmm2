@@ -15,5 +15,5 @@
   <line x1="20" y1="80" x2="80" y2="80" stroke="black" stroke-width="3"/>
   
   <!-- 中央部の横線 -->
-  <line x1="20" y1="40" x2="40" y2="80" stroke="black" stroke-width="3"/>
+  <line x1="20" y1="40" x2="80" y2="40" stroke="black" stroke-width="3"/>
 </svg>
