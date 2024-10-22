@@ -54,32 +54,43 @@
                                 return;
                             }
 
-                            // SVG パスを解析して OpenType.js 用のパスに変換
-                            const paths = Array.from(svgElement.querySelectorAll('line, circle, rect, path')).map(child => {
-                                if (child.tagName === 'line') {
-                                    const x1 = parseFloat(child.getAttribute("x1"));
-                                    const y1 = parseFloat(child.getAttribute("y1"));
-                                    const x2 = parseFloat(child.getAttribute("x2"));
-                                    const y2 = parseFloat(child.getAttribute("y2"));
-                                    return `M${x1},${y1} L${x2},${y2}`;
-                                } else if (child.tagName === 'circle') {
-                                    const cx = parseFloat(child.getAttribute("cx"));
-                                    const cy = parseFloat(child.getAttribute("cy"));
-                                    const r = parseFloat(child.getAttribute("r"));
-                                    return `M${cx - r},${cy} A${r},${r} 0 1,0 ${cx + r},${cy} A${r},${r} 0 1,0 ${cx - r},${cy} Z`;
-                                } else if (child.tagName === 'rect') {
-                                    const x = parseFloat(child.getAttribute("x"));
-                                    const y = parseFloat(child.getAttribute("y"));
-                                    const width = parseFloat(child.getAttribute("width"));
-                                    const height = parseFloat(child.getAttribute("height"));
-                                    return `M${x},${y} H${x + width} V${y + height} H${x} Z`;
-                                } else if (child.tagName === 'path') {
-                                    return child.getAttribute('d');
+                            const paths = [];
+                            svgElement.querySelectorAll('line, circle, rect, path').forEach(child => {
+                                let pathData = '';
+                                switch (child.tagName) {
+                                    case 'line':
+                                        const x1 = parseFloat(child.getAttribute("x1"));
+                                        const y1 = parseFloat(child.getAttribute("y1"));
+                                        const x2 = parseFloat(child.getAttribute("x2"));
+                                        const y2 = parseFloat(child.getAttribute("y2"));
+                                        pathData = `M${x1},${y1} L${x2},${y2}`;
+                                        break;
+                                    case 'circle':
+                                        const cx = parseFloat(child.getAttribute("cx"));
+                                        const cy = parseFloat(child.getAttribute("cy"));
+                                        const r = parseFloat(child.getAttribute("r"));
+                                        pathData = `M${cx - r},${cy} A${r},${r} 0 1,0 ${cx + r},${cy} A${r},${r} 0 1,0 ${cx - r},${cy} Z`;
+                                        break;
+                                    case 'rect':
+                                        const x = parseFloat(child.getAttribute("x"));
+                                        const y = parseFloat(child.getAttribute("y"));
+                                        const width = parseFloat(child.getAttribute("width"));
+                                        const height = parseFloat(child.getAttribute("height"));
+                                        pathData = `M${x},${y} H${x + width} V${y + height} H${x} Z`;
+                                        break;
+                                    case 'path':
+                                        pathData = child.getAttribute('d');
+                                        break;
+                                    default:
+                                        console.warn(`未対応の要素: ${child.tagName}`);
+                                        return;
                                 }
-                            }).join(" ");
+                                if (pathData) paths.push(pathData);
+                            });
 
-                            // OpenType.js 用の Path オブジェクトを生成
-                            const opentypePath = parseSVGPath(paths);
+                            // パスデータから1つのパスにまとめる
+                            const fullPath = paths.join(" ");
+                            const opentypePath = parseSVGPath(fullPath); // SVGパスをパースするカスタム関数を使用
 
                             // グリフを作成
                             const glyph = new opentype.Glyph({
@@ -116,6 +127,8 @@
                 familyName: 'CustomFont',
                 styleName: 'Regular',
                 unitsPerEm: 1000,
+                ascender: 800, // 必須プロパティ
+                descender: -200, // 必須プロパティ
                 glyphs: glyphs
             });
 
@@ -134,7 +147,10 @@
 
         function parseSVGPath(pathData) {
             const path = new opentype.Path();
-            const commands = pathData.split(/(?=[MLAHVZCSQ])/); // コマンドで分割
+            const commands = pathData.split(/(?=[MLAHSQCTZ])/); // コマンドで分割
+
+            let currentX = 0;
+            let currentY = 0;
 
             commands.forEach(command => {
                 const type = command[0];
@@ -142,38 +158,117 @@
 
                 switch (type) {
                     case 'M': // Move to
-                        path.moveTo(args[0], args[1]);
+                        currentX = args[0];
+                        currentY = args[1];
+                        path.moveTo(currentX, currentY);
                         break;
                     case 'L': // Line to
-                        path.lineTo(args[0], args[1]);
+                        currentX = args[0];
+                        currentY = args[1];
+                        path.lineTo(currentX, currentY);
                         break;
                     case 'H': // Horizontal line to
-                        path.lineTo(args[0], path.currentY);
+                        currentX = args[0];
+                        path.lineTo(currentX, currentY);
                         break;
                     case 'V': // Vertical line to
-                        path.lineTo(path.currentX, args[0]);
+                        currentY = args[0];
+                        path.lineTo(currentX, currentY);
                         break;
                     case 'C': // Cubic Bezier curve
                         path.bezierCurveTo(args[0], args[1], args[2], args[3], args[4], args[5]);
+                        currentX = args[4];
+                        currentY = args[5];
                         break;
-                    case 'S': // Smooth cubic Bezier curve
-                        path.bezierCurveTo(args[0], args[1], args[2], args[3], path.currentX, path.currentY);
+                    case 'Q': // Quadratic Bezier curve (相対コマンド)
+                        const qX1 = currentX + args[0];
+                        const qY1 = currentY + args[1];
+                        const qX2 = currentX + args[2];
+                        const qY2 = currentY + args[3];
+                        path.quadraticCurveTo(qX1, qY1, qX2, qY2);
+                        currentX = qX2;
+                        currentY = qY2;
                         break;
-                    case 'Q': // Quadratic Bezier curve
-                        path.quadraticCurveTo(args[0], args[1], args[2], args[3]);
-                        break;
-                    case 'T': // Smooth quadratic Bezier curve
-                        path.quadraticCurveTo(path.currentX, path.currentY, args[0], args[1]);
-                        break;
-                    case 'A': // Arc to
-                        const [rx, ry, xAxisRotation, largeArcFlag, sweepFlag, x, y] = args;
-                        path.arcTo(rx, ry, xAxisRotation, largeArcFlag, sweepFlag, x, y);
+                    case 'A': // Arc (相対コマンド)
+                        const rx = args[0]; // x軸半径
+                        const ry = args[1]; // y軸半径
+                        const xAxisRotation = args[2]; // x軸回転角
+                        const largeArcFlag = args[3]; // 大弧フラグ
+                        const sweepFlag = args[4]; // スイープフラグ
+                        const x = currentX + args[5]; // 終点x
+                        const y = currentY + args[6]; // 終点y
+
+                        // 円弧を描く
+                        const startX = currentX;
+                        const startY = currentY;
+
+                        const angle = xAxisRotation * (Math.PI / 180); // ラジアンに変換
+                        const sinAngle = Math.sin(angle);
+                        const cosAngle = Math.cos(angle);
+
+                        // 変換行列を適用して座標を計算
+                        const x1 = cosAngle * (startX - x) / 2 + sinAngle * (startY - y) / 2;
+                        const y1 = -sinAngle * (startX - x) / 2 + cosAngle * (startY - y) / 2;
+
+                        // 縦半径と横半径を適用
+                        const rx2 = rx * rx;
+                        const ry2 = ry * ry;
+                        const x1x1 = x1 * x1;
+                        const y1y1 = y1 * y1;
+                        const radiiCheck = x1x1 / rx2 + y1y1 / ry2;
+
+                        if (radiiCheck > 1) {
+                            // 半径を調整
+                            rx = Math.sqrt(radiiCheck) * rx;
+                            ry = Math.sqrt(radiiCheck) * ry;
+                        }
+
+                        const centerX = (startX + x) / 2;
+                        const centerY = (startY + y) / 2;
+
+                        // 円弧のコントロールポイントを計算
+                        const ux = (startX - centerX) / rx;
+                        const uy = (startY - centerY) / ry;
+                        const vx = (x - centerX) / rx;
+                        const vy = (y - centerY) / ry;
+
+                        const q = (ux * ux + uy * uy) ** 0.5;
+                        const p = (vx * vx + vy * vy) ** 0.5;
+
+                        const angleStart = Math.atan2(uy, ux);
+                        const angleEnd = Math.atan2(vy, vx);
+                        let deltaAngle = angleEnd - angleStart;
+
+                        if (largeArcFlag === 1 && deltaAngle < 0) {
+                            deltaAngle += Math.PI * 2;
+                        } else if (largeArcFlag === 0 && deltaAngle > 0) {
+                            deltaAngle -= Math.PI * 2;
+                        }
+
+                        // 円弧を描く
+                        const steps = 10; // 分割数
+                        for (let i = 0; i <= steps; i++) {
+                            const t = i / steps;
+                            const angleCurrent = angleStart + t * deltaAngle;
+                            const xCurrent = centerX + rx * Math.cos(angleCurrent) * cosAngle - ry * Math.sin(angleCurrent) * sinAngle;
+                            const yCurrent = centerY + rx * Math.cos(angleCurrent) * sinAngle + ry * Math.sin(angleCurrent) * cosAngle;
+
+                            if (i === 0) {
+                                path.moveTo(xCurrent, yCurrent);
+                            } else {
+                                path.lineTo(xCurrent, yCurrent);
+                            }
+                        }
+
+                        currentX = x;
+                        currentY = y;
                         break;
                     case 'Z': // Close path
                         path.close();
                         break;
                     default:
                         console.warn(`未対応のコマンド: ${type}`);
+                        break;
                 }
             });
 
