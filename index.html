@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVG to Font Converter</title>
+</head>
+<body>
+    <h1>SVG to Font Converter</h1>
+
+    <!-- ファイルをアップロードするためのインプット -->
+    <input type="file" id="svgFiles" multiple accept=".svg">
+    <button id="convertButton">フォントに変換してダウンロード</button>
+    <a id="downloadLink" style="display:none;">フォントをダウンロード</a>
+
+    <script src="https://cdn.jsdelivr.net/npm/opentype.js@latest"></script>
+    <script>
+        document.getElementById('convertButton').addEventListener('click', function () {
+            const input = document.getElementById('svgFiles');
+            const files = input.files;
+
+            if (files.length === 0) {
+                alert('SVGファイルを選択してください');
+                return;
+            }
+
+            const glyphs = [];
+            let fontSlot = 0x4E00; // UnicodeのCJK統合漢字領域を使用
+
+            // ファイルごとに処理
+            Array.from(files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    const svgData = event.target.result;
+
+                    // SVGデータからパスデータを抽出してグリフを作成
+                    const path = new Path2D(svgData);
+                    const opentypePath = opentype.Path.fromSVG(path.toString());
+
+                    const glyph = new opentype.Glyph({
+                        name: file.name.split('.')[0], // ファイル名をグリフ名に
+                        unicode: fontSlot++, // Unicodeスロットを割り当て
+                        advanceWidth: 1000, // グリフ幅
+                        path: opentypePath
+                    });
+
+                    glyphs.push(glyph);
+
+                    // すべてのファイルが処理されたらフォントを作成
+                    if (glyphs.length === files.length) {
+                        createFont(glyphs);
+                    }
+                };
+                reader.readAsText(file);
+            });
+        });
+
+        function createFont(glyphs) {
+            const font = new opentype.Font({
+                familyName: 'CustomFont',
+                styleName: 'Regular',
+                unitsPerEm: 1000,
+                glyphs: glyphs
+            });
+
+            // フォントデータをバッファに変換
+            const fontData = font.toArrayBuffer();
+            const blob = new Blob([fontData], { type: 'font/otf' });
+            const url = URL.createObjectURL(blob);
+
+            // ダウンロードリンクを設定して表示
+            const downloadLink = document.getElementById('downloadLink');
+            downloadLink.href = url;
+            downloadLink.download = 'custom-font.otf';
+            downloadLink.style.display = 'block';
+            downloadLink.innerText = 'フォントをダウンロード';
+        }
+    </script>
+</body>
+</html>
