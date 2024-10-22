@@ -54,27 +54,42 @@
                                 return;
                             }
 
-                            const paths = [];
-                            svgElement.querySelectorAll('path').forEach(child => {
-                                const pathData = child.getAttribute('d');
-                                if (pathData) {
-                                    // fromSVGを使ってPathオブジェクトを作成
-                                    const opentypePath = opentype.Path.fromSVG(pathData);
-                                    paths.push(opentypePath);
+                            // SVG パスを解析して OpenType.js 用のパスに変換
+                            const pathData = Array.from(svgElement.querySelectorAll('line, circle, rect, path')).map(child => {
+                                if (child.tagName === 'line') {
+                                    const x1 = parseFloat(child.getAttribute("x1"));
+                                    const y1 = parseFloat(child.getAttribute("y1"));
+                                    const x2 = parseFloat(child.getAttribute("x2"));
+                                    const y2 = parseFloat(child.getAttribute("y2"));
+                                    return `M${x1},${y1} L${x2},${y2}`;
+                                } else if (child.tagName === 'circle') {
+                                    const cx = parseFloat(child.getAttribute("cx"));
+                                    const cy = parseFloat(child.getAttribute("cy"));
+                                    const r = parseFloat(child.getAttribute("r"));
+                                    return `M${cx - r},${cy} A${r},${r} 0 1,0 ${cx + r},${cy} A${r},${r} 0 1,0 ${cx - r},${cy} Z`;
+                                } else if (child.tagName === 'rect') {
+                                    const x = parseFloat(child.getAttribute("x"));
+                                    const y = parseFloat(child.getAttribute("y"));
+                                    const width = parseFloat(child.getAttribute("width"));
+                                    const height = parseFloat(child.getAttribute("height"));
+                                    return `M${x},${y} H${x + width} V${y + height} H${x} Z`;
+                                } else if (child.tagName === 'path') {
+                                    return child.getAttribute('d');
                                 }
-                            });
+                            }).join(" ");
+
+                            // OpenType.js 用の Path オブジェクトを生成
+                            const opentypePath = opentype.Path.fromSVG(pathData);
 
                             // グリフを作成
-                            if (paths.length > 0) {
-                                const glyph = new opentype.Glyph({
-                                    name: file.name.split('.')[0],
-                                    unicode: fontSlot++, 
-                                    advanceWidth: 1000,
-                                    path: paths[0] // 最初のパスを使用
-                                });
+                            const glyph = new opentype.Glyph({
+                                name: file.name.split('.')[0],
+                                unicode: fontSlot++, 
+                                advanceWidth: 1000,
+                                path: opentypePath
+                            });
 
-                                glyphs.push(glyph);
-                            }
+                            glyphs.push(glyph);
                         } catch (error) {
                             console.error(`ファイル ${file.name} の処理中にエラーが発生しました:`, error);
                         }
