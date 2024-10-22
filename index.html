@@ -8,19 +8,19 @@
 <body>
     <h1>SVG to Font Converter</h1>
 
-    <!-- ファイルをアップロードするためのインプット -->
-    <input type="file" id="svgFiles" multiple accept=".svg">
+    <!-- フォルダをアップロードするためのインプット -->
+    <input type="file" id="svgFolder" webkitdirectory multiple accept=".svg">
     <button id="convertButton">フォントに変換してダウンロード</button>
     <a id="downloadLink" style="display:none;">フォントをダウンロード</a>
 
     <script src="https://cdn.jsdelivr.net/npm/opentype.js@latest"></script>
     <script>
         document.getElementById('convertButton').addEventListener('click', function () {
-            const input = document.getElementById('svgFiles');
+            const input = document.getElementById('svgFolder');
             const files = input.files;
 
             if (files.length === 0) {
-                alert('SVGファイルを選択してください');
+                alert('SVGファイルを含むフォルダを選択してください');
                 return;
             }
 
