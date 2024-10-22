@@ -55,7 +55,7 @@
                             }
 
                             const paths = [];
-                            svgElement.querySelectorAll('line, circle, rect, path').forEach(child => {
+                            svgElement.querySelectorAll('line, circle, rect, path, ellipse').forEach(child => {
                                 let pathData = '';
                                 switch (child.tagName) {
                                     case 'line':
@@ -77,6 +77,13 @@
                                         const width = parseFloat(child.getAttribute("width"));
                                         const height = parseFloat(child.getAttribute("height"));
                                         pathData = `M${x},${y} H${x + width} V${y + height} H${x} Z`;
+                                        break;
+                                    case 'ellipse':
+                                        const ex = parseFloat(child.getAttribute("cx"));
+                                        const ey = parseFloat(child.getAttribute("cy"));
+                                        const rx = parseFloat(child.getAttribute("rx"));
+                                        const ry = parseFloat(child.getAttribute("ry"));
+                                        pathData = `M${ex - rx},${ey} A${rx},${ry} 0 1,0 ${ex + rx},${ey} A${rx},${ry} 0 1,0 ${ex - rx},${ey} Z`;
                                         break;
                                     case 'path':
                                         pathData = child.getAttribute('d');
@@ -180,6 +187,32 @@
                     case 'Z': // Close path
                         path.close();
                         break;
+                    case 'A': // Elliptical Arc
+                        const rx = args[0];
+                        const ry = args[1];
+                        const xAxisRotation = args[2];
+                        const largeArcFlag = args[3];
+                        const sweepFlag = args[4];
+                        const x = args[5];
+                        const y = args[6];
+
+                        // Elliptical Arc の座標変換
+                        const startX = path.currentX;
+                        const startY = path.currentY;
+
+                        // Aコマンドを使って楕円弧を描画
+                        const x1 = startX + Math.cos(xAxisRotation) * rx;
+                        const y1 = startY + Math.sin(xAxisRotation) * ry;
+
+                        if (largeArcFlag) {
+                            path.curveTo(x1, y1, x, y);
+                        } else {
+                            path.lineTo(x1, y1);
+                        }
+
+                        path.lineTo(x, y);
+                        break;
+
                     default:
                         console.warn(`未対応のコマンド: ${type}`);
                 }
