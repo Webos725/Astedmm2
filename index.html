@@ -130,8 +130,17 @@
                 glyphs: glyphs
             });
 
-            // フォントデータをバッファに変換しダウンロード
-            font.download();
+            // フォントデータをバイナリに変換し、Blobを生成
+            const fontData = font.toArrayBuffer();
+            const blob = new Blob([fontData], { type: 'font/ttf' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'custom_font.ttf';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
         }
 
         function parseSVGPath(pathData) {
