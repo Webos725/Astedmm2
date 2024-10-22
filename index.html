@@ -11,7 +11,6 @@
     <!-- フォルダをアップロードするためのインプット -->
     <input type="file" id="svgFolder" webkitdirectory multiple accept=".svg">
     <button id="convertButton">フォントに変換してダウンロード</button>
-    <a id="downloadLink" style="display:none;">フォントをダウンロード</a>
 
     <script src="https://cdn.jsdelivr.net/npm/opentype.js@latest"></script>
     <script>
@@ -39,44 +38,50 @@
                             const svgDoc = parser.parseFromString(svgData, "image/svg+xml");
                             const paths = [];
 
-                            // path要素を取得
-                            svgDoc.querySelectorAll('path').forEach(path => {
-                                const d = path.getAttribute("d");
-                                if (d) {
-                                    paths.push(d);
+                            // SVG全体の内容を取得
+                            const svgElement = svgDoc.querySelector('svg');
+                            if (!svgElement) {
+                                console.error(`ファイル ${file.name} に <svg> 要素が見つかりません`);
+                                return;
+                            }
+
+                            // SVG内のすべての子要素を取得
+                            svgElement.querySelectorAll('*').forEach(child => {
+                                let pathData = '';
+                                switch (child.tagName) {
+                                    case 'path':
+                                        pathData = child.getAttribute("d");
+                                        break;
+                                    case 'line':
+                                        const x1 = parseFloat(child.getAttribute("x1"));
+                                        const y1 = parseFloat(child.getAttribute("y1"));
+                                        const x2 = parseFloat(child.getAttribute("x2"));
+                                        const y2 = parseFloat(child.getAttribute("y2"));
+                                        pathData = `M${x1},${y1} L${x2},${y2}`;
+                                        break;
+                                    case 'rect':
+                                        const x = parseFloat(child.getAttribute("x"));
+                                        const y = parseFloat(child.getAttribute("y"));
+                                        const width = parseFloat(child.getAttribute("width"));
+                                        const height = parseFloat(child.getAttribute("height"));
+                                        pathData = `M${x},${y} H${x + width} V${y + height} H${x} Z`;
+                                        break;
+                                    case 'circle':
+                                        const cx = parseFloat(child.getAttribute("cx"));
+                                        const cy = parseFloat(child.getAttribute("cy"));
+                                        const r = parseFloat(child.getAttribute("r"));
+                                        pathData = `M${cx - r},${cy} A${r},${r} 0 1,0 ${cx + r},${cy} A${r},${r} 0 1,0 ${cx - r},${cy} Z`;
+                                        break;
+                                    // 他の要素が必要ならここに追加
+                                    default:
+                                        console.warn(`未対応の要素: ${child.tagName}`);
+                                        return; // 未対応要素は無視
                                 }
+                                if (pathData) paths.push(pathData); // パスデータを追加
                             });
 
-                            // line要素を取得
-                            svgDoc.querySelectorAll('line').forEach(line => {
-                                const x1 = parseFloat(line.getAttribute("x1"));
-                                const y1 = parseFloat(line.getAttribute("y1"));
-                                const x2 = parseFloat(line.getAttribute("x2"));
-                                const y2 = parseFloat(line.getAttribute("y2"));
-                                paths.push(`M${x1},${y1} L${x2},${y2}`);
-                            });
-
-                            // rect要素を取得
-                            svgDoc.querySelectorAll('rect').forEach(rect => {
-                                const x = parseFloat(rect.getAttribute("x"));
-                                const y = parseFloat(rect.getAttribute("y"));
-                                const width = parseFloat(rect.getAttribute("width"));
-                                const height = parseFloat(rect.getAttribute("height"));
-                                paths.push(`M${x},${y} H${x + width} V${y + height} H${x} Z`);
-                            });
-
-                            // circle要素を取得
-                            svgDoc.querySelectorAll('circle').forEach(circle => {
-                                const cx = parseFloat(circle.getAttribute("cx"));
-                                const cy = parseFloat(circle.getAttribute("cy"));
-                                const r = parseFloat(circle.getAttribute("r"));
-                                paths.push(`M${cx - r},${cy} A${r},${r} 0 1,0 ${cx + r},${cy} A${r},${r} 0 1,0 ${cx - r},${cy} Z`);
-                            });
-
-                            // パスを一つにまとめる
+                            // パスデータから1つのパスにまとめる
                             const fullPath = paths.join(" ");
-
-                            // パスデータからOpentype.jsのパスを作成
                             const opentypePath = opentype.Path.fromSVG(fullPath);
 
                             // グリフを作成
