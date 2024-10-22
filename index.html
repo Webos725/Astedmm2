@@ -147,7 +147,7 @@
 
         function parseSVGPath(pathData) {
             const path = new opentype.Path();
-            const commands = pathData.split(/(?=[MLAHSQCTZ])/); // コマンドで分割
+            const commands = pathData.split(/(?=[MLAHSCQZ])/); // コマンドで分割
 
             let currentX = 0;
             let currentY = 0;
@@ -180,99 +180,42 @@
                         currentX = args[4];
                         currentY = args[5];
                         break;
-                    case 'Q': // Quadratic Bezier curve (相対コマンド)
-                        const qX1 = currentX + args[0];
-                        const qY1 = currentY + args[1];
-                        const qX2 = currentX + args[2];
-                        const qY2 = currentY + args[3];
-                        path.quadraticCurveTo(qX1, qY1, qX2, qY2);
-                        currentX = qX2;
-                        currentY = qY2;
+                    case 'Q': // Quadratic Bezier curve
+                        const cx = currentX + args[0];
+                        const cy = currentY + args[1];
+                        path.quadraticCurveTo(cx, cy, args[2], args[3]);
+                        currentX = args[2];
+                        currentY = args[3];
                         break;
-                    case 'A': // Arc (相対コマンド)
-                        const rx = args[0]; // x軸半径
-                        const ry = args[1]; // y軸半径
-                        const xAxisRotation = args[2]; // x軸回転角
-                        const largeArcFlag = args[3]; // 大弧フラグ
-                        const sweepFlag = args[4]; // スイープフラグ
-                        const x = currentX + args[5]; // 終点x
-                        const y = currentY + args[6]; // 終点y
-
-                        // 円弧を描く
-                        const startX = currentX;
-                        const startY = currentY;
-
-                        const angle = xAxisRotation * (Math.PI / 180); // ラジアンに変換
-                        const sinAngle = Math.sin(angle);
-                        const cosAngle = Math.cos(angle);
-
-                        // 変換行列を適用して座標を計算
-                        const x1 = cosAngle * (startX - x) / 2 + sinAngle * (startY - y) / 2;
-                        const y1 = -sinAngle * (startX - x) / 2 + cosAngle * (startY - y) / 2;
-
-                        // 縦半径と横半径を適用
-                        const rx2 = rx * rx;
-                        const ry2 = ry * ry;
-                        const x1x1 = x1 * x1;
-                        const y1y1 = y1 * y1;
-                        const radiiCheck = x1x1 / rx2 + y1y1 / ry2;
-
-                        if (radiiCheck > 1) {
-                            // 半径を調整
-                            rx = Math.sqrt(radiiCheck) * rx;
-                            ry = Math.sqrt(radiiCheck) * ry;
-                        }
-
-                        const centerX = (startX + x) / 2;
-                        const centerY = (startY + y) / 2;
-
-                        // 円弧のコントロールポイントを計算
-                        const ux = (startX - centerX) / rx;
-                        const uy = (startY - centerY) / ry;
-                        const vx = (x - centerX) / rx;
-                        const vy = (y - centerY) / ry;
-
-                        const q = (ux * ux + uy * uy) ** 0.5;
-                        const p = (vx * vx + vy * vy) ** 0.5;
-
-                        const angleStart = Math.atan2(uy, ux);
-                        const angleEnd = Math.atan2(vy, vx);
-                        let deltaAngle = angleEnd - angleStart;
-
-                        if (largeArcFlag === 1 && deltaAngle < 0) {
-                            deltaAngle += Math.PI * 2;
-                        } else if (largeArcFlag === 0 && deltaAngle > 0) {
-                            deltaAngle -= Math.PI * 2;
-                        }
-
-                        // 円弧を描く
-                        const steps = 10; // 分割数
-                        for (let i = 0; i <= steps; i++) {
-                            const t = i / steps;
-                            const angleCurrent = angleStart + t * deltaAngle;
-                            const xCurrent = centerX + rx * Math.cos(angleCurrent) * cosAngle - ry * Math.sin(angleCurrent) * sinAngle;
-                            const yCurrent = centerY + rx * Math.cos(angleCurrent) * sinAngle + ry * Math.sin(angleCurrent) * cosAngle;
-
-                            if (i === 0) {
-                                path.moveTo(xCurrent, yCurrent);
-                            } else {
-                                path.lineTo(xCurrent, yCurrent);
-                            }
-                        }
-
-                        currentX = x;
-                        currentY = y;
+                    case 'A': // Arc
+                        const [rx, ry, angle, largeArcFlag, sweepFlag, x2, y2] = args;
+                        // アークをベジェ曲線に変換する処理
+                        const curves = arcToBezier(currentX, currentY, rx, ry, angle, largeArcFlag, sweepFlag, x2, y2);
+                        curves.forEach(curve => {
+                            path.bezierCurveTo(curve.x1, curve.y1, curve.x2, curve.y2, curve.x2, curve.y2);
+                        });
+                        currentX = x2;
+                        currentY = y2;
                         break;
                     case 'Z': // Close path
                         path.close();
                         break;
                     default:
-                        console.warn(`未対応のコマンド: ${type}`);
-                        break;
+                        console.warn(`未対応のパスコマンド: ${type}`);
                 }
             });
 
             return path;
+        }
+
+        // ベジェ曲線にアークを変換する補助関数
+        function arcToBezier(x1, y1, rx, ry, xAxisRotation, largeArcFlag, sweepFlag, x2, y2) {
+            const curves = [];
+            // アークの変換処理をここに実装
+            // 単純な2セグメントのベジェ曲線を例として追加
+            curves.push({ x1, y1, x2: (x1 + x2) / 2, y2: (y1 + y2) / 2 });
+            curves.push({ x1: (x1 + x2) / 2, y1: (y1 + y2) / 2, x2, y2 });
+            return curves;
         }
     </script>
 </body>
