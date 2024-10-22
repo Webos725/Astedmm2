@@ -55,59 +55,26 @@
                             }
 
                             const paths = [];
-                            svgElement.querySelectorAll('line, circle, rect, path, ellipse').forEach(child => {
-                                let pathData = '';
-                                switch (child.tagName) {
-                                    case 'line':
-                                        const x1 = parseFloat(child.getAttribute("x1"));
-                                        const y1 = parseFloat(child.getAttribute("y1"));
-                                        const x2 = parseFloat(child.getAttribute("x2"));
-                                        const y2 = parseFloat(child.getAttribute("y2"));
-                                        pathData = `M${x1},${y1} L${x2},${y2}`;
-                                        break;
-                                    case 'circle':
-                                        const cx = parseFloat(child.getAttribute("cx"));
-                                        const cy = parseFloat(child.getAttribute("cy"));
-                                        const r = parseFloat(child.getAttribute("r"));
-                                        pathData = `M${cx - r},${cy} A${r},${r} 0 1,0 ${cx + r},${cy} A${r},${r} 0 1,0 ${cx - r},${cy} Z`;
-                                        break;
-                                    case 'rect':
-                                        const x = parseFloat(child.getAttribute("x"));
-                                        const y = parseFloat(child.getAttribute("y"));
-                                        const width = parseFloat(child.getAttribute("width"));
-                                        const height = parseFloat(child.getAttribute("height"));
-                                        pathData = `M${x},${y} H${x + width} V${y + height} H${x} Z`;
-                                        break;
-                                    case 'ellipse':
-                                        const ex = parseFloat(child.getAttribute("cx"));
-                                        const ey = parseFloat(child.getAttribute("cy"));
-                                        const rx = parseFloat(child.getAttribute("rx"));
-                                        const ry = parseFloat(child.getAttribute("ry"));
-                                        pathData = `M${ex - rx},${ey} A${rx},${ry} 0 1,0 ${ex + rx},${ey} A${rx},${ry} 0 1,0 ${ex - rx},${ey} Z`;
-                                        break;
-                                    case 'path':
-                                        pathData = child.getAttribute('d');
-                                        break;
-                                    default:
-                                        console.warn(`未対応の要素: ${child.tagName}`);
-                                        return;
+                            svgElement.querySelectorAll('path').forEach(child => {
+                                const pathData = child.getAttribute('d');
+                                if (pathData) {
+                                    // fromSVGを使ってPathオブジェクトを作成
+                                    const opentypePath = opentype.Path.fromSVG(pathData);
+                                    paths.push(opentypePath);
                                 }
-                                if (pathData) paths.push(pathData);
                             });
-
-                            // パスデータから1つのパスにまとめる
-                            const fullPath = paths.join(" ");
-                            const opentypePath = parseSVGPath(fullPath); // SVGパスをパースするカスタム関数を使用
 
                             // グリフを作成
-                            const glyph = new opentype.Glyph({
-                                name: file.name.split('.')[0],
-                                unicode: fontSlot++, 
-                                advanceWidth: 1000,
-                                path: opentypePath
-                            });
+                            if (paths.length > 0) {
+                                const glyph = new opentype.Glyph({
+                                    name: file.name.split('.')[0],
+                                    unicode: fontSlot++, 
+                                    advanceWidth: 1000,
+                                    path: paths[0] // 最初のパスを使用
+                                });
 
-                            glyphs.push(glyph);
+                                glyphs.push(glyph);
+                            }
                         } catch (error) {
                             console.error(`ファイル ${file.name} の処理中にエラーが発生しました:`, error);
                         }
@@ -148,77 +115,6 @@
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
-        }
-
-        function parseSVGPath(pathData) {
-            // SVGパスを解析してopentype.js用のPathオブジェクトを生成する
-            const path = new opentype.Path();
-            const commands = pathData.split(/(?=[MLAHSQCTZ])/); // コマンドで分割
-
-            commands.forEach(command => {
-                const type = command[0];
-                const args = command.slice(1).trim().split(/[\s,]+/).map(Number);
-
-                switch (type) {
-                    case 'M': // Move to
-                        path.moveTo(args[0], args[1]);
-                        break;
-                    case 'L': // Line to
-                        path.lineTo(args[0], args[1]);
-                        break;
-                    case 'H': // Horizontal line to
-                        path.lineTo(args[0], path.currentY);
-                        break;
-                    case 'V': // Vertical line to
-                        path.lineTo(path.currentX, args[0]);
-                        break;
-                    case 'C': // Cubic Bezier curve
-                        path.bezierCurveTo(args[0], args[1], args[2], args[3], args[4], args[5]);
-                        break;
-                    case 'S': // Smooth cubic Bezier curve
-                        path.bezierCurveTo(args[0], args[1], args[2], args[3], path.currentX, path.currentY);
-                        break;
-                    case 'Q': // Quadratic Bezier curve
-                        path.quadraticCurveTo(args[0], args[1], args[2], args[3]);
-                        break;
-                    case 'T': // Smooth quadratic Bezier curve
-                        path.quadraticCurveTo(path.currentX, path.currentY, args[0], args[1]);
-                        break;
-                    case 'Z': // Close path
-                        path.close();
-                        break;
-                    case 'A': // Elliptical Arc
-                        const rx = args[0];
-                        const ry = args[1];
-                        const xAxisRotation = args[2];
-                        const largeArcFlag = args[3];
-                        const sweepFlag = args[4];
-                        const x = args[5];
-                        const y = args[6];
-
-                        // Elliptical Arc の座標変換
-                        const startX = path.currentX;
-                        const startY = path.currentY;
-
-                        // Aコマンドを使って楕円弧を描画
-                        const x1 = startX + Math.cos(xAxisRotation) * rx;
-                        const y1 = startY + Math.sin(xAxisRotation) * ry;
-
-                        if (largeArcFlag) {
-                            path.curveTo(x1, y1, x, y);
-                        } else {
-                            path.lineTo(x1, y1);
-                        }
-
-                        path.lineTo(x, y);
-                        break;
-
-                    default:
-                        console.warn(`未対応のコマンド: ${type}`);
-                }
-            });
-
-            return path;
         }
     </script>
 </body>
