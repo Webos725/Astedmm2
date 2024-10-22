@@ -7,28 +7,39 @@
 </head>
 <body>
     <h1>SVG to Font Converter</h1>
-
-    <!-- フォルダをアップロードするためのインプット -->
-    <input type="file" id="svgFolder" webkitdirectory multiple accept=".svg">
+    
+    <input type="file" id="svgFiles" webkitdirectory multiple accept=".svg">
     <button id="convertButton">フォントに変換してダウンロード</button>
+    <div id="fileList"></div>
 
-    <script src="https://cdn.jsdelivr.net/npm/opentype.js@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/opentype.js/0.6.5/opentype.min.js" integrity="sha512-bRz6QInwm6Dnvgt0oVNbSjs0eyLXmAttb8t/jZWbBTTnUrs0O3HtNYE6pf3K0gO5RwUJZ50OzJcIiYi8lWj7EA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
+        const fileListDiv = document.getElementById('fileList');
+        const glyphs = [];
+        let fontSlot = 0x4E00; // Unicodeの開始点
+
+        document.getElementById('svgFiles').addEventListener('change', function () {
+            fileListDiv.innerHTML = ''; // アップロードされたファイルリストをリセット
+            Array.from(this.files).forEach(file => {
+                const listItem = document.createElement('div');
+                listItem.textContent = file.name;
+                fileListDiv.appendChild(listItem);
+            });
+        });
+
         document.getElementById('convertButton').addEventListener('click', function () {
-            const input = document.getElementById('svgFolder');
+            const input = document.getElementById('svgFiles');
             const files = input.files;
 
             if (files.length === 0) {
-                alert('SVGファイルを含むフォルダを選択してください');
+                alert('SVGファイルを選択してください');
                 return;
             }
 
-            const glyphs = [];
-            let fontSlot = 0x4E00; // UnicodeのCJK統合漢字領域を使用
             let filesProcessed = 0;
 
             Array.from(files).forEach(file => {
-                if (file.type === "image/svg+xml") { // SVGファイルのみ処理
+                if (file.type === "image/svg+xml") {
                     const reader = new FileReader();
                     reader.onload = function (event) {
                         const svgData = event.target.result;
@@ -36,28 +47,29 @@
                         try {
                             const parser = new DOMParser();
                             const svgDoc = parser.parseFromString(svgData, "image/svg+xml");
-                            const paths = [];
-
-                            // SVG全体の内容を取得
                             const svgElement = svgDoc.querySelector('svg');
+
                             if (!svgElement) {
                                 console.error(`ファイル ${file.name} に <svg> 要素が見つかりません`);
                                 return;
                             }
 
-                            // SVG内のすべての子要素を取得
-                            svgElement.querySelectorAll('*').forEach(child => {
+                            const paths = [];
+                            svgElement.querySelectorAll('line, circle, rect, path').forEach(child => {
                                 let pathData = '';
                                 switch (child.tagName) {
-                                    case 'path':
-                                        pathData = child.getAttribute("d");
-                                        break;
                                     case 'line':
                                         const x1 = parseFloat(child.getAttribute("x1"));
                                         const y1 = parseFloat(child.getAttribute("y1"));
                                         const x2 = parseFloat(child.getAttribute("x2"));
                                         const y2 = parseFloat(child.getAttribute("y2"));
                                         pathData = `M${x1},${y1} L${x2},${y2}`;
+                                        break;
+                                    case 'circle':
+                                        const cx = parseFloat(child.getAttribute("cx"));
+                                        const cy = parseFloat(child.getAttribute("cy"));
+                                        const r = parseFloat(child.getAttribute("r"));
+                                        pathData = `M${cx - r},${cy} A${r},${r} 0 1,0 ${cx + r},${cy} A${r},${r} 0 1,0 ${cx - r},${cy} Z`;
                                         break;
                                     case 'rect':
                                         const x = parseFloat(child.getAttribute("x"));
@@ -66,29 +78,25 @@
                                         const height = parseFloat(child.getAttribute("height"));
                                         pathData = `M${x},${y} H${x + width} V${y + height} H${x} Z`;
                                         break;
-                                    case 'circle':
-                                        const cx = parseFloat(child.getAttribute("cx"));
-                                        const cy = parseFloat(child.getAttribute("cy"));
-                                        const r = parseFloat(child.getAttribute("r"));
-                                        pathData = `M${cx - r},${cy} A${r},${r} 0 1,0 ${cx + r},${cy} A${r},${r} 0 1,0 ${cx - r},${cy} Z`;
+                                    case 'path':
+                                        pathData = child.getAttribute('d');
                                         break;
-                                    // 他の要素が必要ならここに追加
                                     default:
                                         console.warn(`未対応の要素: ${child.tagName}`);
-                                        return; // 未対応要素は無視
+                                        return;
                                 }
-                                if (pathData) paths.push(pathData); // パスデータを追加
+                                if (pathData) paths.push(pathData);
                             });
 
                             // パスデータから1つのパスにまとめる
                             const fullPath = paths.join(" ");
-                            const opentypePath = opentype.Path.fromSVG(fullPath);
+                            const opentypePath = parseSVGPath(fullPath); // SVGパスをパースするカスタム関数を使用
 
                             // グリフを作成
                             const glyph = new opentype.Glyph({
-                                name: file.name.split('.')[0], // ファイル名をグリフ名に
-                                unicode: fontSlot++, // Unicodeスロットを割り当て
-                                advanceWidth: 1000, // グリフ幅
+                                name: file.name.split('.')[0],
+                                unicode: fontSlot++, 
+                                advanceWidth: 1000,
                                 path: opentypePath
                             });
 
@@ -124,6 +132,51 @@
 
             // フォントデータをバッファに変換しダウンロード
             font.download();
+        }
+
+        function parseSVGPath(pathData) {
+            // SVGパスを解析してopentype.js用のPathオブジェクトを生成する
+            const path = new opentype.Path();
+            const commands = pathData.split(/(?=[MLAHSQCTZ])/); // コマンドで分割
+
+            commands.forEach(command => {
+                const type = command[0];
+                const args = command.slice(1).trim().split(/[\s,]+/).map(Number);
+
+                switch (type) {
+                    case 'M': // Move to
+                        path.moveTo(args[0], args[1]);
+                        break;
+                    case 'L': // Line to
+                        path.lineTo(args[0], args[1]);
+                        break;
+                    case 'H': // Horizontal line to
+                        path.lineTo(args[0], path.currentY);
+                        break;
+                    case 'V': // Vertical line to
+                        path.lineTo(path.currentX, args[0]);
+                        break;
+                    case 'C': // Cubic Bezier curve
+                        path.bezierCurveTo(args[0], args[1], args[2], args[3], args[4], args[5]);
+                        break;
+                    case 'S': // Smooth cubic Bezier curve
+                        path.bezierCurveTo(args[0], args[1], args[2], args[3], path.currentX, path.currentY);
+                        break;
+                    case 'Q': // Quadratic Bezier curve
+                        path.quadraticCurveTo(args[0], args[1], args[2], args[3]);
+                        break;
+                    case 'T': // Smooth quadratic Bezier curve
+                        path.quadraticCurveTo(path.currentX, path.currentY, args[0], args[1]);
+                        break;
+                    case 'Z': // Close path
+                        path.close();
+                        break;
+                    default:
+                        console.warn(`未対応のコマンド: ${type}`);
+                }
+            });
+
+            return path;
         }
     </script>
 </body>
