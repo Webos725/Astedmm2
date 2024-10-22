@@ -26,36 +26,53 @@
 
             const glyphs = [];
             let fontSlot = 0x4E00; // UnicodeのCJK統合漢字領域を使用
+            let filesProcessed = 0;
 
-            // ファイルごとに処理
             Array.from(files).forEach(file => {
-                const reader = new FileReader();
-                reader.onload = function (event) {
-                    const svgData = event.target.result;
+                if (file.type === "image/svg+xml") { // SVGファイルのみ処理
+                    const reader = new FileReader();
+                    reader.onload = function (event) {
+                        const svgData = event.target.result;
 
-                    // SVGデータからパスデータを抽出してグリフを作成
-                    const path = new Path2D(svgData);
-                    const opentypePath = opentype.Path.fromSVG(path.toString());
+                        // SVGデータからパスデータを抽出してグリフを作成
+                        try {
+                            const path = new DOMParser().parseFromString(svgData, "image/svg+xml");
+                            const svgPath = path.querySelector('path');
 
-                    const glyph = new opentype.Glyph({
-                        name: file.name.split('.')[0], // ファイル名をグリフ名に
-                        unicode: fontSlot++, // Unicodeスロットを割り当て
-                        advanceWidth: 1000, // グリフ幅
-                        path: opentypePath
-                    });
+                            if (svgPath) {
+                                const opentypePath = opentype.Path.fromSVG(svgPath.getAttribute("d"));
 
-                    glyphs.push(glyph);
+                                const glyph = new opentype.Glyph({
+                                    name: file.name.split('.')[0], // ファイル名をグリフ名に
+                                    unicode: fontSlot++, // Unicodeスロットを割り当て
+                                    advanceWidth: 1000, // グリフ幅
+                                    path: opentypePath
+                                });
 
-                    // すべてのファイルが処理されたらフォントを作成
-                    if (glyphs.length === files.length) {
-                        createFont(glyphs);
-                    }
-                };
-                reader.readAsText(file);
+                                glyphs.push(glyph);
+                            }
+                        } catch (error) {
+                            console.error('SVGのパスを解析できませんでした:', error);
+                        }
+
+                        filesProcessed++;
+                        if (filesProcessed === files.length) {
+                            createFont(glyphs);
+                        }
+                    };
+                    reader.readAsText(file);
+                } else {
+                    filesProcessed++;
+                }
             });
         });
 
         function createFont(glyphs) {
+            if (glyphs.length === 0) {
+                alert("フォントを作成するためのSVGファイルが見つかりませんでした。");
+                return;
+            }
+
             const font = new opentype.Font({
                 familyName: 'CustomFont',
                 styleName: 'Regular',
@@ -64,16 +81,7 @@
             });
 
             // フォントデータをバッファに変換
-            const fontData = font.toArrayBuffer();
-            const blob = new Blob([fontData], { type: 'font/otf' });
-            const url = URL.createObjectURL(blob);
-
-            // ダウンロードリンクを設定して表示
-            const downloadLink = document.getElementById('downloadLink');
-            downloadLink.href = url;
-            downloadLink.download = 'custom-font.otf';
-            downloadLink.style.display = 'block';
-            downloadLink.innerText = 'フォントをダウンロード';
+            font.download();
         }
     </script>
 </body>
