@@ -263,6 +263,7 @@ saveFontBtn.addEventListener('click', () => {
     }
 });
 
+// ここが修正済みの generateFont 関数です
 function generateFont() {
     const glyphsArray = [];
 
@@ -272,9 +273,11 @@ function generateFont() {
         g.entities.forEach(entity => {
             if (entity.path.length === 0) return;
             path.moveTo(entity.path[0].x + g.offsetX, entity.path[0].y + g.offsetY);
-            for (const pt of entity.path) {
+            for (let i = 1; i < entity.path.length; i++) {
+                const pt = entity.path[i];
                 path.lineTo(pt.x + g.offsetX, pt.y + g.offsetY);
             }
+            path.close();  // ここでパスを閉じます（重要）
         });
         const glyph = new opentype.Glyph({
             name: char,
