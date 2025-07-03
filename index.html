@@ -1,222 +1,314 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SVG to Font Converter</title>
+<meta charset="UTF-8">
+<title>完全版フォント作成ツール</title>
+<style>
+    body { font-family: sans-serif; margin: 20px; }
+    canvas { border: 1px solid #333; touch-action: none; }
+    #glyphList div { padding: 5px; border: 1px solid #ccc; margin: 2px; display: inline-block; cursor: pointer; }
+</style>
 </head>
 <body>
-    <h1>SVG to Font Converter</h1>
-    
-    <input type="file" id="svgFiles" webkitdirectory multiple accept=".svg">
-    <button id="convertButton">フォントに変換してダウンロード</button>
-    <div id="fileList"></div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/opentype.js/0.6.5/opentype.min.js" integrity="sha512-bRz6QInwm6Dnvgt0oVNbSjs0eyLXmAttb8t/jZWbBTTnUrs0O3HtNYE6pf3K0gO5RwUJZ50OzJcIiYi8lWj7EA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script>
-        const fileListDiv = document.getElementById('fileList');
-        const glyphs = [];
-        let fontSlot = 0x4E00; // Unicodeの開始点
+<h1>フォント作成ツール - 完全版</h1>
 
-        document.getElementById('svgFiles').addEventListener('change', function () {
-            fileListDiv.innerHTML = ''; // アップロードされたファイルリストをリセット
-            Array.from(this.files).forEach(file => {
-                const listItem = document.createElement('div');
-                listItem.textContent = file.name;
-                fileListDiv.appendChild(listItem);
-            });
+<canvas id="drawCanvas" width="300" height="300"></canvas><br>
+
+太さ: <input type="range" id="strokeWidth" min="1" max="10" value="3"><br>
+位置調整: X <input type="number" id="offsetX" value="0" style="width: 60px;"> 
+Y <input type="number" id="offsetY" value="0" style="width: 60px;"><br><br>
+
+追加する文字: <input type="text" id="charInput" maxlength="1" style="width: 50px;">
+<button id="addGlyph">グリフ追加</button><br><br>
+
+<h2>プリセット</h2>
+<input type="text" id="presetName" placeholder="プリセット名">
+<button id="savePreset">プリセット保存</button>
+<select id="presetSelect"></select>
+<button id="loadPreset">読み込み</button><br><br>
+
+<h2>グリフ一覧（タップで編集）</h2>
+<div id="glyphList"></div><br>
+
+<button id="saveFont">フォント生成＆ダウンロード</button>
+<button id="saveLocal">ローカル保存</button>
+<button id="loadLocal">ローカル読み込み</button><br><br>
+
+<h2>GitHubアップロード</h2>
+GitHub Token: <input type="text" id="githubToken"><br>
+ユーザー名: <input type="text" id="githubUser"><br>
+リポジトリ名: <input type="text" id="githubRepo"><br>
+ファイル名: <input type="text" id="githubFile" value="myfont.otf"><br>
+<button id="uploadGithub">GitHubにアップロード</button>
+
+<script src="https://cdn.jsdelivr.net/npm/opentype.js@latest/dist/opentype.min.js"></script>
+<script>
+const canvas = document.getElementById('drawCanvas');
+const ctx = canvas.getContext('2d');
+let drawing = false;
+let currentEntity = [];
+let entities = [];
+
+const strokeWidth = document.getElementById('strokeWidth');
+const offsetX = document.getElementById('offsetX');
+const offsetY = document.getElementById('offsetY');
+const charInput = document.getElementById('charInput');
+const addGlyphBtn = document.getElementById('addGlyph');
+const glyphList = document.getElementById('glyphList');
+
+const presetName = document.getElementById('presetName');
+const presetSelect = document.getElementById('presetSelect');
+const savePresetBtn = document.getElementById('savePreset');
+const loadPresetBtn = document.getElementById('loadPreset');
+
+const saveFontBtn = document.getElementById('saveFont');
+const saveLocalBtn = document.getElementById('saveLocal');
+const loadLocalBtn = document.getElementById('loadLocal');
+
+const githubToken = document.getElementById('githubToken');
+const githubUser = document.getElementById('githubUser');
+const githubRepo = document.getElementById('githubRepo');
+const githubFile = document.getElementById('githubFile');
+const uploadGithubBtn = document.getElementById('uploadGithub');
+
+let glyphs = {};
+let presets = {};
+let selectedEntity = null;
+
+if(localStorage.getItem('fontPresets')) {
+    Object.assign(presets, JSON.parse(localStorage.getItem('fontPresets')));
+    updatePresetList();
+}
+
+function updatePresetList() {
+    presetSelect.innerHTML = '';
+    for(const name in presets) {
+        const opt = document.createElement('option');
+        opt.textContent = name;
+        presetSelect.appendChild(opt);
+    }
+}
+
+function redraw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.lineWidth = strokeWidth.value;
+    ctx.strokeStyle = 'black';
+    for(const entity of entities) {
+        ctx.beginPath();
+        ctx.moveTo(entity.path[0].x, entity.path[0].y);
+        for(const pt of entity.path) {
+            ctx.lineTo(pt.x, pt.y);
+        }
+        ctx.stroke();
+    }
+}
+
+canvas.addEventListener('pointerdown', e => {
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    selectedEntity = entities.find(ent => isPointNearEntity(x, y, ent));
+    if(selectedEntity) {
+        selectedEntity.dragging = { startX: x, startY: y };
+    } else {
+        drawing = true;
+        currentEntity = { path: [], offsetX: 0, offsetY: 0, stroke: parseFloat(strokeWidth.value) };
+        entities.push(currentEntity);
+        addPoint(x, y);
+    }
+});
+
+canvas.addEventListener('pointermove', e => {
+    if(selectedEntity && selectedEntity.dragging) {
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const dx = x - selectedEntity.dragging.startX;
+        const dy = y - selectedEntity.dragging.startY;
+        selectedEntity.path.forEach(pt => { pt.x += dx; pt.y += dy; });
+        selectedEntity.dragging.startX = x;
+        selectedEntity.dragging.startY = y;
+        redraw();
+    } else if(drawing) {
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        addPoint(x, y);
+    }
+});
+
+canvas.addEventListener('pointerup', () => {
+    drawing = false;
+    if(selectedEntity) selectedEntity.dragging = null;
+});
+
+function isPointNearEntity(x, y, entity) {
+    return entity.path.some(pt => Math.hypot(pt.x - x, pt.y - y) < 10);
+}
+
+function addPoint(x, y) {
+    currentEntity.path.push({ x, y });
+    redraw();
+}
+
+// グリフ追加
+addGlyphBtn.addEventListener('click', () => {
+    const char = charInput.value;
+    if(!char) return;
+    glyphs[char] = {
+        entities: JSON.parse(JSON.stringify(entities)),
+        offsetX: parseFloat(offsetX.value),
+        offsetY: parseFloat(offsetY.value),
+        stroke: parseFloat(strokeWidth.value)
+    };
+    renderGlyphList();
+    entities = [];
+    redraw();
+});
+
+// 一覧更新
+function renderGlyphList() {
+    glyphList.innerHTML = '';
+    for(const char in glyphs) {
+        const div = document.createElement('div');
+        div.textContent = char;
+        div.addEventListener('click', () => {
+            const data = glyphs[char];
+            entities = JSON.parse(JSON.stringify(data.entities));
+            offsetX.value = data.offsetX;
+            offsetY.value = data.offsetY;
+            strokeWidth.value = data.stroke;
+            charInput.value = char;
+            redraw();
         });
+        glyphList.appendChild(div);
+    }
+}
 
-        document.getElementById('convertButton').addEventListener('click', function () {
-            const input = document.getElementById('svgFiles');
-            const files = input.files;
+// プリセット保存
+savePresetBtn.addEventListener('click', () => {
+    const name = presetName.value;
+    if(!name) return;
+    presets[name] = JSON.parse(JSON.stringify(entities));
+    localStorage.setItem('fontPresets', JSON.stringify(presets));
+    updatePresetList();
+});
 
-            if (files.length === 0) {
-                alert('SVGファイルを選択してください');
-                return;
+// プリセット読み込み
+loadPresetBtn.addEventListener('click', () => {
+    const name = presetSelect.value;
+    if(!presets[name]) return;
+    entities = JSON.parse(JSON.stringify(presets[name]));
+    redraw();
+});
+
+// フォント生成
+saveFontBtn.addEventListener('click', () => {
+    const font = new opentype.Font({
+        familyName: 'CustomFont',
+        styleName: 'Regular',
+        unitsPerEm: 1000,
+        ascender: 800,
+        descender: -200,
+        glyphs: []
+    });
+
+    for(const char in glyphs) {
+        const g = glyphs[char];
+        const path = new opentype.Path();
+        g.entities.forEach(entity => {
+            if(entity.path.length === 0) return;
+            path.moveTo(entity.path[0].x + g.offsetX, entity.path[0].y + g.offsetY);
+            for(const pt of entity.path) {
+                path.lineTo(pt.x + g.offsetX, pt.y + g.offsetY);
             }
-
-            let filesProcessed = 0;
-
-            Array.from(files).forEach(file => {
-                if (file.type === "image/svg+xml") {
-                    const reader = new FileReader();
-                    reader.onload = function (event) {
-                        const svgData = event.target.result;
-
-                        try {
-                            const parser = new DOMParser();
-                            const svgDoc = parser.parseFromString(svgData, "image/svg+xml");
-                            const svgElement = svgDoc.querySelector('svg');
-
-                            if (!svgElement) {
-                                console.error(`ファイル ${file.name} に <svg> 要素が見つかりません`);
-                                return;
-                            }
-
-                            const paths = [];
-                            svgElement.querySelectorAll('line, circle, rect, path').forEach(child => {
-                                let pathData = '';
-                                switch (child.tagName) {
-                                    case 'line':
-                                        const x1 = parseFloat(child.getAttribute("x1"));
-                                        const y1 = parseFloat(child.getAttribute("y1"));
-                                        const x2 = parseFloat(child.getAttribute("x2"));
-                                        const y2 = parseFloat(child.getAttribute("y2"));
-                                        pathData = `M${x1},${y1} L${x2},${y2}`;
-                                        break;
-                                    case 'circle':
-                                        const cx = parseFloat(child.getAttribute("cx"));
-                                        const cy = parseFloat(child.getAttribute("cy"));
-                                        const r = parseFloat(child.getAttribute("r"));
-                                        pathData = `M${cx - r},${cy} A${r},${r} 0 1,0 ${cx + r},${cy} A${r},${r} 0 1,0 ${cx - r},${cy} Z`;
-                                        break;
-                                    case 'rect':
-                                        const x = parseFloat(child.getAttribute("x"));
-                                        const y = parseFloat(child.getAttribute("y"));
-                                        const width = parseFloat(child.getAttribute("width"));
-                                        const height = parseFloat(child.getAttribute("height"));
-                                        pathData = `M${x},${y} H${x + width} V${y + height} H${x} Z`;
-                                        break;
-                                    case 'path':
-                                        pathData = child.getAttribute('d');
-                                        break;
-                                    default:
-                                        console.warn(`未対応の要素: ${child.tagName}`);
-                                        return;
-                                }
-                                if (pathData) paths.push(pathData);
-                            });
-
-                            // パスデータから1つのパスにまとめる
-                            const fullPath = paths.join(" ");
-                            const opentypePath = parseSVGPath(fullPath); // SVGパスをパースするカスタム関数を使用
-
-                            // グリフを作成
-                            const glyph = new opentype.Glyph({
-                                name: file.name.split('.')[0],
-                                unicode: fontSlot++, 
-                                advanceWidth: 1000,
-                                path: opentypePath
-                            });
-
-                            glyphs.push(glyph);
-                        } catch (error) {
-                            console.error(`ファイル ${file.name} の処理中にエラーが発生しました:`, error);
-                        }
-
-                        filesProcessed++;
-                        if (filesProcessed === files.length) {
-                            createFont(glyphs);
-                        }
-                    };
-                    reader.readAsText(file);
-                } else {
-                    filesProcessed++;
-                }
-            });
         });
+        const glyph = new opentype.Glyph({
+            name: char,
+            unicode: char.charCodeAt(0),
+            advanceWidth: 600,
+            path: path
+        });
+        font.glyphs.push(glyph);
+    }
 
-        function createFont(glyphs) {
-            if (glyphs.length === 0) {
-                alert("フォントを作成するためのSVGファイルが見つかりませんでした。");
-                return;
+    const arrayBuffer = font.toArrayBuffer();
+    const blob = new Blob([arrayBuffer], {type: 'font/opentype'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'customfont.otf';
+    a.click();
+});
+
+// ローカル保存
+saveLocalBtn.addEventListener('click', () => {
+    localStorage.setItem('customFontGlyphs', JSON.stringify(glyphs));
+    alert('ローカル保存しました。');
+});
+
+// ローカル読み込み
+loadLocalBtn.addEventListener('click', () => {
+    const saved = localStorage.getItem('customFontGlyphs');
+    if(saved) {
+        glyphs = JSON.parse(saved);
+        renderGlyphList();
+        alert('ローカルから読み込みました。');
+    }
+});
+
+// GitHubアップロード
+uploadGithubBtn.addEventListener('click', () => {
+    const font = new opentype.Font({
+        familyName: 'CustomFont',
+        styleName: 'Regular',
+        unitsPerEm: 1000,
+        ascender: 800,
+        descender: -200,
+        glyphs: []
+    });
+
+    for(const char in glyphs) {
+        const g = glyphs[char];
+        const path = new opentype.Path();
+        g.entities.forEach(entity => {
+            if(entity.path.length === 0) return;
+            path.moveTo(entity.path[0].x + g.offsetX, entity.path[0].y + g.offsetY);
+            for(const pt of entity.path) {
+                path.lineTo(pt.x + g.offsetX, pt.y + g.offsetY);
             }
+        });
+        const glyph = new opentype.Glyph({
+            name: char,
+            unicode: char.charCodeAt(0),
+            advanceWidth: 600,
+            path: path
+        });
+        font.glyphs.push(glyph);
+    }
 
-            const font = new opentype.Font({
-                familyName: 'CustomFont',
-                styleName: 'Regular',
-                unitsPerEm: 1000,
-                ascender: 800, // 必須プロパティ
-                descender: -200, // 必須プロパティ
-                glyphs: glyphs
-            });
+    const arrayBuffer = font.toArrayBuffer();
+    const base64Font = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
 
-            // フォントデータをバイナリに変換し、Blobを生成
-            const fontData = font.toArrayBuffer();
-            const blob = new Blob([fontData], { type: 'font/ttf' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'custom_font.ttf';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        }
+    const url = `https://api.github.com/repos/${githubUser.value}/${githubRepo.value}/contents/${githubFile.value}`;
+    fetch(url, {
+        method: 'PUT',
+        headers: {
+            'Authorization': `token ${githubToken.value}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            message: 'Upload font',
+            content: base64Font
+        })
+    })
+    .then(response => response.json())
+    .then(data => alert('GitHubにアップロードしました。'))
+    .catch(err => alert('アップロード失敗: ' + err));
+});
 
-        function parseSVGPath(pathData) {
-            const path = new opentype.Path();
-            const commands = pathData.split(/(?=[MLAHSCQZ])/); // コマンドで分割
-
-            let currentX = 0;
-            let currentY = 0;
-
-            commands.forEach(command => {
-                const type = command[0];
-                const args = command.slice(1).trim().split(/[\s,]+/).map(Number);
-
-                switch (type) {
-                    case 'M': // Move to
-                        currentX = args[0];
-                        currentY = args[1];
-                        path.moveTo(currentX, currentY);
-                        break;
-                    case 'L': // Line to
-                        currentX = args[0];
-                        currentY = args[1];
-                        path.lineTo(currentX, currentY);
-                        break;
-                    case 'H': // Horizontal line to
-                        currentX = args[0];
-                        path.lineTo(currentX, currentY);
-                        break;
-                    case 'V': // Vertical line to
-                        currentY = args[0];
-                        path.lineTo(currentX, currentY);
-                        break;
-                    case 'C': // Cubic Bezier curve
-                        path.bezierCurveTo(args[0], args[1], args[2], args[3], args[4], args[5]);
-                        currentX = args[4];
-                        currentY = args[5];
-                        break;
-                    case 'Q': // Quadratic Bezier curve
-                        const cx = currentX + args[0];
-                        const cy = currentY + args[1];
-                        path.quadraticCurveTo(cx, cy, args[2], args[3]);
-                        currentX = args[2];
-                        currentY = args[3];
-                        break;
-                    case 'A': // Arc
-                        const [rx, ry, angle, largeArcFlag, sweepFlag, x2, y2] = args;
-                        // アークをベジェ曲線に変換する処理
-                        const curves = arcToBezier(currentX, currentY, rx, ry, angle, largeArcFlag, sweepFlag, x2, y2);
-                        curves.forEach(curve => {
-                            path.bezierCurveTo(curve.x1, curve.y1, curve.x2, curve.y2, curve.x2, curve.y2);
-                        });
-                        currentX = x2;
-                        currentY = y2;
-                        break;
-                    case 'Z': // Close path
-                        path.close();
-                        break;
-                    default:
-                        console.warn(`未対応のパスコマンド: ${type}`);
-                }
-            });
-
-            return path;
-        }
-
-        // ベジェ曲線にアークを変換する補助関数
-        function arcToBezier(x1, y1, rx, ry, xAxisRotation, largeArcFlag, sweepFlag, x2, y2) {
-            const curves = [];
-            // アークの変換処理をここに実装
-            // 単純な2セグメントのベジェ曲線を例として追加
-            curves.push({ x1, y1, x2: (x1 + x2) / 2, y2: (y1 + y2) / 2 });
-            curves.push({ x1: (x1 + x2) / 2, y1: (y1 + y2) / 2, x2, y2 });
-            return curves;
-        }
-    </script>
+</script>
 </body>
 </html>
