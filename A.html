@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>OTFフォントパス反転プレビュー</title>
+<title>OTFフォント パスデータ反転プレビュー</title>
 <script src="https://cdn.jsdelivr.net/npm/opentype.js@1.3.4/dist/opentype.min.js"></script>
 <style>
   body { font-family: sans-serif; margin: 20px; }
@@ -11,23 +11,23 @@
 </head>
 <body>
 
-<h1>OTFフォントパス反転プレビュー</h1>
+<h1>OTFフォント パスデータ反転プレビュー</h1>
 
 <label for="fontUrl">フォントファイルのURL：</label><br>
 <input type="text" id="fontUrl" style="width: 100%;" placeholder="例: https://example.com/fonts/myfont.otf"><br>
 <button id="loadFont">フォント読み込み</button><br><br>
 
-<label for="inputChar">文字：</label>
-<input type="text" id="inputChar" value="A" maxlength="1" style="width: 50px;"><br><br>
+<label for="inputText">文字列：</label>
+<input type="text" id="inputText" value="ABC" style="width: 300px;"><br><br>
 
-<label><input type="checkbox" id="reversePath"> パスを反転</label><br><br>
+<label><input type="checkbox" id="reversePath"> 輪郭データを数学的に反転</label><br><br>
 
-<canvas id="canvas" width="300" height="300"></canvas>
+<canvas id="canvas" width="600" height="300"></canvas>
 
 <script>
   const fontUrlInput = document.getElementById('fontUrl');
   const loadBtn = document.getElementById('loadFont');
-  const inputChar = document.getElementById('inputChar');
+  const inputText = document.getElementById('inputText');
   const reversePath = document.getElementById('reversePath');
   const canvas = document.getElementById('canvas');
   const ctx = canvas.getContext('2d');
@@ -51,41 +51,81 @@
     });
   });
 
-  inputChar.addEventListener('input', draw);
+  inputText.addEventListener('input', draw);
   reversePath.addEventListener('change', draw);
+
+  function reversePathData(originalCommands) {
+    const reversed = [];
+    let subPath = [];
+
+    for (let cmd of originalCommands) {
+      subPath.push(cmd);
+      if (cmd.type === 'Z') {
+        reversed.push(...reverseSubPath(subPath));
+        subPath = [];
+      }
+    }
+    if (subPath.length) {
+      reversed.push(...reverseSubPath(subPath));
+    }
+    return reversed;
+  }
+
+  function reverseSubPath(commands) {
+    const reversed = [];
+    const points = [];
+
+    for (let cmd of commands) {
+      if (cmd.x !== undefined && cmd.y !== undefined) {
+        points.push({ x: cmd.x, y: cmd.y });
+      }
+    }
+    points.reverse();
+
+    for (let i = 0; i < points.length; i++) {
+      const p = points[i];
+      if (i === 0) {
+        reversed.push({ type: 'M', x: p.x, y: p.y });
+      } else {
+        reversed.push({ type: 'L', x: p.x, y: p.y });
+      }
+    }
+    reversed.push({ type: 'Z' });
+
+    return reversed;
+  }
 
   function draw() {
     if (!font) return;
 
-    const char = inputChar.value || 'A';
-    const glyph = font.charToGlyph(char);
-
-    const scale = 150 / font.unitsPerEm;
-    const x = 50;
+    const text = inputText.value || 'A';
+    const fontSize = 150;
+    const xStart = 20;
     const y = 200;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    const path = glyph.getPath(x, y, 150);
+    let x = xStart;
+    for (let char of text) {
+      const glyph = font.charToGlyph(char);
+      let path = glyph.getPath(x, y, fontSize);
 
-    ctx.beginPath();
-    for (let cmd of path.commands) {
-      if (cmd.type === 'M') ctx.moveTo(cmd.x, cmd.y);
-      else if (cmd.type === 'L') ctx.lineTo(cmd.x, cmd.y);
-      else if (cmd.type === 'C') ctx.bezierCurveTo(cmd.x1, cmd.y1, cmd.x2, cmd.y2, cmd.x, cmd.y);
-      else if (cmd.type === 'Q') ctx.quadraticCurveTo(cmd.x1, cmd.y1, cmd.x, cmd.y);
-      else if (cmd.type === 'Z') ctx.closePath();
-    }
+      if (reversePath.checked) {
+        const reversedCommands = reversePathData(path.commands);
+        path.commands = reversedCommands;
+      }
 
-    if (reversePath.checked) {
-      ctx.save();
-      ctx.translate(canvas.width / 2, canvas.height / 2);
-      ctx.scale(-1, 1);  // X軸反転
-      ctx.translate(-canvas.width / 2, -canvas.height / 2);
+      ctx.beginPath();
+      for (let cmd of path.commands) {
+        if (cmd.type === 'M') ctx.moveTo(cmd.x, cmd.y);
+        else if (cmd.type === 'L') ctx.lineTo(cmd.x, cmd.y);
+        else if (cmd.type === 'C') ctx.bezierCurveTo(cmd.x1, cmd.y1, cmd.x2, cmd.y2, cmd.x, cmd.y);
+        else if (cmd.type === 'Q') ctx.quadraticCurveTo(cmd.x1, cmd.y1, cmd.x, cmd.y);
+        else if (cmd.type === 'Z') ctx.closePath();
+      }
       ctx.fill();
-      ctx.restore();
-    } else {
-      ctx.fill();
+
+      x += glyph.advanceWidth * (fontSize / font.unitsPerEm) * 0.9;
     }
   }
 </script>
