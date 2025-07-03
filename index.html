@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>完全版フォント作成ツール（修正版）</title>
+<title>完全版フォント作成ツール</title>
 <script src="https://cdn.jsdelivr.net/npm/opentype.js@1.3.4/dist/opentype.min.js"></script>
 <style>
     body { font-family: sans-serif; margin: 20px; }
@@ -25,7 +25,7 @@
 </head>
 <body>
 
-<h1>フォント作成ツール - 完全版（修正版）</h1>
+<h1>フォント作成ツール - 完全版</h1>
 
 <canvas id="drawCanvas" width="300" height="300"></canvas><br>
 
@@ -109,7 +109,7 @@ let glyphs = {};
 let presets = {};
 let selectedEntity = null;
 
-if(localStorage.getItem('fontPresets')){
+if (localStorage.getItem('fontPresets')) {
     Object.assign(presets, JSON.parse(localStorage.getItem('fontPresets')));
     updatePresetList();
 }
@@ -117,7 +117,7 @@ renderFontSetList();
 
 function updatePresetList() {
     presetSelect.innerHTML = '';
-    for(const name in presets) {
+    for (const name in presets) {
         const opt = document.createElement('option');
         opt.textContent = name;
         presetSelect.appendChild(opt);
@@ -128,10 +128,10 @@ function redraw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.lineWidth = strokeWidth.value;
     ctx.strokeStyle = 'black';
-    for(const entity of entities) {
+    for (const entity of entities) {
         ctx.beginPath();
         ctx.moveTo(entity.path[0].x, entity.path[0].y);
-        for(const pt of entity.path) {
+        for (const pt of entity.path) {
             ctx.lineTo(pt.x, pt.y);
         }
         ctx.stroke();
@@ -144,7 +144,7 @@ canvas.addEventListener('pointerdown', e => {
     const y = e.clientY - rect.top;
 
     selectedEntity = entities.find(ent => isPointNearEntity(x, y, ent));
-    if(selectedEntity) {
+    if (selectedEntity) {
         selectedEntity.dragging = { startX: x, startY: y };
     } else {
         drawing = true;
@@ -155,7 +155,7 @@ canvas.addEventListener('pointerdown', e => {
 });
 
 canvas.addEventListener('pointermove', e => {
-    if(selectedEntity && selectedEntity.dragging) {
+    if (selectedEntity && selectedEntity.dragging) {
         const rect = canvas.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
@@ -165,7 +165,7 @@ canvas.addEventListener('pointermove', e => {
         selectedEntity.dragging.startX = x;
         selectedEntity.dragging.startY = y;
         redraw();
-    } else if(drawing) {
+    } else if (drawing) {
         const rect = canvas.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
@@ -175,7 +175,7 @@ canvas.addEventListener('pointermove', e => {
 
 canvas.addEventListener('pointerup', () => {
     drawing = false;
-    if(selectedEntity) selectedEntity.dragging = null;
+    if (selectedEntity) selectedEntity.dragging = null;
 });
 
 function isPointNearEntity(x, y, entity) {
@@ -190,7 +190,7 @@ function addPoint(x, y) {
 // グリフ追加
 addGlyphBtn.addEventListener('click', () => {
     const char = charInput.value;
-    if(!char) return;
+    if (!char) return;
     glyphs[char] = {
         entities: JSON.parse(JSON.stringify(entities)),
         offsetX: parseFloat(offsetX.value),
@@ -205,7 +205,7 @@ addGlyphBtn.addEventListener('click', () => {
 // 一覧更新
 function renderGlyphList() {
     glyphList.innerHTML = '';
-    for(const char in glyphs) {
+    for (const char in glyphs) {
         const div = document.createElement('div');
         div.textContent = char;
         div.addEventListener('click', () => {
@@ -224,7 +224,7 @@ function renderGlyphList() {
 // プリセット保存
 savePresetBtn.addEventListener('click', () => {
     const name = presetName.value;
-    if(!name) return;
+    if (!name) return;
     presets[name] = JSON.parse(JSON.stringify(entities));
     localStorage.setItem('fontPresets', JSON.stringify(presets));
     updatePresetList();
@@ -233,7 +233,7 @@ savePresetBtn.addEventListener('click', () => {
 // プリセット読み込み
 loadPresetBtn.addEventListener('click', () => {
     const name = presetSelect.value;
-    if(!presets[name]) return;
+    if (!presets[name]) return;
     entities = JSON.parse(JSON.stringify(presets[name]));
     redraw();
 });
@@ -243,7 +243,7 @@ saveFontBtn.addEventListener('click', () => {
     try {
         const font = generateFont();
         const arrayBuffer = font.toArrayBuffer();
-        const blob = new Blob([arrayBuffer], {type: 'font/opentype'});
+        const blob = new Blob([arrayBuffer], { type: 'font/opentype' });
         const url = URL.createObjectURL(blob);
 
         const a = document.createElement('a');
@@ -272,13 +272,13 @@ function generateFont() {
         descender: -200
     });
 
-    for(const char in glyphs) {
+    for (const char in glyphs) {
         const g = glyphs[char];
         const path = new opentype.Path();
         g.entities.forEach(entity => {
-            if(entity.path.length === 0) return;
+            if (entity.path.length === 0) return;
             path.moveTo(entity.path[0].x + g.offsetX, entity.path[0].y + g.offsetY);
-            for(const pt of entity.path) {
+            for (const pt of entity.path) {
                 path.lineTo(pt.x + g.offsetX, pt.y + g.offsetY);
             }
         });
@@ -288,8 +288,9 @@ function generateFont() {
             advanceWidth: 600,
             path: path
         });
-        font.addGlyph(glyph); // ← 正しい追加方法
+        font.addGlyph(glyph);
     }
+
     return font;
 }
 
@@ -302,7 +303,7 @@ saveLocalBtn.addEventListener('click', () => {
 // ローカル読み込み
 loadLocalBtn.addEventListener('click', () => {
     const saved = localStorage.getItem('customFontGlyphs');
-    if(saved) {
+    if (saved) {
         glyphs = JSON.parse(saved);
         renderGlyphList();
         alert('ローカルから読み込みました。');
@@ -328,12 +329,12 @@ uploadGithubBtn.addEventListener('click', () => {
                 content: base64Font
             })
         })
-        .then(response => response.json())
-        .then(data => alert('GitHubにアップロードしました。'))
-        .catch(err => {
-            console.error(err);
-            alert('アップロード失敗: ' + err.message);
-        });
+            .then(response => response.json())
+            .then(data => alert('GitHubにアップロードしました。'))
+            .catch(err => {
+                console.error(err);
+                alert('アップロード失敗: ' + err.message);
+            });
 
     } catch (e) {
         console.error(e);
@@ -345,6 +346,47 @@ uploadGithubBtn.addEventListener('click', () => {
 previewText.addEventListener('input', () => {
     previewArea.textContent = previewText.value;
 });
+
+// 複数フォント管理
+saveFontSetBtn.addEventListener('click', () => {
+    const name = fontSetName.value;
+    if (!name) return;
+    const allSets = JSON.parse(localStorage.getItem('fontSets') || '{}');
+    allSets[name] = JSON.parse(JSON.stringify(glyphs));
+    localStorage.setItem('fontSets', JSON.stringify(allSets));
+    renderFontSetList();
+});
+
+function renderFontSetList() {
+    const allSets = JSON.parse(localStorage.getItem('fontSets') || '{}');
+    fontSetList.innerHTML = '';
+    for (const name in allSets) {
+        const div = document.createElement('div');
+        div.innerHTML = `<b>${name}</b> 
+        <button data-name="${name}" class="loadBtn">読</button> 
+        <button data-name="${name}" class="delBtn">削</button>`;
+        fontSetList.appendChild(div);
+    }
+
+    fontSetList.querySelectorAll('.loadBtn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const allSets = JSON.parse(localStorage.getItem('fontSets') || '{}');
+            glyphs = JSON.parse(JSON.stringify(allSets[btn.dataset.name]));
+            renderGlyphList();
+            alert(`${btn.dataset.name} を読み込みました`);
+        });
+    });
+
+    fontSetList.querySelectorAll('.delBtn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const allSets = JSON.parse(localStorage.getItem('fontSets') || '{}');
+            delete allSets[btn.dataset.name];
+            localStorage.setItem('fontSets', JSON.stringify(allSets));
+            renderFontSetList();
+        });
+    });
+}
 </script>
+
 </body>
 </html>
