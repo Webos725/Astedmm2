@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<title>サーバー上のOTFフォントプレビュー</title>
+<style>
+  body { font-family: sans-serif; padding: 20px; }
+  #preview {
+    margin-top: 20px;
+    font-size: 48px;
+    border: 1px solid #ccc;
+    padding: 20px;
+    min-height: 100px;
+  }
+</style>
+</head>
+<body>
+
+<h1>サーバー上のOTFフォントプレビュー</h1>
+
+<label for="fontUrl">フォントファイルのURLを入力してください：</label><br>
+<input type="text" id="fontUrl" style="width: 100%;" placeholder="例: https://example.com/fonts/myfont.otf" />
+
+<button id="loadFont">フォント読み込み</button>
+
+<p>プレビューしたいテキスト：</p>
+<input type="text" id="inputText" value="こんにちは、プレビュー！" style="width: 100%; font-size: 24px;" />
+
+<div id="preview">ここにプレビューが表示されます</div>
+
+<script>
+  const loadBtn = document.getElementById('loadFont');
+  const fontUrlInput = document.getElementById('fontUrl');
+  const preview = document.getElementById('preview');
+  const inputText = document.getElementById('inputText');
+  let styleElem = null;
+  let fontName = 'ServerLoadedFont';
+
+  loadBtn.addEventListener('click', () => {
+    const url = fontUrlInput.value.trim();
+    if (!url) {
+      alert('フォントのURLを入力してください');
+      return;
+    }
+
+    // 既存のスタイルタグを削除
+    if (styleElem) {
+      styleElem.remove();
+    }
+
+    // @font-faceを動的に作成
+    styleElem = document.createElement('style');
+    styleElem.textContent = `
+      @font-face {
+        font-family: '${fontName}';
+        src: url('${url}') format('opentype');
+        font-weight: normal;
+        font-style: normal;
+      }
+    `;
+    document.head.appendChild(styleElem);
+
+    // プレビューのフォントを切り替え
+    preview.style.fontFamily = `'${fontName}', sans-serif`;
+
+    updatePreview();
+  });
+
+  inputText.addEventListener('input', updatePreview);
+
+  function updatePreview() {
+    preview.textContent = inputText.value;
+  }
+
+  // 初期表示
+  updatePreview();
+</script>
+
+</body>
+</html>
