@@ -54,7 +54,13 @@ GitHub Token: <input type="text" id="githubToken"><br>
 ユーザー名: <input type="text" id="githubUser"><br>
 リポジトリ名: <input type="text" id="githubRepo"><br>
 ファイル名: <input type="text" id="githubFile" value="myfont.otf"><br>
-<button id="uploadGithub">GitHubにアップロード</button>
+<button id="uploadGithub">GitHubにアップロード</button><br><br>
+
+<h2>フォントプレビュー</h2>
+<input type="text" id="previewText" placeholder="ここに文字を入力" style="width: 300px;">
+<div id="previewArea" style="border: 1px solid #333; padding: 10px; margin-top: 10px; font-size: 24px;">
+    プレビュー表示
+</div>
 
 <div id="miniConsole">
     <h3>フォント管理</h3>
@@ -91,6 +97,9 @@ const githubUser = document.getElementById('githubUser');
 const githubRepo = document.getElementById('githubRepo');
 const githubFile = document.getElementById('githubFile');
 const uploadGithubBtn = document.getElementById('uploadGithub');
+
+const previewText = document.getElementById('previewText');
+const previewArea = document.getElementById('previewArea');
 
 const fontSetName = document.getElementById('fontSetName');
 const saveFontSetBtn = document.getElementById('saveFontSet');
@@ -229,7 +238,31 @@ loadPresetBtn.addEventListener('click', () => {
     redraw();
 });
 
-// フォント生成関数
+// フォント生成
+saveFontBtn.addEventListener('click', () => {
+    try {
+        const font = generateFont();
+        const arrayBuffer = font.toArrayBuffer();
+        const blob = new Blob([arrayBuffer], {type: 'font/opentype'});
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'customfont.otf';
+        a.click();
+
+        const fontFace = new FontFace('CustomFontPreview', blob);
+        fontFace.load().then(loadedFace => {
+            document.fonts.add(loadedFace);
+            previewArea.style.fontFamily = 'CustomFontPreview';
+        });
+
+    } catch (e) {
+        console.error(e);
+        alert('フォント生成エラー: ' + e.message);
+    }
+});
+
 function generateFont() {
     const font = new opentype.Font({
         familyName: 'CustomFont',
@@ -261,18 +294,6 @@ function generateFont() {
     return font;
 }
 
-// フォント保存
-saveFontBtn.addEventListener('click', () => {
-    const font = generateFont();
-    const arrayBuffer = font.toArrayBuffer();
-    const blob = new Blob([arrayBuffer], {type: 'font/opentype'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'customfont.otf';
-    a.click();
-});
-
 // ローカル保存
 saveLocalBtn.addEventListener('click', () => {
     localStorage.setItem('customFontGlyphs', JSON.stringify(glyphs));
@@ -291,46 +312,42 @@ loadLocalBtn.addEventListener('click', () => {
 
 // GitHubアップロード
 uploadGithubBtn.addEventListener('click', () => {
-    const font = generateFont();
-    const arrayBuffer = font.toArrayBuffer();
-    const base64Font = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+    try {
+        const font = generateFont();
+        const arrayBuffer = font.toArrayBuffer();
+        const base64Font = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
 
-    const url = `https://api.github.com/repos/${githubUser.value}/${githubRepo.value}/contents/${githubFile.value}`;
-
-    fetch(url, {
-        method: 'GET',
-        headers: { 'Authorization': `token ${githubToken.value}` }
-    })
-    .then(res => res.ok ? res.json() : Promise.resolve(null))
-    .then(data => {
-        const body = {
-            message: 'Upload font',
-            content: base64Font
-        };
-        if (data && data.sha) body.sha = data.sha;
-
-        return fetch(url, {
+        const url = `https://api.github.com/repos/${githubUser.value}/${githubRepo.value}/contents/${githubFile.value}`;
+        fetch(url, {
             method: 'PUT',
             headers: {
                 'Authorization': `token ${githubToken.value}`,
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(body)
+            body: JSON.stringify({
+                message: 'Upload font',
+                content: base64Font
+            })
+        })
+        .then(response => response.json())
+        .then(data => alert('GitHubにアップロードしました。'))
+        .catch(err => {
+            console.error(err);
+            alert('アップロード失敗: ' + err.message);
         });
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.content) {
-            alert('GitHubにアップロード成功');
-        } else {
-            console.error(data);
-            alert('アップロード失敗: ' + (data.message || '不明なエラー'));
-        }
-    })
-    .catch(err => alert('通信エラー: ' + err));
+
+    } catch (e) {
+        console.error(e);
+        alert('アップロードエラー: ' + e.message);
+    }
 });
 
-// ミニコンソール：複数フォント管理
+// プレビュー入力連動
+previewText.addEventListener('input', () => {
+    previewArea.textContent = previewText.value;
+});
+
+// 複数フォント管理
 saveFontSetBtn.addEventListener('click', () => {
     const name = fontSetName.value;
     if(!name) return;
