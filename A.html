@@ -1,133 +1,79 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<title>OTFフォント パスデータ反転プレビュー</title>
-<script src="https://cdn.jsdelivr.net/npm/opentype.js@1.3.4/dist/opentype.min.js"></script>
+<meta charset="UTF-8" />
+<title>サーバー上のOTFフォントプレビュー</title>
 <style>
-  body { font-family: sans-serif; margin: 20px; }
-  canvas { border: 1px solid #333; margin-top: 20px; }
+  body { font-family: sans-serif; padding: 20px; }
+  #preview {
+    margin-top: 20px;
+    font-size: 48px;
+    border: 1px solid #ccc;
+    padding: 20px;
+    min-height: 100px;
+  }
 </style>
 </head>
 <body>
 
-<h1>OTFフォント パスデータ反転プレビュー</h1>
+<h1>サーバー上のOTFフォントプレビュー</h1>
 
-<label for="fontUrl">フォントファイルのURL：</label><br>
-<input type="text" id="fontUrl" style="width: 100%;" placeholder="例: https://example.com/fonts/myfont.otf"><br>
-<button id="loadFont">フォント読み込み</button><br><br>
+<label for="fontUrl">フォントファイルのURLを入力してください：</label><br>
+<input type="text" id="fontUrl" style="width: 100%;" placeholder="例: https://example.com/fonts/myfont.otf" />
 
-<label for="inputText">文字列：</label>
-<input type="text" id="inputText" value="ABC" style="width: 300px;"><br><br>
+<button id="loadFont">フォント読み込み</button>
 
-<label><input type="checkbox" id="reversePath"> 輪郭データを数学的に反転</label><br><br>
+<p>プレビューしたいテキスト：</p>
+<input type="text" id="inputText" value="こんにちは、プレビュー！" style="width: 100%; font-size: 24px;" />
 
-<canvas id="canvas" width="600" height="300"></canvas>
+<div id="preview">ここにプレビューが表示されます</div>
 
 <script>
-  const fontUrlInput = document.getElementById('fontUrl');
   const loadBtn = document.getElementById('loadFont');
+  const fontUrlInput = document.getElementById('fontUrl');
+  const preview = document.getElementById('preview');
   const inputText = document.getElementById('inputText');
-  const reversePath = document.getElementById('reversePath');
-  const canvas = document.getElementById('canvas');
-  const ctx = canvas.getContext('2d');
-
-  let font = null;
+  let styleElem = null;
+  let fontName = 'ServerLoadedFont';
 
   loadBtn.addEventListener('click', () => {
     const url = fontUrlInput.value.trim();
     if (!url) {
-      alert('URLを入力してください');
+      alert('フォントのURLを入力してください');
       return;
     }
 
-    opentype.load(url, (err, loadedFont) => {
-      if (err) {
-        alert('フォント読み込み失敗：' + err);
-        return;
+    // 既存のスタイルタグを削除
+    if (styleElem) {
+      styleElem.remove();
+    }
+
+    // @font-faceを動的に作成
+    styleElem = document.createElement('style');
+    styleElem.textContent = `
+      @font-face {
+        font-family: '${fontName}';
+        src: url('${url}') format('opentype');
+        font-weight: normal;
+        font-style: normal;
       }
-      font = loadedFont;
-      draw();
-    });
+    `;
+    document.head.appendChild(styleElem);
+
+    // プレビューのフォントを切り替え
+    preview.style.fontFamily = `'${fontName}', sans-serif`;
+
+    updatePreview();
   });
 
-  inputText.addEventListener('input', draw);
-  reversePath.addEventListener('change', draw);
+  inputText.addEventListener('input', updatePreview);
 
-  function reversePathData(originalCommands) {
-    const reversed = [];
-    let subPath = [];
-
-    for (let cmd of originalCommands) {
-      subPath.push(cmd);
-      if (cmd.type === 'Z') {
-        reversed.push(...reverseSubPath(subPath));
-        subPath = [];
-      }
-    }
-    if (subPath.length) {
-      reversed.push(...reverseSubPath(subPath));
-    }
-    return reversed;
+  function updatePreview() {
+    preview.textContent = inputText.value;
   }
 
-  function reverseSubPath(commands) {
-    const reversed = [];
-    const points = [];
-
-    for (let cmd of commands) {
-      if (cmd.x !== undefined && cmd.y !== undefined) {
-        points.push({ x: cmd.x, y: cmd.y });
-      }
-    }
-    points.reverse();
-
-    for (let i = 0; i < points.length; i++) {
-      const p = points[i];
-      if (i === 0) {
-        reversed.push({ type: 'M', x: p.x, y: p.y });
-      } else {
-        reversed.push({ type: 'L', x: p.x, y: p.y });
-      }
-    }
-    reversed.push({ type: 'Z' });
-
-    return reversed;
-  }
-
-  function draw() {
-    if (!font) return;
-
-    const text = inputText.value || 'A';
-    const fontSize = 150;
-    const xStart = 20;
-    const y = 200;
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    let x = xStart;
-    for (let char of text) {
-      const glyph = font.charToGlyph(char);
-      let path = glyph.getPath(x, y, fontSize);
-
-      if (reversePath.checked) {
-        const reversedCommands = reversePathData(path.commands);
-        path.commands = reversedCommands;
-      }
-
-      ctx.beginPath();
-      for (let cmd of path.commands) {
-        if (cmd.type === 'M') ctx.moveTo(cmd.x, cmd.y);
-        else if (cmd.type === 'L') ctx.lineTo(cmd.x, cmd.y);
-        else if (cmd.type === 'C') ctx.bezierCurveTo(cmd.x1, cmd.y1, cmd.x2, cmd.y2, cmd.x, cmd.y);
-        else if (cmd.type === 'Q') ctx.quadraticCurveTo(cmd.x1, cmd.y1, cmd.x, cmd.y);
-        else if (cmd.type === 'Z') ctx.closePath();
-      }
-      ctx.fill();
-
-      x += glyph.advanceWidth * (fontSize / font.unitsPerEm) * 0.9;
-    }
-  }
+  // 初期表示
+  updatePreview();
 </script>
 
 </body>
