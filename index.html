@@ -264,13 +264,7 @@ saveFontBtn.addEventListener('click', () => {
 });
 
 function generateFont() {
-    const font = new opentype.Font({
-        familyName: 'CustomFont',
-        styleName: 'Regular',
-        unitsPerEm: 1000,
-        ascender: 800,
-        descender: -200
-    });
+    const glyphsArray = [];
 
     for (const char in glyphs) {
         const g = glyphs[char];
@@ -288,8 +282,17 @@ function generateFont() {
             advanceWidth: 600,
             path: path
         });
-        font.addGlyph(glyph);
+        glyphsArray.push(glyph);
     }
+
+    const font = new opentype.Font({
+        familyName: 'CustomFont',
+        styleName: 'Regular',
+        unitsPerEm: 1000,
+        ascender: 800,
+        descender: -200,
+        glyphs: glyphsArray
+    });
 
     return font;
 }
