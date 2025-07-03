@@ -1,2 +1,2 @@
 https://chatgpt.com
-https://cdn.jsdelivr.com
+https://google.com
