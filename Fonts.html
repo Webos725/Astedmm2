@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>完全版フォント作成ツール</title>
+<script src="https://cdn.jsdelivr.net/npm/opentype.js@1.3.4/dist/opentype.min.js"></script>
+<style>
+    body { font-family: sans-serif; margin: 20px; }
+    canvas { border: 1px solid #333; touch-action: none; }
+    #glyphList div {
+        padding: 5px;
+        border: 1px solid #ccc;
+        margin: 2px;
+        display: inline-block;
+        cursor: pointer;
+        user-select: none;
+    }
+    #miniConsole {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #eee;
+        padding: 10px;
+        border: 1px solid #333;
+        width: 260px;
+        max-height: 400px;
+        overflow-y: auto;
+        font-size: 14px;
+        z-index: 1000;
+    }
+    #miniConsole h3 { margin-top: 0; }
+    #miniConsole button {
+        margin: 2px 4px 6px 0;
+        padding: 4px 8px;
+        cursor: pointer;
+    }
+    #miniConsole #glyphList {
+        max-height: 180px;
+        overflow-y: auto;
+        border: 1px solid #ccc;
+        padding: 5px;
+        background: white;
+    }
+    #miniConsole div.fontSetItem {
+        margin-bottom: 4px;
+        border-bottom: 1px solid #ccc;
+        padding-bottom: 4px;
+    }
+    #miniConsole div.fontSetItem b {
+        font-weight: bold;
+    }
+</style>
+</head>
+<body>
+
+<h1>フォント作成ツール - 完全版</h1>
+
+<canvas id="drawCanvas" width="300" height="300"></canvas><br>
+
+太さ: <input type="range" id="strokeWidth" min="1" max="10" value="3"><br>
+位置調整: X <input type="number" id="offsetX" value="0" style="width: 60px;"> 
+Y <input type="number" id="offsetY" value="0" style="width: 60px;"><br><br>
+
+追加する文字: <input type="text" id="charInput" maxlength="1" style="width: 50px;">
+<button id="addGlyph">グリフ追加</button><br><br>
+
+<h2>プリセット</h2>
+<input type="text" id="presetName" placeholder="プリセット名" style="width: 120px;">
+<button id="savePreset">プリセット保存</button>
+<select id="presetSelect" style="width: 140px;"></select>
+<button id="loadPreset">読み込み</button><br><br>
+
+<button id="saveFont">フォント生成＆ダウンロード</button><br><br>
+
+<h2>GitHubアップロード</h2>
+GitHub Token: <input type="text" id="githubToken" style="width: 260px;"><br>
+ユーザー名: <input type="text" id="githubUser" style="width: 260px;"><br>
+リポジトリ名: <input type="text" id="githubRepo" style="width: 260px;"><br>
+ファイル名: <input type="text" id="githubFile" value="myfont.otf" style="width: 260px;"><br>
+<button id="uploadGithub">GitHubにアップロード</button><br><br>
+
+<h2>フォントプレビュー</h2>
+<input type="text" id="previewText" placeholder="ここに文字を入力" style="width: 300px;">
+<div id="previewArea" style="border: 1px solid #333; padding: 10px; margin-top: 10px; font-size: 24px;">
+    プレビュー表示
+</div>
+
+<div id="miniConsole">
+    <h3>フォント管理</h3>
+    <div>
+        <button id="saveLocal">ローカル保存</button>
+        <button id="loadLocal">ローカル読み込み</button>
+    </div>
+    <div id="glyphList" title="グリフ一覧（クリックで編集）"></div>
+    <br>
+    <input type="text" id="fontSetName" placeholder="セット名" style="width: 160px;">
+    <button id="saveFontSet">セット保存</button>
+    <div id="fontSetList" style="margin-top: 10px;"></div>
+</div>
+
+<script>
+const canvas = document.getElementById('drawCanvas');
+const ctx = canvas.getContext('2d');
+let drawing = false;
+let currentEntity = null;
+let entities = [];
+
+const strokeWidth = document.getElementById('strokeWidth');
+const offsetX = document.getElementById('offsetX');
+const offsetY = document.getElementById('offsetY');
+const charInput = document.getElementById('charInput');
+const addGlyphBtn = document.getElementById('addGlyph');
+const glyphList = document.getElementById('glyphList');
+
+const presetName = document.getElementById('presetName');
+const presetSelect = document.getElementById('presetSelect');
+const savePresetBtn = document.getElementById('savePreset');
+const loadPresetBtn = document.getElementById('loadPreset');
+
+const saveFontBtn = document.getElementById('saveFont');
+
+const githubToken = document.getElementById('githubToken');
+const githubUser = document.getElementById('githubUser');
+const githubRepo = document.getElementById('githubRepo');
+const githubFile = document.getElementById('githubFile');
+const uploadGithubBtn = document.getElementById('uploadGithub');
+
+const previewText = document.getElementById('previewText');
+const previewArea = document.getElementById('previewArea');
+
+const saveLocalBtn = document.getElementById('saveLocal');
+const loadLocalBtn = document.getElementById('loadLocal');
+
+const fontSetName = document.getElementById('fontSetName');
+const saveFontSetBtn = document.getElementById('saveFontSet');
+const fontSetList = document.getElementById('fontSetList');
+
+let glyphs = {};
+let presets = {};
+let selectedEntity = null;
+
+if (localStorage.getItem('fontPresets')) {
+    Object.assign(presets, JSON.parse(localStorage.getItem('fontPresets')));
+    updatePresetList();
+}
+renderFontSetList();
+
+function updatePresetList() {
+    presetSelect.innerHTML = '';
+    for (const name in presets) {
+        const opt = document.createElement('option');
+        opt.textContent = name;
+        presetSelect.appendChild(opt);
+    }
+}
+
+function redraw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.lineWidth = strokeWidth.value;
+    ctx.strokeStyle = 'black';
+    for (const entity of entities) {
+        if (!entity.path || entity.path.length === 0) continue;
+        ctx.beginPath();
+        ctx.moveTo(entity.path[0].x, entity.path[0].y);
+        for (const pt of entity.path) {
+            ctx.lineTo(pt.x, pt.y);
+        }
+        ctx.stroke();
+    }
+}
+
+canvas.addEventListener('pointerdown', e => {
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    selectedEntity = entities.find(ent => isPointNearEntity(x, y, ent));
+    if (selectedEntity) {
+        selectedEntity.dragging = { startX: x, startY: y };
+    } else {
+        drawing = true;
+        currentEntity = { path: [], offsetX: 0, offsetY: 0, stroke: parseFloat(strokeWidth.value) };
+        entities.push(currentEntity);
+        addPoint(x, y);
+    }
+});
+
+canvas.addEventListener('pointermove', e => {
+    if (selectedEntity && selectedEntity.dragging) {
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const dx = x - selectedEntity.dragging.startX;
+        const dy = y - selectedEntity.dragging.startY;
+        selectedEntity.path.forEach(pt => { pt.x += dx; pt.y += dy; });
+        selectedEntity.dragging.startX = x;
+        selectedEntity.dragging.startY = y;
+        redraw();
+    } else if (drawing) {
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        addPoint(x, y);
+    }
+});
+
+canvas.addEventListener('pointerup', () => {
+    drawing = false;
+    if (selectedEntity) selectedEntity.dragging = null;
+});
+
+function isPointNearEntity(x, y, entity) {
+    return entity.path.some(pt => Math.hypot(pt.x - x, pt.y - y) < 10);
+}
+
+function addPoint(x, y) {
+    if (!currentEntity) return;
+    currentEntity.path.push({ x, y });
+    redraw();
+}
+
+addGlyphBtn.addEventListener('click', () => {
+    const char = charInput.value;
+    if (!char) return;
+    glyphs[char] = {
+        entities: JSON.parse(JSON.stringify(entities)),
+        offsetX: parseFloat(offsetX.value),
+        offsetY: parseFloat(offsetY.value),
+        stroke: parseFloat(strokeWidth.value)
+    };
+    renderGlyphList();
+    entities = [];
+    currentEntity = null;
+    redraw();
+});
+
+function renderGlyphList() {
+    glyphList.innerHTML = '';
+    for (const char in glyphs) {
+        const div = document.createElement('div');
+        div.textContent = char;
+        div.title = "クリックで編集";
+        div.addEventListener('click', () => {
+            const data = glyphs[char];
+            entities = JSON.parse(JSON.stringify(data.entities));
+            offsetX.value = data.offsetX;
+            offsetY.value = data.offsetY;
+            strokeWidth.value = data.stroke;
+            charInput.value = char;
+            redraw();
+        });
+        glyphList.appendChild(div);
+    }
+}
+
+savePresetBtn.addEventListener('click', () => {
+    const name = presetName.value;
+    if (!name) return;
+    presets[name] = JSON.parse(JSON.stringify(entities));
+    localStorage.setItem('fontPresets', JSON.stringify(presets));
+    updatePresetList();
+});
+
+loadPresetBtn.addEventListener('click', () => {
+    const name = presetSelect.value;
+    if (!presets[name]) return;
+    entities = JSON.parse(JSON.stringify(presets[name]));
+    redraw();
+});
+
+saveFontBtn.addEventListener('click', () => {
+    try {
+        const font = generateFont();
+        const arrayBuffer = font.toArrayBuffer();
+        const blob = new Blob([arrayBuffer], { type: 'font/opentype' });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'customfont.otf';
+        a.click();
+
+        const fontFace = new FontFace('CustomFontPreview', blob);
+        fontFace.load().then(loadedFace => {
+            document.fonts.add(loadedFace);
+            previewArea.style.fontFamily = 'CustomFontPreview';
+        });
+
+    } catch (e) {
+        console.error(e);
+        alert('フォント生成エラー: ' + e.message);
+    }
+});
+
+function canvasXtoFontX(x) { return (x / canvas.width) * 1000; }
+function canvasYtoFontY(y) { return 1000 - (y / canvas.height) * 1000; }
+
+// 符号付き多角形の面積を計算（正なら反時計回り、負なら時計回り）
+function polygonArea(points) {
+    let area = 0;
+    const n = points.length;
+    for (let i = 0; i < n; i++) {
+        const p1 = points[i];
+        const p2 = points[(i + 1) % n];
+        area += p1.x * p2.y - p2.x * p1.y;
+    }
+    return area / 2;
+}
+
+function generateFont() {
+    const glyphArray = [];
+
+    for (const char in glyphs) {
+        const g = glyphs[char];
+        const path = new opentype.Path();
+
+        const outlines = []; // 外周パス（穴でない）
+        const holes = [];    // 穴のパス
+
+        g.entities.forEach(entity => {
+            if (!entity.path || entity.path.length === 0) return;
+
+            const area = polygonArea(entity.path);
+
+            if (area < 0) {
+                // 面積負 → 外周 → 反時計回りに揃えるために逆順にする
+                outlines.push([...entity.path].reverse());
+            } else {
+                // 面積正 → 穴 → そのままで反時計回りとみなす
+                holes.push(entity.path);
+            }
+        });
+
+        // 外周を先にPathに追加
+        outlines.forEach(pts => {
+            path.moveTo(canvasXtoFontX(pts[0].x + g.offsetX), canvasYtoFontY(pts[0].y + g.offsetY));
+            for (let i = 1; i < pts.length; i++) {
+                const pt = pts[i];
+                path.lineTo(canvasXtoFontX(pt.x + g.offsetX), canvasYtoFontY(pt.y + g.offsetY));
+            }
+            path.close();
+        });
+
+        // 穴を次にPathに追加（穴は外周と逆向きに描画）
+        holes.forEach(pts => {
+            path.moveTo(canvasXtoFontX(pts[0].x + g.offsetX), canvasYtoFontY(pts[0].y + g.offsetY));
+            for (let i = pts.length - 1; i >= 1; i--) {  // 逆順に描く
+                const pt = pts[i];
+                path.lineTo(canvasXtoFontX(pt.x + g.offsetX), canvasYtoFontY(pt.y + g.offsetY));
+            }
+            path.close();
+        });
+
+        const glyph = new opentype.Glyph({
+            name: String(char),
+            unicode: char.charCodeAt(0),
+            advanceWidth: 600,
+            path: path
+        });
+
+        glyphArray.push(glyph);
+    }
+
+    // .notdefグリフ追加（必須）
+    if (!glyphArray.some(g => g.name === '.notdef')) {
+        glyphArray.unshift(new opentype.Glyph({
+            name: '.notdef',
+            unicode: 0,
+            advanceWidth: 600,
+            path: new opentype.Path()
+        }));
+    }
+
+    return new opentype.Font({
+        familyName: 'CustomFont',
+        styleName: 'Regular',
+        unitsPerEm: 1000,
+        ascender: 800,
+        descender: -200,
+        glyphs: glyphArray
+    });
+}
+
+saveLocalBtn.addEventListener('click', () => {
+    localStorage.setItem('customFontGlyphs', JSON.stringify(glyphs));
+    alert('ローカル保存しました。');
+});
+
+loadLocalBtn.addEventListener('click', () => {
+    const saved = localStorage.getItem('customFontGlyphs');
+    if (saved) {
+        glyphs = JSON.parse(saved);
+        renderGlyphList();
+        alert('ローカルから読み込みました。');
+    }
+});
+
+uploadGithubBtn.addEventListener('click', () => {
+    try {
+        const font = generateFont();
+        const arrayBuffer = font.toArrayBuffer();
+        const base64Font = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+
+        const url = `https://api.github.com/repos/${githubUser.value}/${githubRepo.value}/contents/${githubFile.value}`;
+        fetch(url, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `token ${githubToken.value}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                message: 'Upload font',
+                content: base64Font
+            })
+        })
+        .then(response => response.json())
+        .then(() => alert('GitHubにアップロードしました。'))
+        .catch(err => {
+            console.error(err);
+            alert('アップロード失敗: ' + err.message);
+        });
+
+    } catch (e) {
+        console.error(e);
+        alert('アップロードエラー: ' + e.message);
+    }
+});
+
+previewText.addEventListener('input', () => {
+    previewArea.textContent = previewText.value;
+});
+
+// フォントセット保存・管理
+
+saveFontSetBtn.addEventListener('click', () => {
+    const name = fontSetName.value.trim();
+    if (!name) return;
+    const allSets = JSON.parse(localStorage.getItem('fontSets') || '{}');
+    allSets[name] = JSON.parse(JSON.stringify(glyphs));
+    localStorage.setItem('fontSets', JSON.stringify(allSets));
+    renderFontSetList();
+});
+
+function renderFontSetList() {
+    const allSets = JSON.parse(localStorage.getItem('fontSets') || '{}');
+    fontSetList.innerHTML = '';
+    for (const name in allSets) {
+        const div = document.createElement('div');
+        div.className = 'fontSetItem';
+        div.innerHTML = `<b>${name}</b> 
+            <button data-name="${name}" class="loadBtn">読</button> 
+            <button data-name="${name}" class="delBtn">削</button>`;
+        fontSetList.appendChild(div);
+    }
+
+    fontSetList.querySelectorAll('.loadBtn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const allSets = JSON.parse(localStorage.getItem('fontSets') || '{}');
+            glyphs = JSON.parse(JSON.stringify(allSets[btn.dataset.name]));
+            renderGlyphList();
+            alert(`${btn.dataset.name} を読み込みました`);
+        });
+    });
+
+    fontSetList.querySelectorAll('.delBtn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            if (!confirm('削除しますか？')) return;
+            const allSets = JSON.parse(localStorage.getItem('fontSets') || '{}');
+            delete allSets[btn.dataset.name];
+            localStorage.setItem('fontSets', JSON.stringify(allSets));
+            renderFontSetList();
+        });
+    });
+}
+
+// 初回描画
+redraw();
+renderGlyphList();
+
+</script>
+
+</body>
+</html>
