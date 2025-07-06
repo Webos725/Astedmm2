@@ -1,4 +1,4 @@
 https://chatgpt.com
 https://google.com
 live at https://konnitiwa768.github.io/Kanic-letter/A.html
-https://konnitiwa768.github.io/Kanic-letter/Et.html
+https://konnitiwa768.github.io/Kanic-letter/Ea.html
