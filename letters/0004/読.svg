@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <g stroke="black" stroke-width="3" fill="none">
+    <!-- 偏：人 -->
+    <line x1="30" y1="20" x2="45" y2="50"/>
+    <line x1="45" y1="20" x2="30" y2="50"/>
+    <!-- 旁：言葉 -->
+    <line x1="55" y1="30" x2="75" y2="30"/>
+    <line x1="65" y1="30" x2="65" y2="70"/>
+    <line x1="55" y1="50" x2="75" y2="50"/>
+  </g>
+</svg>
