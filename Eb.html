@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8" />
-<title>完全版フォント作成ツール（タッチ対応修正版）</title>
+<title>完全版フォント作成ツール</title>
 <script src="https://cdn.jsdelivr.net/npm/opentype.js@1.3.4/dist/opentype.min.js"></script>
 <style>
     body { font-family: sans-serif; margin: 20px; }
@@ -25,7 +25,7 @@
 </head>
 <body>
 
-<h1>フォント作成ツール - タッチ対応修正版</h1>
+<h1>フォント作成ツール - 完全版（タッチ対応済み）</h1>
 
 <canvas id="drawCanvas" width="300" height="300"></canvas><br>
 
@@ -72,6 +72,7 @@ GitHub Token: <input type="text" id="githubToken"><br>
 <script>
 const canvas = document.getElementById('drawCanvas');
 const ctx = canvas.getContext('2d');
+
 let drawing = false;
 let currentEntity = null;
 let entities = [];
@@ -108,7 +109,9 @@ const fontSetList = document.getElementById('fontSetList');
 let glyphs = {};
 let presets = {};
 let selectedEntity = null;
+let currentFontFaceName = null;
 
+// プリセット読み込み（ローカルストレージ）
 if (localStorage.getItem('fontPresets')) {
     Object.assign(presets, JSON.parse(localStorage.getItem('fontPresets')));
     updatePresetList();
@@ -128,7 +131,6 @@ function redraw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.lineWidth = strokeWidth.value;
     ctx.strokeStyle = 'black';
-    ctx.fillStyle = 'transparent'; // 塗りつぶしなし
 
     for (const entity of entities) {
         if (!entity.path || entity.path.length === 0) continue;
@@ -137,11 +139,11 @@ function redraw() {
         for (let i = 1; i < entity.path.length; i++) {
             ctx.lineTo(entity.path[i].x, entity.path[i].y);
         }
-        // closePathはしない（輪郭は閉じず線だけ）
         ctx.stroke();
     }
 }
 
+// pointerイベントでマウス・タッチ両対応
 function getPointerPos(evt) {
     const rect = canvas.getBoundingClientRect();
     let clientX, clientY;
@@ -203,6 +205,8 @@ canvas.addEventListener('pointercancel', e => {
     drawing = false;
     if (selectedEntity) selectedEntity.dragging = null;
 });
+
+// ブラウザの標準タッチ動作をキャンセル（スクロール防止）
 canvas.addEventListener('touchstart', e => e.preventDefault(), { passive: false });
 canvas.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
 canvas.addEventListener('touchend', e => e.preventDefault(), { passive: false });
@@ -229,7 +233,6 @@ addGlyphBtn.addEventListener('click', () => {
     renderGlyphList();
     entities = [];
     redraw();
-    updatePreviewFont();
 });
 
 function renderGlyphList() {
@@ -272,21 +275,38 @@ saveFontBtn.addEventListener('click', () => {
         const blob = new Blob([arrayBuffer], { type: 'font/opentype' });
         const url = URL.createObjectURL(blob);
 
+        // ダウンロード
         const a = document.createElement('a');
         a.href = url;
         a.download = 'customfont.otf';
         a.click();
 
-        updatePreviewFont();
+        // プレビュー用にフォント更新
+        updatePreviewFont(blob);
+
     } catch (e) {
         console.error(e);
         alert('フォント生成エラー: ' + e.message);
     }
 });
 
+// フォント生成のための座標変換
 function canvasXtoFontX(x) { return (x / canvas.width) * 1000; }
 function canvasYtoFontY(y) { return 1000 - (y / canvas.height) * 1000; }
 
+// 符号付き多角形面積計算（正：反時計回り、負：時計回り）
+function polygonArea(points) {
+    let area = 0;
+    const n = points.length;
+    for (let i = 0; i < n; i++) {
+        const p1 = points[i];
+        const p2 = points[(i + 1) % n];
+        area += p1.x * p2.y - p2.x * p1.y;
+    }
+    return area / 2;
+}
+
+// opentype.js でフォント生成
 function generateFont() {
     const glyphArray = [];
 
@@ -294,29 +314,39 @@ function generateFont() {
         const g = glyphs[char];
         const path = new opentype.Path();
 
-        const outlines = [];
-        const holes = [];
+        const outlines = []; // 外周パス（穴でない）
+        const holes = [];    // 穴のパス
 
         g.entities.forEach(entity => {
             if (!entity.path || entity.path.length === 0) return;
 
             const area = polygonArea(entity.path);
-            if (area < 0) outlines.push([...entity.path].reverse());
-            else holes.push(entity.path);
+
+            if (area < 0) {
+                // 面積負 → 外周 → 反時計回りに揃えるために逆順
+                outlines.push([...entity.path].reverse());
+            } else {
+                // 面積正 → 穴 → 反時計回りのまま
+                holes.push(entity.path);
+            }
         });
 
+        // 外周を先に追加
         outlines.forEach(pts => {
             path.moveTo(canvasXtoFontX(pts[0].x + g.offsetX), canvasYtoFontY(pts[0].y + g.offsetY));
             for (let i = 1; i < pts.length; i++) {
-                path.lineTo(canvasXtoFontX(pts[i].x + g.offsetX), canvasYtoFontY(pts[i].y + g.offsetY));
+                const pt = pts[i];
+                path.lineTo(canvasXtoFontX(pt.x + g.offsetX), canvasYtoFontY(pt.y + g.offsetY));
             }
             path.close();
         });
 
+        // 穴を次に追加
         holes.forEach(pts => {
             path.moveTo(canvasXtoFontX(pts[0].x + g.offsetX), canvasYtoFontY(pts[0].y + g.offsetY));
             for (let i = 1; i < pts.length; i++) {
-                path.lineTo(canvasXtoFontX(pts[i].x + g.offsetX), canvasYtoFontY(pts[i].y + g.offsetY));
+                const pt = pts[i];
+                path.lineTo(canvasXtoFontX(pt.x + g.offsetX), canvasYtoFontY(pt.y + g.offsetY));
             }
             path.close();
         });
@@ -329,13 +359,15 @@ function generateFont() {
         }));
     }
 
-    if (!glyphArray.some(g => g.name === '.notdef'))
+    // 必須の.notdefグリフを先頭に追加
+    if (!glyphArray.some(g => g.name === '.notdef')) {
         glyphArray.unshift(new opentype.Glyph({
             name: '.notdef',
             unicode: 0,
             advanceWidth: 600,
             path: new opentype.Path()
         }));
+    }
 
     return new opentype.Font({
         familyName: 'CustomFont',
@@ -347,34 +379,163 @@ function generateFont() {
     });
 }
 
-function polygonArea(points) {
-    let area = 0;
-    for (let i = 0; i < points.length; i++) {
-        const p1 = points[i], p2 = points[(i + 1) % points.length];
-        area += p1.x * p2.y - p2.x * p1.y;
-    }
-    return area / 2;
-}
+// プレビュー用にフォントを動的生成して埋め込み
+function updatePreviewFont(blob) {
+    // 古いstyleタグ削除
+    const oldStyle = document.getElementById('dynamicFontStyle');
+    if (oldStyle) oldStyle.remove();
 
-function updatePreviewFont() {
-    try {
-        const font = generateFont();
-        const blob = new Blob([font.toArrayBuffer()], { type: 'font/opentype' });
-        const fontFace = new FontFace('CustomFontPreview', blob);
-        fontFace.load().then(loadedFace => {
-            document.fonts.add(loadedFace);
-            previewArea.style.fontFamily = 'CustomFontPreview';
-            previewArea.textContent = previewText.value;
-        });
-    } catch (e) {
-        console.error(e);
-    }
+    const fontName = 'CustomFontPreview' + Date.now();
+    currentFontFaceName = fontName;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+        const base64 = reader.result.split(',')[1];
+        const style = document.createElement('style');
+        style.id = 'dynamicFontStyle';
+        style.textContent = `
+            @font-face {
+                font-family: '${fontName}';
+                src: url(data:font/opentype;base64,${base64}) format('opentype');
+                font-weight: normal;
+                font-style: normal;
+            }
+        `;
+        document.head.appendChild(style);
+        previewArea.style.fontFamily = `'${fontName}', sans-serif`;
+        previewArea.textContent = previewText.value;
+    };
+    reader.readAsDataURL(blob);
 }
 
 previewText.addEventListener('input', () => {
     previewArea.textContent = previewText.value;
-    previewArea.style.fontFamily = 'CustomFontPreview';
+    if (currentFontFaceName) {
+        previewArea.style.fontFamily = `'${currentFontFaceName}', sans-serif`;
+    }
 });
+
+// ローカル保存・読み込み
+saveLocalBtn.addEventListener('click', () => {
+    localStorage.setItem('customFontGlyphs', JSON.stringify(glyphs));
+    alert('ローカル保存しました。');
+});
+
+loadLocalBtn.addEventListener('click', () => {
+    const saved = localStorage.getItem('customFontGlyphs');
+    if (saved) {
+        glyphs = JSON.parse(saved);
+        renderGlyphList();
+        alert('ローカルから読み込みました。');
+    }
+});
+
+// GitHubアップロード
+uploadGithubBtn.addEventListener('click', () => {
+    try {
+        const font = generateFont();
+        const arrayBuffer = font.toArrayBuffer();
+        const base64Font = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+
+        const url = `https://api.github.com/repos/${githubUser.value}/${githubRepo.value}/contents/${githubFile.value}`;
+        fetch(url, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `token ${githubToken.value}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                message: 'Upload font',
+                content: base64Font
+            })
+        })
+        .then(response => response.json())
+        .then(() => alert('GitHubにアップロードしました。'))
+        .catch(err => {
+            console.error(err);
+            alert('アップロード失敗: ' + err.message);
+        });
+
+    } catch (e) {
+        console.error(e);
+        alert('アップロードエラー: ' + e.message);
+    }
+});
+
+// プリセット管理
+savePresetBtn.addEventListener('click', () => {
+    const name = presetName.value;
+    if (!name) return;
+    presets[name] = JSON.parse(JSON.stringify(entities));
+    localStorage.setItem('fontPresets', JSON.stringify(presets));
+    updatePresetList();
+});
+
+loadPresetBtn.addEventListener('click', () => {
+    const name = presetSelect.value;
+    if (!presets[name]) return;
+    entities = JSON.parse(JSON.stringify(presets[name]));
+    redraw();
+});
+
+// グリフリスト更新
+function renderGlyphList() {
+    glyphList.innerHTML = '';
+    for (const char in glyphs) {
+        const div = document.createElement('div');
+        div.textContent = char;
+        div.addEventListener('click', () => {
+            const data = glyphs[char];
+            entities = JSON.parse(JSON.stringify(data.entities));
+            offsetX.value = data.offsetX;
+            offsetY.value = data.offsetY;
+            strokeWidth.value = data.stroke;
+            charInput.value = char;
+            redraw();
+        });
+        glyphList.appendChild(div);
+    }
+}
+
+// フォントセット保存・管理
+saveFontSetBtn.addEventListener('click', () => {
+    const name = fontSetName.value;
+    if (!name) return;
+    const allSets = JSON.parse(localStorage.getItem('fontSets') || '{}');
+    allSets[name] = JSON.parse(JSON.stringify(glyphs));
+    localStorage.setItem('fontSets', JSON.stringify(allSets));
+    renderFontSetList();
+});
+
+function renderFontSetList() {
+    const allSets = JSON.parse(localStorage.getItem('fontSets') || '{}');
+    fontSetList.innerHTML = '';
+    for (const name in allSets) {
+        const div = document.createElement('div');
+        div.innerHTML = `<b>${name}</b> 
+        <button data-name="${name}" class="loadBtn">読</button> 
+        <button data-name="${name}" class="delBtn">削</button>`;
+        fontSetList.appendChild(div);
+    }
+
+    fontSetList.querySelectorAll('.loadBtn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const allSets = JSON.parse(localStorage.getItem('fontSets') || '{}');
+            glyphs = JSON.parse(JSON.stringify(allSets[btn.dataset.name]));
+            renderGlyphList();
+            alert(`${btn.dataset.name} を読み込みました`);
+        });
+    });
+
+    fontSetList.querySelectorAll('.delBtn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const allSets = JSON.parse(localStorage.getItem('fontSets') || '{}');
+            delete allSets[btn.dataset.name];
+            localStorage.setItem('fontSets', JSON.stringify(allSets));
+            renderFontSetList();
+        });
+    });
+}
 </script>
 
 </body>
