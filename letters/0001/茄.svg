@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <g stroke="black" stroke-width="3" fill="none">
+    <!-- 草冠 -->
+    <line x1="25" y1="20" x2="45" y2="20"/>
+    <line x1="55" y1="20" x2="75" y2="20"/>
+    
+    <!-- 茄の下部：実＋茎 -->
+    <line x1="50" y1="30" x2="50" y2="80"/>
+    <rect x="35" y="50" width="30" height="20"/>
+    <line x1="35" y1="50" x2="65" y2="70"/>
+    <line x1="65" y1="50" x2="35" y2="70"/>
+  </g>
+</svg>
