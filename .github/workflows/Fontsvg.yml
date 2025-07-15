@@ -16,16 +16,16 @@ jobs:
       - name: 🛠 Install FontForge
         run: |
           sudo apt-get update
-          sudo apt-get install -y fontforge python3
+          sudo apt-get install -y fontforge
 
-      - name: 🧱 Build TTF font
-        run: python3 build_font.py
+      - name: 🧱 Build TTF font with FontForge script
+        run: |
+          fontforge -script build_font.py
 
       - name: 📝 Commit and push generated font
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git pull
           git add fonts/*.ttf
           git commit -m "🔤 Generate TTF font from SVGs" || echo "No changes to commit"
           git push
