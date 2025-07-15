@@ -26,7 +26,19 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # 変更をstash（一時退避）
+          git stash push -m "auto-stash before pull"
+
+          # 最新を取り込み
           git pull --rebase
-          git add -u fonts/*.ttf
+
+          # stashを戻す（戻せなくても続行）
+          git stash pop || true
+
+          # 変更をステージしてコミット
+          git add fonts/*.ttf
           git commit -m "🔤 Update TTF font from SVGs" || echo "No changes to commit"
+
+          # push
           git push
