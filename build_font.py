@@ -3,7 +3,7 @@ import subprocess
 import os
 import fontforge
 
-OUTPUT_TTF = "fonts/custom_font.ttf"
+OUTPUT_TTF = "fonts/custom_font3.ttf"
 
 def find_svg_files():
     result = subprocess.run(["find", ".", "-name", "*.svg"], stdout=subprocess.PIPE, text=True)
