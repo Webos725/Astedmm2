@@ -1,4 +1,5 @@
-<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <g stroke="black" stroke-width="3">
   <!-- 左側の曲がった縦棒 (15マス位置) -->
   <path d="M15,10 Q10,30 15,40" fill="none" stroke="black" stroke-width="3"/>
   <line x1="15" y1="40" x2="15" y2="80" stroke="black" stroke-width="3"/>
@@ -14,4 +15,5 @@
   <line x1="55" y1="90" x2="55" y2="30" stroke="black" stroke-width="3"/>
   <line x1="70" y1="90" x2="70" y2="30" stroke="black" stroke-width="3"/>
   <line x1="45" y1="20" x2="85" y2="90" stroke="black" stroke-width="5"/>
+  </g>
 </svg>
