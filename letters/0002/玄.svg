@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <g stroke="black" stroke-width="3" fill="none">
+    <!-- 渦巻くような形 -->
+    <circle cx="50" cy="50" r="25" />
+    <line x1="50" y1="25" x2="50" y2="75" />
+    <line x1="35" y1="40" x2="65" y2="60" />
+    <line x1="65" y1="40" x2="35" y2="60" />
+    <!-- 奥行き感の内接円 -->
+    <circle cx="50" cy="50" r="8" />
+  </g>
+</svg>
