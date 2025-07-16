@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <g stroke="black" stroke-width="3" fill="none">
+    <!-- 屋根 -->
+    <path d="M20 30 H80"/>
+    <!-- 部屋の枠（四角） -->
+    <path d="M30 30 V70 H70 V30"/>
+    <!-- 中央のしきり -->
+    <line x1="50" y1="30" x2="50" y2="70"/>
+    <!-- 横のベッドライン -->
+    <path d="M35 45 H65"/>
+  </g>
+</svg>
