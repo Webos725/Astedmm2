@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <g stroke="black" stroke-width="3" fill="none">
+    <!-- 宀 -->
+    <path d="M20 30 Q50 10 80 30" fill="none"/>
+    <line x1="30" y1="30" x2="30" y2="50"/>
+    <line x1="70" y1="30" x2="70" y2="50"/>
+
+    <!-- 八 -->
+    <line x1="40" y1="60" x2="50" y2="80"/>
+    <line x1="60" y1="60" x2="50" y2="80"/>
+  </g>
+</svg>
