@@ -1,0 +1,13 @@
+<!-- 寄 -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <g stroke="black" stroke-width="3" fill="none">
+    <!-- 宀 -->
+    <path d="M30 20 Q50 10 70 20"/>
+    <line x1="40" y1="20" x2="40" y2="30"/>
+    <line x1="60" y1="20" x2="60" y2="30"/>
+    <!-- 寄り添い -->
+    <circle cx="45" cy="50" r="5"/>
+    <circle cx="55" cy="50" r="5"/>
+    <line x1="50" y1="55" x2="50" y2="70"/>
+  </g>
+</svg>
