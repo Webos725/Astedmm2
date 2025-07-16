@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- 月 -->
+  <path d="M60 30 A20 20 0 1 0 40 70" stroke="black" fill="none" stroke-width="3"/>
+  <!-- 星（三角） -->
+  <path d="M20 20 L25 30 L15 30 Z" stroke="black" fill="none" stroke-width="2"/>
+  <path d="M80 25 L85 35 L75 35 Z" stroke="black" fill="none" stroke-width="2"/>
+  <!-- 地平線 -->
+  <line x1="20" y1="80" x2="80" y2="80" stroke="black" stroke-width="2"/>
+</svg>
