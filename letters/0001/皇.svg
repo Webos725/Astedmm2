@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <g stroke="black" stroke-width="3" fill="none">
+    <!-- 上部：日 -->
+    <rect x="35" y="15" width="30" height="25"/>
+    <line x1="35" y1="27.5" x2="65" y2="27.5"/>
+
+    <!-- 王 -->
+    <line x1="30" y1="50" x2="70" y2="50"/>
+    <line x1="50" y1="40" x2="50" y2="90"/>
+    <line x1="30" y1="70" x2="70" y2="70"/>
+  </g>
+</svg>
