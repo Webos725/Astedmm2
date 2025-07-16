@@ -1,0 +1,11 @@
+<!-- 腸 -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <g stroke="black" stroke-width="3" fill="none">
+    <!-- ⺼ -->
+    <line x1="25" y1="20" x2="25" y2="60"/>
+    <line x1="20" y1="30" x2="30" y2="30"/>
+    <line x1="20" y1="50" x2="30" y2="50"/>
+    <!-- 蛇行する腸 -->
+    <path d="M50 30 Q70 40 50 50 Q30 60 50 70"/>
+  </g>
+</svg>
