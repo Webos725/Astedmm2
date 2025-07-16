@@ -1,0 +1,12 @@
+<!-- 布 -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <g stroke="black" stroke-width="3" fill="none">
+    <!-- 縦棒 -->
+    <line x1="50" y1="20" x2="50" y2="80"/>
+    <!-- 横棒 -->
+    <line x1="30" y1="30" x2="70" y2="30"/>
+    <!-- ひらひら -->
+    <path d="M30 30 Q25 50 30 70"/>
+    <path d="M70 30 Q75 50 70 70"/>
+  </g>
+</svg>
