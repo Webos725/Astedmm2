@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100">
+  <g stroke="black" stroke-width="3" fill="none">
+    <!-- 力 -->
+    <line x1="20" y1="30" x2="20" y2="70" />
+    <line x1="20" y1="50" x2="40" y2="50" />
+    <line x1="40" y1="50" x2="30" y2="70" />
+    
+    <!-- 子 -->
+    <line x1="60" y1="30" x2="80" y2="30" />
+    <line x1="70" y1="30" x2="70" y2="70" />
+    <line x1="60" y1="60" x2="80" y2="60" />
+    
+    <!-- 特徴：中央の丸（無垢さ・強調） -->
+    <circle cx="70" cy="45" r="5" />
+  </g>
+</svg>
