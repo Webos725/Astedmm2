@@ -1,0 +1,11 @@
+<!-- 地 -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <g stroke="black" stroke-width="3" fill="none">
+    <!-- 土偏 -->
+    <line x1="20" y1="30" x2="40" y2="30"/>
+    <line x1="30" y1="20" x2="30" y2="70"/>
+    <!-- 也 -->
+    <path d="M60 30 Q70 50 60 70"/>
+    <line x1="70" y1="30" x2="70" y2="70"/>
+  </g>
+</svg>
