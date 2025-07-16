@@ -1,0 +1,12 @@
+<!-- 暗 -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <g stroke="black" stroke-width="3" fill="none">
+    <!-- 日 -->
+    <rect x="25" y="25" width="20" height="30"/>
+    <line x1="35" y1="25" x2="35" y2="55"/>
+    <line x1="25" y1="40" x2="45" y2="40"/>
+    <!-- 闇の扉 -->
+    <path d="M60 30 L80 50 L60 70"/>
+    <line x1="60" y1="30" x2="60" y2="70"/>
+  </g>
+</svg>
