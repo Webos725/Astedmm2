@@ -1,0 +1,10 @@
+<!-- 医 -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <g stroke="black" stroke-width="3" fill="none">
+    <!-- 匚 -->
+    <path d="M30 20 L30 80 L70 80"/>
+    <!-- 矢 -->
+    <line x1="50" y1="30" x2="50" y2="70"/>
+    <path d="M40 40 L50 30 L60 40"/>
+  </g>
+</svg>
