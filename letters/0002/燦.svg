@@ -1,0 +1,11 @@
+<!-- 燦 -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <g stroke="black" stroke-width="3" fill="none">
+    <!-- 火偏 -->
+    <line x1="20" y1="20" x2="25" y2="35"/>
+    <line x1="30" y1="20" x2="25" y2="35"/>
+    <line x1="25" y1="35" x2="25" y2="60"/>
+    <!-- "参"の要素を星形で再解釈 -->
+    <path d="M60 30 L65 45 L80 45 L68 55 L73 70 L60 60 L47 70 L52 55 L40 45 L55 45 Z"/>
+  </g>
+</svg>
