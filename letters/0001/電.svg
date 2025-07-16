@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <g stroke="black" stroke-width="3" fill="none">
+    <!-- 雨 -->
+    <rect x="30" y="20" width="40" height="30"/>
+    <line x1="40" y1="20" x2="40" y2="50"/>
+    <line x1="60" y1="20" x2="60" y2="50"/>
+    <circle cx="35" cy="55" r="3"/>
+    <circle cx="65" cy="55" r="3"/>
+
+    <!-- 電下部（田） -->
+    <rect x="40" y="60" width="20" height="20"/>
+    <line x1="50" y1="60" x2="50" y2="80"/>
+    <line x1="40" y1="70" x2="60" y2="70"/>
+  </g>
+</svg>
