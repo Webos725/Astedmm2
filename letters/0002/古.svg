@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100">
+  <g stroke="black" stroke-width="3" fill="none">
+    <!-- 上部：日 -->
+    <rect x="35" y="20" width="30" height="20" />
+    <line x1="35" y1="30" x2="65" y2="30" />
+
+    <!-- 下部：支える棒 -->
+    <line x1="50" y1="40" x2="50" y2="70" />
+  </g>
+</svg>
