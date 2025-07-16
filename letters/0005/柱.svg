@@ -1,0 +1,13 @@
+<!-- 柱 -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <g stroke="black" stroke-width="3" fill="none">
+    <!-- 木偏 -->
+    <line x1="25" y1="20" x2="25" y2="80"/>
+    <line x1="15" y1="35" x2="35" y2="35"/>
+    <line x1="15" y1="50" x2="35" y2="50"/>
+    <!-- 主 -->
+    <line x1="50" y1="20" x2="70" y2="20"/>
+    <line x1="60" y1="20" x2="60" y2="80"/>
+    <circle cx="60" cy="15" r="4"/>
+  </g>
+</svg>
