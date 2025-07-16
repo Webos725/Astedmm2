@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <g stroke="black" stroke-width="3" fill="none">
+    <!-- 羽 -->
+    <line x1="30" y1="20" x2="40" y2="50"/>
+    <line x1="30" y1="30" x2="50" y2="40"/>
+    <line x1="70" y1="20" x2="60" y2="50"/>
+    <line x1="70" y1="30" x2="50" y2="40"/>
+
+    <!-- 中央縦 -->
+    <line x1="50" y1="50" x2="50" y2="80"/>
+    <line x1="45" y1="70" x2="55" y2="80"/>
+  </g>
+</svg>
