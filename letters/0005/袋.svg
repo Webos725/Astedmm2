@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <g stroke="black" stroke-width="3" fill="none">
+    <!-- 衣の偏風（×構造） -->
+    <line x1="30" y1="20" x2="50" y2="40"/>
+    <line x1="30" y1="40" x2="50" y2="20"/>
+    <!-- 中央の縦軸 -->
+    <path d="M40 40 V70"/>
+    <!-- 袋本体（右側） -->
+    <rect x="55" y="30" width="20" height="40" rx="5" ry="5"/>
+    <!-- 縦の縫い目 -->
+    <line x1="65" y1="30" x2="65" y2="70"/>
+  </g>
+</svg>
