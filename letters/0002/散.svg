@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <g stroke="black" stroke-width="3" fill="none">
+    <!-- 攵部 -->
+    <line x1="20" y1="20" x2="30" y2="30"/>
+    <line x1="30" y1="30" x2="20" y2="40"/>
+    <line x1="25" y1="40" x2="25" y2="60"/>
+    <!-- 点々と払い -->
+    <circle cx="60" cy="30" r="2.5"/>
+    <circle cx="65" cy="40" r="2.5"/>
+    <circle cx="70" cy="50" r="2.5"/>
+    <line x1="60" y1="60" x2="85" y2="80"/>
+  </g>
+</svg>
