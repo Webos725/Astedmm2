@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100">
+  <g stroke="black" stroke-width="3" fill="none">
+    <!-- 外枠（囗） -->
+    <rect x="10" y="10" width="80" height="80" />
+    
+    <!-- 中央：人 -->
+    <line x1="50" y1="30" x2="50" y2="70" />
+    <line x1="35" y1="50" x2="65" y2="50" />
+    <line x1="50" y1="30" x2="40" y2="20" />
+    <line x1="50" y1="30" x2="60" y2="20" />
+    
+    <!-- 下部：木 -->
+    <line x1="50" y1="60" x2="40" y2="75" />
+    <line x1="50" y1="60" x2="60" y2="75" />
+  </g>
+</svg>
