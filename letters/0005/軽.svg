@@ -1,0 +1,14 @@
+<!-- 軽 -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <g stroke="black" stroke-width="3" fill="none">
+    <!-- 車 -->
+    <rect x="25" y="40" width="50" height="30"/>
+    <line x1="40" y1="40" x2="40" y2="70"/>
+    <line x1="60" y1="40" x2="60" y2="70"/>
+    <circle cx="40" cy="75" r="5"/>
+    <circle cx="60" cy="75" r="5"/>
+    <!-- 巠 -->
+    <line x1="50" y1="20" x2="50" y2="35"/>
+    <line x1="40" y1="30" x2="60" y2="30"/>
+  </g>
+</svg>
