@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100">
+  <g stroke="black" stroke-width="3" fill="none">
+    <!-- 上部：天 -->
+    <line x1="30" y1="20" x2="70" y2="20" />
+    <line x1="50" y1="20" x2="50" y2="40" />
+    <!-- 下部：気の上昇 -->
+    <path d="M40,50 Q50,60 60,50" />
+    <line x1="50" y1="60" x2="50" y2="80" />
+  </g>
+</svg>
