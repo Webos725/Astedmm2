@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <g stroke="black" stroke-width="3" fill="none">
+    <!-- 女 -->
+    <path d="M20 20 L30 40 M30 20 L20 40 M25 40 L25 60"/>
+    <!-- 昔の変形 -->
+    <rect x="50" y="20" width="20" height="15"/>
+    <line x1="60" y1="35" x2="60" y2="60"/>
+    <line x1="50" y1="47" x2="70" y2="47"/>
+  </g>
+</svg>
