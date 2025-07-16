@@ -8,4 +8,5 @@
 
     <!-- 足みたいな -->
     <line x1="30" y1="5" x2="50" y2="30" stroke="black" stroke-width="3"/>
+  </g>
 </svg>
