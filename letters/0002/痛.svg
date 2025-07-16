@@ -1,0 +1,11 @@
+<!-- 痛 -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <g stroke="black" stroke-width="3" fill="none">
+    <!-- 疒 -->
+    <line x1="30" y1="20" x2="70" y2="20"/>
+    <line x1="40" y1="20" x2="40" y2="40"/>
+    <line x1="30" y1="40" x2="50" y2="40"/>
+    <!-- 衝撃：雷のような -->
+    <path d="M60 45 L55 55 L65 60 L60 70"/>
+  </g>
+</svg>
