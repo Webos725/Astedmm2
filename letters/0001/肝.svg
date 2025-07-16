@@ -1,0 +1,13 @@
+<!-- 肝 -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <g stroke="black" stroke-width="3" fill="none">
+    <!-- ⺼ -->
+    <line x1="25" y1="20" x2="25" y2="60"/>
+    <line x1="20" y1="30" x2="30" y2="30"/>
+    <line x1="20" y1="50" x2="30" y2="50"/>
+    <!-- 肝臓：分岐器官 -->
+    <path d="M45 30 Q55 40 45 50"/>
+    <line x1="55" y1="40" x2="70" y2="30"/>
+    <line x1="55" y1="40" x2="70" y2="50"/>
+  </g>
+</svg>
