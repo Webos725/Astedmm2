@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100">
+  <g stroke="black" stroke-width="3" fill="none">
+    <!-- 偏：月 -->
+    <line x1="20" y1="20" x2="20" y2="80" />
+    <line x1="20" y1="30" x2="40" y2="30" />
+    <line x1="20" y1="50" x2="40" y2="50" />
+    <line x1="20" y1="70" x2="40" y2="70" />
+    
+    <!-- 旁：貝＋α -->
+    <circle cx="65" cy="40" r="8" />
+    <line x1="60" y1="60" x2="70" y2="80" />
+    <line x1="70" y1="60" x2="60" y2="80" />
+    <line x1="55" y1="50" x2="75" y2="50" />
+  </g>
+</svg>
