@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <g stroke="black" stroke-width="3" fill="none">
+    <!-- 冂 -->
+    <rect x="15" y="15" width="40" height="70"/>
+    <!-- 卜 -->
+    <line x1="60" y1="30" x2="80" y2="60"/>
+    <line x1="80" y1="60" x2="65" y2="75"/>
+  </g>
+</svg>
