@@ -1,0 +1,13 @@
+<!-- 汲 -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" >
+  <g stroke="black" stroke-width="3" fill="none">
+    <!-- 水偏の曲線２本 -->
+    <path d="M10,10 Q30,20 10,40"/>
+    <path d="M90,10 Q70,20 90,40"/>
+    <!-- 中央の棒と横棒 -->
+    <line x1="30" y1="60" x2="70" y2="60"/>
+    <line x1="50" y1="40" x2="50" y2="90"/>
+    <!-- 中央の丸 -->
+    <circle cx="50" cy="60" r="8"/>
+  </g>
+</svg>
