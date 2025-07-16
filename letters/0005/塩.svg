@@ -1,0 +1,13 @@
+<!-- 塩 -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" >
+  <g stroke="black" stroke-width="3" fill="none">
+    <!-- 土の偏 -->
+    <rect x="10" y="10" width="30" height="80"/>
+    <!-- 右の３本線 -->
+    <line x1="45" y1="30" x2="90" y2="30"/>
+    <line x1="45" y1="50" x2="90" y2="50"/>
+    <line x1="45" y1="70" x2="90" y2="70"/>
+    <!-- 中央の黒丸 -->
+    <circle cx="67.5" cy="50" r="5" fill="black"/>
+  </g>
+</svg>
