@@ -1,0 +1,10 @@
+<!-- 北 -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <g stroke="black" stroke-width="3" fill="none">
+    <!-- 中央の垂直線 -->
+    <line x1="50" y1="20" x2="50" y2="80"/>
+    <!-- 分かれる矢印 -->
+    <line x1="50" y1="50" x2="30" y2="30"/>
+    <line x1="50" y1="50" x2="70" y2="30"/>
+  </g>
+</svg>
