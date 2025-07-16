@@ -1,0 +1,13 @@
+<!-- 鋲 -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <g stroke="black" stroke-width="3" fill="none">
+    <!-- 金偏 -->
+    <line x1="20" y1="20" x2="20" y2="80"/>
+    <circle cx="20" cy="30" r="3"/>
+    <circle cx="20" cy="50" r="3"/>
+    <circle cx="20" cy="70" r="3"/>
+    <!-- 釘の象形 -->
+    <circle cx="60" cy="30" r="10"/>
+    <line x1="60" y1="40" x2="60" y2="80"/>
+  </g>
+</svg>
