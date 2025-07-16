@@ -1,0 +1,9 @@
+<!-- 星 -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" >
+  <g stroke="black" stroke-width="3" fill="none">
+    <!-- 星形多角形 -->
+    <polygon points="50,10 60,40 90,40 65,60 75,90 50,70 25,90 35,60 10,40 40,40"/>
+    <!-- 底辺の線 -->
+    <line x1="10" y1="95" x2="90" y2="95"/>
+  </g>
+</svg>
