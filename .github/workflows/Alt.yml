@@ -1,0 +1,34 @@
+name: Download and Upload FontStruct Font
+
+on:
+  workflow_dispatch:  # 手動実行用
+  schedule:
+    - cron: '0 3 * * *'  # 毎日03:00 UTCに実行（日本時間12:00）
+
+jobs:
+  download-upload:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Download font from FontStruct
+      run: |
+        mkdir -p fonts
+        curl -L "https://fontstruct.com/font_archives/download/2710626?wrapperFormat=0" -o fonts/fontstruct_download.ttf
+
+    - name: Configure git
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+    - name: Commit and push if changed
+      run: |
+        git add fonts/fontstruct_download.ttf
+        if ! git diff --cached --quiet; then
+          git commit -m "Update FontStruct font"
+          git push
+        else
+          echo "No changes to commit."
+        fi
