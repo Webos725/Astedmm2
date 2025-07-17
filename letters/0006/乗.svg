@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <g stroke="black" stroke-width="3" fill="none">
+    <!-- 段差構造 -->
+    <line x1="30" y1="30" x2="70" y2="30"/>
+    <line x1="40" y1="40" x2="60" y2="40"/>
+    <line x1="50" y1="50" x2="50" y2="80"/>
+    <!-- 踏み台 -->
+    <polyline points="40,70 60,70 50,80"/>
+  </g>
+</svg>
