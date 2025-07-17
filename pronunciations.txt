@@ -381,6 +381,7 @@ B - din
 雪 - meng
 雲 - zang
 電 - wo
+霊 - tuas
 青 - sel
 非 - uan
 響 - mo
