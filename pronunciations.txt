@@ -80,6 +80,7 @@
 四 - zel
 団 - muo
 囲 - dua
+図 - al
 国 - nao
 園 - ruo
 土 - jail
@@ -156,6 +157,7 @@
 抱 - pin
 押 - ril
 拘 - zuom
+拡 - tuo
 拾 - zas
 持 - na
 指 - ho
