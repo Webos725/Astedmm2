@@ -307,6 +307,7 @@
 細 - yos1
 組 - wing2
 緑 - su1
+線 - nim2
 緩 - zua3
 縫 - ta3
 縮 - i3
@@ -375,6 +376,7 @@
 足 - hus2
 踵 - geng2
 蹴 - za1
+軈 - xuom2
 車 - xeng3
 軍 - jos2
 軸 - jai3
