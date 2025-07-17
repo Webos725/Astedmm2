@@ -47,6 +47,7 @@
 刺 - dul
 剣 - yi
 創 - e
+力 - yuo
 加 - re
 助 - zus
 勺 - aon
