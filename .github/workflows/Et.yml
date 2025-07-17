@@ -1,0 +1,33 @@
+name: Generate Pronunciations
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-and-upload:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📦 Checkout repository
+        uses: actions/checkout@v3
+
+      - name: 🐍 Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: 📦 Install requirements
+        run: pip install --upgrade pip
+
+      - name: ▶️ Run generator script
+        run: |
+          mkdir -p svgs
+          python generate_pronunciations.py
+
+      - name: 📤 Commit and push pronunciation file
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add pronunciations.txt
+          git commit -m "Update pronunciations.txt"
+          git push
