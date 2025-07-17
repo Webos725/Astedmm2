@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <g stroke="black" stroke-width="3" fill="none">
+    <rect x="35" y="20" width="30" height="15"/> <!-- 上部の“古”部分 -->
+    <line x1="50" y1="35" x2="50" y2="60"/> <!-- 縦軸：昔の流れ -->
+    <line x1="40" y1="60" x2="60" y2="80"/> <!-- 交差線１：事故の兆し -->
+    <line x1="60" y1="60" x2="40" y2="80"/> <!-- 交差線２：崩壊の象徴 -->
+  </g>
+</svg>
