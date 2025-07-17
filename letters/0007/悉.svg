@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <g stroke="black" stroke-width="3" fill="none">
+    <line x1="30" y1="30" x2="70" y2="30"/> <!-- 上部の刃 -->
+    <line x1="30" y1="30" x2="70" y2="70"/> <!-- 左から右下へ：切り裂く線 -->
+    <line x1="30" y1="70" x2="70" y2="70"/> <!-- 下部の横線 -->
+    <polyline points="50,70 40,85 60,85"/> <!-- 下に“心”：内面の尽力を象徴 -->
+  </g>
+</svg>
