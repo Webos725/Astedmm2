@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <g stroke="black" stroke-width="3" fill="none">
+    <!-- 中央の乙形 -->
+    <polyline points="30,20 70,20 50,40 70,60 30,60"/>
+    <!-- 下からの幻影的縦棒 -->
+    <line x1="50" y1="40" x2="50" y2="80"/>
+  </g>
+</svg>
