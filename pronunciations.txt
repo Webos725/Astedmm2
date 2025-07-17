@@ -142,6 +142,7 @@
 我 - was
 戦 - gil
 手 - dal
+払 - nos
 技 - jing
 押 - ril
 拘 - zuom
