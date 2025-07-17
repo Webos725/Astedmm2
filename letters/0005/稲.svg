@@ -1,0 +1,15 @@
+<!-- 稲：禾＋田＋横枝構成で13画 -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <g stroke="black" stroke-width="3" fill="none">
+    <!-- 禾 -->
+    <line x1="25" y1="20" x2="25" y2="80"/>
+    <line x1="15" y1="35" x2="35" y2="35"/>
+    <line x1="15" y1="50" x2="35" y2="50"/>
+    <line x1="15" y1="65" x2="35" y2="65"/>
+    <!-- 田 -->
+    <rect x="55" y="30" width="30" height="40"/>
+    <line x1="70" y1="30" x2="70" y2="70"/>
+    <line x1="55" y1="50" x2="85" y2="50"/>
+    <line x1="60" y1="75" x2="80" y2="75"/>
+  </g>
+</svg>
