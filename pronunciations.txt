@@ -187,6 +187,7 @@
 柱 - ha
 栗 - yil
 根 - ding
+棒 - gal
 棚 - yuom
 概 - wu
 機 - dai
@@ -274,6 +275,7 @@
 累 - go
 組 - wel
 緑 - wan
+緩 - yun
 縫 - ron
 羅 - kan
 羊 - sul
