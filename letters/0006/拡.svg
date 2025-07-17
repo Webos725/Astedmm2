@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <g stroke="black" stroke-width="3" fill="none">
+    <!-- 扌 -->
+    <line x1="20" y1="20" x2="20" y2="80"/>
+    <line x1="15" y1="40" x2="25" y2="40"/>
+    <line x1="15" y1="60" x2="25" y2="60"/>
+    <!-- 広がり -->
+    <polyline points="50,50 70,30"/>
+    <polyline points="50,50 70,70"/>
+    <line x1="60" y1="30" x2="60" y2="70"/>
+  </g>
+</svg>
