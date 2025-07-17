@@ -2,6 +2,6 @@
   <g stroke="black" stroke-width="3" fill="none">
     <line x1="30" y1="20" x2="30" y2="80"/> <!-- 垂直の壁 -->
     <line x1="30" y1="80" x2="70" y2="80"/> <!-- 下部の床 -->
-    <rect x="50" y="40" width="20" height="20"/> <!-- 閉じられた空間 -->
+    <rect x="50" y="40" width="20" height="40"/> <!-- 閉じられた空間 -->
   </g>
 </svg>
