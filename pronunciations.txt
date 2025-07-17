@@ -134,6 +134,7 @@
 布 - run
 帳 - bi
 常 - yas
+幻 - saol
 幼 - tong
 広 - hes
 店 - a
