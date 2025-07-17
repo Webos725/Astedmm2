@@ -60,6 +60,7 @@ B - din
 十 - ku
 千 - du
 南 - yo
+印 - dus
 原 - yuol
 去 - xo
 反 - tuan
@@ -303,6 +304,7 @@ B - din
 芹 - is
 茄 - zai
 茶 - maing
+茸 - hal
 草 - xen
 菜 - sua
 落 - xaing
