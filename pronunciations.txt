@@ -175,6 +175,7 @@ B - din
 晴 - xul
 暗 - rel
 曙 - buo
+曰 - dung
 曲 - zuan
 更 - bu
 書 - ji
@@ -186,6 +187,7 @@ B - din
 杓 - duan
 来 - haing
 杭 - bes
+杯 - sas
 東 - wa
 枯 - zes
 柑 - mai
