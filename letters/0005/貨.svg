@@ -1,0 +1,14 @@
+<!-- 貨：貝＋化の簡略組み合わせで11画 -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <g stroke="black" stroke-width="3" fill="none">
+    <!-- 貝 -->
+    <rect x="20" y="30" width="20" height="40"/>
+    <line x1="30" y1="30" x2="30" y2="70"/>
+    <line x1="20" y1="50" x2="40" y2="50"/>
+    <line x1="25" y1="70" x2="35" y2="85"/>
+    <!-- 化 -->
+    <line x1="65" y1="30" x2="65" y2="70"/>
+    <line x1="65" y1="50" x2="85" y2="75"/>
+    <line x1="70" y1="60" x2="90" y2="60"/>
+  </g>
+</svg>
