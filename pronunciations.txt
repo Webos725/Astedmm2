@@ -7,6 +7,7 @@
 下 - puo
 不 - ti
 中 - no
+丸 - wao
 九 - ja
 乳 - zao
 乾 - i
@@ -315,6 +316,7 @@
 話 - el
 読 - mul
 謝 - bin
+豚 - raing
 貝 - tin
 貨 - hin
 貫 - yais
