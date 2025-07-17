@@ -300,6 +300,7 @@
 茶 - maing
 草 - xen
 菜 - sua
+落 - xaing
 蔓 - zis
 蕎 - kong
 蕪 - bao
@@ -310,6 +311,7 @@
 蛸 - puom
 蜘 - hel
 蝋 - xuon
+融 - duang
 衆 - den
 行 - as
 表 - wuom
