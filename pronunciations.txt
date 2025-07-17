@@ -166,6 +166,7 @@
 散 - muas
 数 - zu
 整 - zan
+斜 - pol
 新 - kel
 方 - hing
 於 - gon
