@@ -5,7 +5,7 @@ import random
 initials = ["k", "g", "s", "z", "t", "d", "n", "m", "h", "y", "w", "r", "x", "j", "b", "p"]
 vowels = ["a", "i", "u", "e", "o"]
 dipthongs = ["ua", "uo", "ao", "ai"]
-finals = ["s", "l", "ng", "n"]
+finals = ["s", "l", "ng", "n", "m"]
 accents = ["1", "2", "3"]
 
 def generate_pronunciation(existing_prons):
