@@ -317,6 +317,7 @@ B - din
 蘇 - xuo
 蘊 - jai
 虫 - xung
+蛇 - nuong
 蛸 - puom
 蜘 - hel
 蝋 - xuon
