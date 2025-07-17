@@ -8,6 +8,7 @@
 不 - ti
 中 - no
 丸 - wao
+乗 - gun
 九 - ja
 乳 - zao
 乾 - i
