@@ -6,27 +6,28 @@ initials = ["k", "g", "s", "z", "t", "d", "n", "m", "h", "y", "w", "r", "x", "j"
 vowels = ["a", "i", "u", "e", "o"]
 dipthongs = ["ua", "uo", "ao", "ai"]
 finals = ["s", "l", "ng", "n"]
+accents = ["1", "2", "3"]
 
 def generate_pronunciation(existing_prons):
     while True:
         # 12%の確率で子音なし
-        if random.random() < 0.12:
-            onset = ""
-        else:
-            onset = random.choice(initials)
+        onset = "" if random.random() < 0.12 else random.choice(initials)
 
         # 25%で二重母音
         vowel = random.choice(dipthongs) if random.random() < 0.25 else random.choice(vowels)
 
         if vowel == "uo" and random.random() < 0.40:
-            pron = onset + "uom"
+            base = onset + "uom"
         else:
-            pron = onset + vowel
+            base = onset + vowel
             if random.random() < 0.33:
-                pron += random.choice(finals)
+                base += random.choice(finals)
 
-        if pron not in existing_prons:
-            return pron
+        accent = random.choice(accents)
+        full_pron = base + accent
+
+        if full_pron not in existing_prons:
+            return full_pron
 
 def load_existing(path):
     result = {}
