@@ -40,6 +40,7 @@
 兵 - ju
 其 - xe
 内 - ain
+再 - jeng
 冬 - si
 冷 - ba
 出 - xao
@@ -271,6 +272,7 @@
 破 - he
 硫 - os
 磁 - yon
+磨 - muom
 秋 - ual
 秒 - bong
 稲 - pel
