@@ -312,6 +312,7 @@
 読 - mul
 謝 - bin
 貝 - tin
+貨 - hin
 貫 - yais
 買 - juo
 費 - kul
