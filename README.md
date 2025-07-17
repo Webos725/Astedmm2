@@ -6,7 +6,6 @@ https://sakaltium.github.io/Kanic-letter/Eb.html
 Raw https://github.com/Konnitiwa768/Astedmm/raw/refs/heads/main/fonts/custom_font3.ttf
 
 re https://konnitiwa768.github.io/Astedmm/fonts/custom_font3.ttf
-
 アリスは川辺でおねえさんのよこにすわって、なんにもすることがないのでとても退屈しはじめていました。一、二回はおねえさんの読んでいる本をのぞいてみたけれど、そこには絵も会話もないのです。「絵や会話のない本なんて、なんの役にもたたないじゃないの」とアリスは思いました。
 
 そこでアリスは、頭のなかで、ひなぎくのくさりをつくったら楽しいだろうけれど、起きあがってひなぎくをつむのもめんどくさいし、どうしようかと考えていました（といっても、昼間で暑いし、とってもねむくて頭もまわらなかったので、これもたいへんだったのですが）。そこへいきなり、ピンクの目をした白うさぎが近くを走ってきたのです。
@@ -21,6 +20,11 @@ re https://konnitiwa768.github.io/Astedmm/fonts/custom_font3.ttf
 
 https://fontstruct.com/font_archives/download/2710626?wrapperFormat=0
 
+做
+
+# ai
+曙焼座川近而姉、不何做而大屈始。姉一二見姉読書、其不画和話。「不画和話書、何費做？」
+# ui
 竹六座隣姉在川累、唯一做事虚故開大遊思。媛一二追間目姉記然帳、回其不有画来衆談。竹六魂、「不有画来衆談然帳、向何能使之昆帳如？」
 
 天為熱在其日、而為大眠来霞故不能深思、経竹六緩思、造廻以珠花可為楽、回立而行向取花為重気、做何如？在其、有桜彩目然白兎跳暗走而来。
