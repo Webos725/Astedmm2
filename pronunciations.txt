@@ -255,6 +255,7 @@
 田 - tal
 画 - huom
 病 - wuang
+痘 - huol
 痛 - buan
 登 - bai
 白 - des
