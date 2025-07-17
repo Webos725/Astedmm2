@@ -77,6 +77,7 @@
 唔 - nang
 唖 - uol
 善 - hu
+嘔 - heng
 四 - zel
 団 - muo
 囲 - dua
@@ -314,6 +315,7 @@
 花 - xos
 芹 - is
 茄 - zai
+茎 - tail
 茶 - maing
 茸 - hal
 草 - xen
