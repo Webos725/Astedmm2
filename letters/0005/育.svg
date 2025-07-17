@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <g stroke="black" stroke-width="3" fill="none" stroke-linejoin="miter">
+    <!-- 育：上部の囲い -->
+    <line x1="30" y1="20" x2="70" y2="20"/>
+    <line x1="30" y1="20" x2="30" y2="50"/>
+    <line x1="70" y1="20" x2="70" y2="50"/>
+    <line x1="30" y1="50" x2="70" y2="50"/>
+    <!-- 中央縦線 -->
+    <line x1="50" y1="50" x2="50" y2="80"/>
+    <!-- 下の「月」風パーツ -->
+    <line x1="35" y1="65" x2="65" y2="65"/>
+    <line x1="35" y1="80" x2="65" y2="80"/>
+  </g>
+</svg>
