@@ -1,0 +1,11 @@
+<!-- 豚：畜産イメージを保ちつつシンプルに -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <g stroke="black" stroke-width="3" fill="none" stroke-linejoin="miter">
+    <rect x="25" y="30" width="40" height="40"/> <!-- 体 -->
+    <line x1="40" y1="30" x2="40" y2="70"/>     <!-- 中縦線 -->
+    <line x1="60" y1="30" x2="60" y2="70"/>     <!-- 中縦線 -->
+    <line x1="25" y1="50" x2="65" y2="50"/>     <!-- 横線 -->
+    <line x1="65" y1="70" x2="75" y2="80"/>     <!-- 尻尾払い -->
+    <line x1="50" y1="20" x2="50" y2="30"/>     <!-- 頭部縦 -->
+  </g>
+</svg>
