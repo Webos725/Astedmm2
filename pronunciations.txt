@@ -341,6 +341,7 @@
 話 - el
 読 - mul
 謝 - bin
+豆 - yuas
 豚 - raing
 貝 - tin
 貨 - hin
