@@ -66,6 +66,7 @@ B - din
 反 - tuan
 口 - zol
 古 - jao
+叩 - tuong
 可 - guo
 含 - gaong
 吹 - nuom
