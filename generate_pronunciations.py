@@ -1,7 +1,7 @@
 import os
 import random
 
-# 音素セット（b, p を含む）
+# 音素定義
 initials = ["k", "g", "s", "z", "t", "d", "n", "m", "h", "y", "w", "r", "x", "j", "b", "p"]
 vowels = ["a", "i", "u", "e", "o"]
 dipthongs = ["ua", "uo", "ao", "ai"]
@@ -9,58 +9,69 @@ finals = ["s", "l", "ng", "n"]
 
 def generate_pronunciation(existing_prons):
     while True:
-        onset = random.choice(initials)
-        vowel_part = (
-            random.choice(dipthongs) if random.random() < 0.25 else random.choice(vowels)
-        )
+        # 12%の確率で子音なし
+        if random.random() < 0.12:
+            onset = ""
+        else:
+            onset = random.choice(initials)
 
-        if vowel_part == "uo" and random.random() < 0.40:
+        # 25%で二重母音
+        vowel = random.choice(dipthongs) if random.random() < 0.25 else random.choice(vowels)
+
+        if vowel == "uo" and random.random() < 0.40:
             pron = onset + "uom"
         else:
-            pron = onset + vowel_part
+            pron = onset + vowel
             if random.random() < 0.33:
                 pron += random.choice(finals)
 
         if pron not in existing_prons:
             return pron
 
-def load_existing_pronunciations(path):
-    existing = {}
+def load_existing(path):
+    result = {}
     if os.path.exists(path):
         with open(path, encoding="utf-8") as f:
             for line in f:
                 if " - " in line:
                     key, val = line.strip().split(" - ", 1)
-                    existing[key] = val
-    return existing
+                    result[key] = val
+    return result
+
+def find_all_svgs():
+    svg_names = set()
+    for root, _, files in os.walk("."):
+        for f in files:
+            if f.endswith(".svg"):
+                name = os.path.splitext(f)[0]
+                svg_names.add(name)
+    return svg_names
 
 def main():
-    svg_dir = "svgs"
-    out_file_path = "pronunciations.txt"
+    output_file = "pronunciations.txt"
+    existing_map = load_existing(output_file)
+    used_prons = set(existing_map.values())
+    svg_names = find_all_svgs()
 
-    # 既存読み込み
-    existing = load_existing_pronunciations(out_file_path)
-    used_prons = set(existing.values())
-
-    # 現在のSVG
-    svg_files = [f for f in os.listdir(svg_dir) if f.endswith(".svg")]
-    svg_keys = [os.path.splitext(f)[0] for f in svg_files]
-
-    # 新規のみ追加
     new_entries = {}
-    for char in svg_keys:
-        if char not in existing:
+
+    for name in sorted(svg_names):
+        if name not in existing_map:
             pron = generate_pronunciation(used_prons)
-            new_entries[char] = pron
+            new_entries[name] = pron
             used_prons.add(pron)
 
-    # 結果をマージ
-    full = {**existing, **new_entries}
-    with open(out_file_path, "w", encoding="utf-8") as out:
-        for k in sorted(full):  # ソートするかはお好みで
-            out.write(f"{k} - {full[k]}\n")
+    if not new_entries:
+        print("🔁 新規追加なし")
+        return
 
-    print(f"追加: {len(new_entries)} 件")
+    # 統合して保存
+    merged = {**existing_map, **new_entries}
+    with open(output_file, "w", encoding="utf-8") as f:
+        for k in sorted(merged):
+            f.write(f"{k} - {merged[k]}\n")
+
+    print(f"✅ {len(new_entries)} 件の発音を追加しました")
 
 if __name__ == "__main__":
     main()
