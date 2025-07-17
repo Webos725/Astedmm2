@@ -151,6 +151,7 @@ B - din
 手 - dal
 払 - nos
 技 - jing
+抱 - pin
 押 - ril
 拘 - zuom
 拾 - zas
