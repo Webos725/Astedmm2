@@ -349,6 +349,7 @@ B - din
 越 - puol
 足 - ke
 踵 - hol
+蹴 - mil
 車 - paon
 軍 - mua
 軸 - raol
@@ -380,6 +381,7 @@ B - din
 雨 - sung
 雪 - meng
 雲 - zang
+零 - tang
 電 - wo
 霊 - tuas
 青 - sel
