@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <g stroke="black" stroke-width="3" fill="none">
+    <rect x="30" y="20" width="40" height="15"/> <!-- 一層目 -->
+    <rect x="30" y="40" width="40" height="15"/> <!-- 二層目 -->
+    <rect x="30" y="60" width="40" height="15"/> <!-- 三層目 -->
+  </g>
+</svg>
