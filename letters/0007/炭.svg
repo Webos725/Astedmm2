@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100">
+  <g stroke="black" stroke-width="3" fill="none">
+    <!-- 火部 -->
+    <line x1="20" y1="20" x2="30" y2="30"/>
+    <line x1="30" y1="30" x2="10" y2="30"/>
+    <line x1="20" y1="30" x2="20" y2="50"/>
+    <!-- 墨部変形 -->
+    <line x1="60" y1="20" x2="80" y2="20"/>
+    <line x1="70" y1="20" x2="70" y2="35"/>
+    <rect x="60" y="35" width="20" height="10"/>
+  </g>
+</svg>
