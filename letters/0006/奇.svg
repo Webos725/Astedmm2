@@ -1,0 +1,13 @@
+<!-- 奇：大＋可の組み合わせで不思議な雰囲気 -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <g stroke="black" stroke-width="3" fill="none" stroke-linejoin="miter">
+    <!-- 大 -->
+    <line x1="40" y1="20" x2="50" y2="70"/>
+    <line x1="60" y1="20" x2="50" y2="70"/>
+    <line x1="30" y1="50" x2="70" y2="50"/>
+    <!-- 可 -->
+    <line x1="55" y1="30" x2="85" y2="30"/>
+    <line x1="55" y1="50" x2="85" y2="50"/>
+    <line x1="70" y1="30" x2="70" y2="50"/>
+  </g>
+</svg>
