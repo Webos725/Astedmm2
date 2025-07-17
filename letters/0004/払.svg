@@ -1,0 +1,9 @@
+<!-- 払：手偏を簡略化しつつ払いの動きを強調 -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <g stroke="black" stroke-width="3" fill="none" stroke-linejoin="miter">
+    <line x1="20" y1="35" x2="40" y2="35"/> <!-- 横棒 -->
+    <line x1="30" y1="20" x2="30" y2="80"/> <!-- 縦棒 -->
+    <line x1="40" y1="35" x2="70" y2="70"/> <!-- 払い払い -->
+    <line x1="60" y1="70" x2="55" y2="80"/> <!-- 下払い -->
+  </g>
+</svg>
