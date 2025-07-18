@@ -288,6 +288,7 @@
 石 - zing1
 砂 - tao2
 破 - ming2
+硅 - rung1
 硫 - keng3
 磁 - ran2
 磨 - yaon2
@@ -408,6 +409,7 @@
 鎖 - eng1
 鎧 - xo1
 長 - yaol2
+閉 - xuo3
 陰 - zal1
 隊 - jo2
 雛 - ruom3
