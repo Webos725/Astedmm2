@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <g stroke="black" stroke-width="2.5" fill="none">
+    <!-- 水流 -->
+    <path d="M20,30 Q30,40 40,30 Q50,20 60,30 Q70,40 80,30" />
+    <!-- 下に小さな器 -->
+    <rect x="40" y="60" width="20" height="10"/>
+    <line x1="40" y1="60" x2="50" y2="50"/>
+    <line x1="60" y1="60" x2="50" y2="50"/>
+  </g>
+</svg>
