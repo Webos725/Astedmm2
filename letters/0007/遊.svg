@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <g stroke="black" stroke-width="3" fill="none">
+    <!-- 道 -->
+    <line x1="20" y1="30" x2="80" y2="30"/>
+    <line x1="20" y1="70" x2="80" y2="70"/>
+    <line x1="30" y1="30" x2="30" y2="70"/>
+    <!-- 小さな点 -->
+    <circle cx="60" cy="50" r="4"/>
+  </g>
+</svg>
