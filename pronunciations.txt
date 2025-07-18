@@ -52,6 +52,7 @@
 冷 - xo2
 出 - ro1
 分 - pa2
+切 - is1
 列 - u2
 刺 - ying2
 剣 - mi2
@@ -300,6 +301,7 @@
 盤 - pi3
 目 - wu3
 盾 - yun3
+着 - gail1
 矢 - ri1
 短 - bes2
 石 - zing1
