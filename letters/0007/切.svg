@@ -1,0 +1,10 @@
+<!-- 切：鋭い刃物の切断イメージ -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <g stroke="black" stroke-width="3" fill="none">
+    <!-- 刃先 -->
+    <line x1="30" y1="20" x2="70" y2="80"/>
+    <line x1="30" y1="80" x2="70" y2="20"/>
+    <!-- 柄 -->
+    <rect x="65" y="30" width="10" height="40" rx="2" ry="2"/>
+  </g>
+</svg>
