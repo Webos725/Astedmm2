@@ -351,6 +351,7 @@
 茶 - ras1
 茸 - nua3
 草 - yua2
+荒 - bo1
 菊 - duo1
 菜 - wa1
 落 - dol1
