@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <g stroke="black" stroke-width="3" fill="none">
+    <!-- 足 -->
+    <line x1="30" y1="70" x2="30" y2="90"/>
+    <line x1="40" y1="70" x2="40" y2="90"/>
+    <!-- 跳躍の曲線 -->
+    <path d="M40,70 Q60,40 80,60" />
+    <!-- 飛んでる印 -->
+    <circle cx="75" cy="55" r="5"/>
+  </g>
+</svg>
