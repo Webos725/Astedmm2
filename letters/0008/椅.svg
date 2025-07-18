@@ -1,0 +1,15 @@
+<!-- 椅：木の偏と椅子の構造 -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <g stroke="black" stroke-width="3" fill="none">
+    <!-- 木偏 -->
+    <line x1="20" y1="30" x2="20" y2="70"/>
+    <line x1="10" y1="50" x2="30" y2="50"/>
+    <line x1="10" y1="30" x2="30" y2="30"/>
+    <line x1="10" y1="70" x2="30" y2="70"/>
+    <!-- 椅子 -->
+    <rect x="45" y="40" width="30" height="30"/>
+    <line x1="45" y1="40" x2="45" y2="70"/>
+    <line x1="75" y1="40" x2="75" y2="70"/>
+    <line x1="45" y1="70" x2="75" y2="70"/>
+  </g>
+</svg>
