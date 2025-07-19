@@ -1,0 +1,9 @@
+<!-- 死：倒れた形、閉じた空間のイメージ -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <g stroke="black" stroke-width="3" fill="none">
+    <line x1="20" y1="60" x2="80" y2="60"/>
+    <rect x="30" y="30" width="40" height="20"/>
+    <line x1="40" y1="30" x2="60" y2="50"/>
+    <line x1="60" y1="30" x2="40" y2="50"/>
+  </g>
+</svg>
