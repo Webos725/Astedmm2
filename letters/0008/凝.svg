@@ -1,0 +1,10 @@
+<!-- 凝：氷と集まって停止した粒子 -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <g stroke="black" stroke-width="3" fill="none">
+    <line x1="20" y1="30" x2="20" y2="70"/>
+    <line x1="10" y1="50" x2="30" y2="50"/>
+    <rect x="50" y="30" width="30" height="10"/>
+    <rect x="50" y="50" width="30" height="10"/>
+    <rect x="50" y="70" width="30" height="10"/>
+  </g>
+</svg>
