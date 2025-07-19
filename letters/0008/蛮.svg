@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <g stroke="black" stroke-width="3" fill="none">
+    <!-- 虫偏 -->
+    <path d="M15 15 L35 15" />
+    <path d="M25 15 L25 40" />
+    <path d="M15 30 L35 30" />
+    <circle cx="25" cy="50" r="5" />
+    
+    <!-- 言部＋変形 -->
+    <path d="M55 15 L85 15" />
+    <path d="M65 25 L75 25" />
+    <path d="M70 25 L70 45" />
+    <path d="M60 50 L80 50" />
+  </g>
+</svg>
