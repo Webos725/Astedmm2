@@ -143,6 +143,7 @@
 寝 - suom1
 将 - taol3
 尋 - jao3
+小 - pos2
 少 - yo1
 尓 - tas3
 尖 - ku2
