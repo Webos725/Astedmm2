@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>架空漢字→発音変換</title>
+  <style>
+    /* ネオンフォント */
+    @font-face {
+      font-family: 'CustomFont3';
+      src: url('fonts/custom_font3.ttf') format('truetype');
+    }
+
+    body {
+      background-color: #000;
+      font-family: sans-serif;
+      color: white;
+      text-align: center;
+      padding: 2em;
+    }
+
+    h1 {
+      font-size: 2em;
+      margin-bottom: 0.5em;
+    }
+
+    textarea, input, button {
+      font-size: 1.2em;
+      padding: 0.5em;
+      width: 90%;
+      max-width: 600px;
+      margin: 1em auto;
+      display: block;
+      border: none;
+      outline: none;
+      background: #111;
+      color: white;
+      font-family: sans-serif;
+    }
+
+    #result {
+      margin-top: 1em;
+      padding: 1em;
+      white-space: pre-wrap;
+      border-radius: 0.5em;
+      font-family: 'CustomFont3', sans-serif;
+      font-size: 1.5em;
+      font-weight: bold;
+      color: white;
+      border: 2px solid var(--glow-color);
+      text-shadow:
+        0 0 2px white,
+        0 0 5px var(--glow-color),
+        0 0 10px var(--glow-color),
+        0 0 20px var(--glow-color);
+      display: inline-block;
+      --glow-color: #00ffff;
+    }
+
+    .copy-button {
+      background: #222;
+      border: 2px solid #555;
+      color: white;
+      cursor: pointer;
+      margin-top: 1em;
+    }
+
+    label {
+      margin-top: 1em;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <h1>架空漢字 → 発音 変換</h1>
+
+  <label for="glowColor">ネオンの色を選んでください:</label>
+  <input type="color" id="glowColor" value="#00ffff">
+
+  <textarea id="inputText" rows="4" placeholder="架空漢字を入力してください..."></textarea>
+  <button onclick="convert()">変換する</button>
+
+  <div id="result">ここに結果が表示されます</div>
+
+  <button class="copy-button" onclick="copyResult()">結果をコピー</button>
+
+  <script>
+    let dictionary = {};
+
+    // 辞書を読み込み
+    fetch('pronunciations.txt')
+      .then(res => res.text())
+      .then(text => {
+        text.split('\n').forEach(line => {
+          const [char, pron] = line.split(' - ').map(s => s.trim());
+          if (char && pron) dictionary[char] = pron;
+        });
+      });
+
+    // 変換処理
+    function convert() {
+      const input = document.getElementById("inputText").value;
+      const glow = document.getElementById("glowColor").value;
+      const resultDiv = document.getElementById("result");
+
+      resultDiv.style.setProperty('--glow-color', glow);
+
+      let output = "";
+      for (const c of input) {
+        output += dictionary[c] || `[${c}]`;
+        output += " ";
+      }
+
+      resultDiv.textContent = output.trim();
+    }
+
+    // コピー処理
+    function copyResult() {
+      const text = document.getElementById("result").textContent;
+      navigator.clipboard.writeText(text)
+        .then(() => alert("コピーしました"))
+        .catch(err => alert("コピーに失敗しました: " + err));
+    }
+  </script>
+</body>
+</html>
