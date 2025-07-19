@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <g stroke="black" stroke-width="3" fill="none">
+    <!-- 糸風構造 -->
+    <path d="M30 20 L70 20" />
+    <path d="M50 20 L50 40" />
+    
+    <!-- 中央に音の共鳴 -->
+    <path d="M40 40 Q50 60, 60 40" />
+    <path d="M45 50 L55 70" />
+    <path d="M55 50 L45 70" />
+    
+    <!-- 下部の調和 -->
+    <line x1="40" y1="70" x2="60" y2="70" />
+    <line x1="45" y1="70" x2="45" y2="85" />
+    <line x1="55" y1="70" x2="55" y2="85" />
+  </g>
+</svg>
