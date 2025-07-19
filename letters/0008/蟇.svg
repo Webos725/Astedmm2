@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <g stroke="black" stroke-width="3" fill="none">
+    <!-- 虫偏 -->
+    <path d="M15 15 L35 15" />
+    <path d="M25 15 L25 40" />
+    <path d="M15 30 L35 30" />
+    <circle cx="25" cy="50" r="5" />
+    
+    <!-- 馬部風 -->
+    <path d="M50 20 L80 20" />
+    <path d="M65 20 L65 45" />
+    <path d="M50 35 L80 35" />
+    <path d="M55 45 L75 65" />
+    <path d="M75 45 L55 65" />
+  </g>
+</svg>
