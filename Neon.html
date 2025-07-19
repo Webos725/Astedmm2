@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <title>架空漢字→発音変換</title>
   <style>
-    /* ネオンフォント */
     @font-face {
       font-family: 'CustomFont3';
       src: url('fonts/custom_font3.ttf') format('truetype');
@@ -23,7 +22,7 @@
       margin-bottom: 0.5em;
     }
 
-    textarea, input, button {
+    input[type="color"], button, textarea {
       font-size: 1.2em;
       padding: 0.5em;
       width: 90%;
@@ -35,6 +34,26 @@
       background: #111;
       color: white;
       font-family: sans-serif;
+    }
+
+    .neon-input {
+      font-family: 'CustomFont3', sans-serif;
+      font-size: 1.5em;
+      font-weight: bold;
+      color: white;
+      border: 2px solid var(--glow-color);
+      padding: 0.5em 1em;
+      margin: 1em auto;
+      border-radius: 10px;
+      text-align: center;
+      width: 90%;
+      max-width: 600px;
+      background: transparent;
+      text-shadow:
+        0 0 2px white,
+        0 0 5px var(--glow-color),
+        0 0 10px var(--glow-color),
+        0 0 20px var(--glow-color);
     }
 
     #result {
@@ -74,19 +93,21 @@
   <h1>架空漢字 → 発音 変換</h1>
 
   <label for="glowColor">ネオンの色を選んでください:</label>
-  <input type="color" id="glowColor" value="#00ffff">
+  <input type="color" id="glowColor" value="#00ffff" oninput="updateGlowColor(this.value)">
 
-  <textarea id="inputText" rows="4" placeholder="架空漢字を入力してください..."></textarea>
+  <label for="neonInput">ネオン入力欄（カスタムフォント＋光）:</label>
+  <input type="text" id="neonInput" class="neon-input" placeholder="ここに架空漢字を入力…" oninput="syncToMainInput()">
+
+  <textarea id="inputText" rows="4" placeholder="通常の入力欄（非ネオン）でも入力可能"></textarea>
   <button onclick="convert()">変換する</button>
 
   <div id="result">ここに結果が表示されます</div>
-
   <button class="copy-button" onclick="copyResult()">結果をコピー</button>
 
   <script>
     let dictionary = {};
 
-    // 辞書を読み込み
+    // 読み込み
     fetch('pronunciations.txt')
       .then(res => res.text())
       .then(text => {
@@ -96,13 +117,20 @@
         });
       });
 
-    // 変換処理
+    // 色反映
+    function updateGlowColor(color) {
+      document.documentElement.style.setProperty('--glow-color', color);
+    }
+
+    // ネオン入力とtextareaを同期
+    function syncToMainInput() {
+      document.getElementById("inputText").value = document.getElementById("neonInput").value;
+    }
+
+    // 変換
     function convert() {
       const input = document.getElementById("inputText").value;
-      const glow = document.getElementById("glowColor").value;
       const resultDiv = document.getElementById("result");
-
-      resultDiv.style.setProperty('--glow-color', glow);
 
       let output = "";
       for (const c of input) {
@@ -113,7 +141,7 @@
       resultDiv.textContent = output.trim();
     }
 
-    // コピー処理
+    // コピー
     function copyResult() {
       const text = document.getElementById("result").textContent;
       navigator.clipboard.writeText(text)
