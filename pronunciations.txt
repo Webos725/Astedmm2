@@ -253,6 +253,7 @@
 栄 - wuo1
 栗 - zes1
 根 - wil3
+桜 - sol3
 棒 - nuom1
 棚 - ong1
 椅 - bi2
@@ -448,6 +449,7 @@
 軍 - jos2
 軸 - jai3
 軽 - yao3
+輪 - jao1
 辛 - zal2
 農 - bi3
 迄 - gu1
