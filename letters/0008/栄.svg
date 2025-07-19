@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <g stroke="black" stroke-width="3" fill="none">
+    <!-- 木の左部 -->
+    <path d="M50 20 L50 80" />
+    <path d="M30 40 L70 40" />
+    <path d="M40 60 L60 60" />
+    
+    <!-- 火：輝きの象徴 -->
+    <path d="M35 30 Q50 10, 65 30" />
+    <line x1="50" y1="10" x2="50" y2="30" />
+  </g>
+</svg>
