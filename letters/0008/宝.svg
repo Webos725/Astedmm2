@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <g stroke="black" stroke-width="3" fill="none">
+    <!-- 宀 -->
+    <path d="M20 15 L80 15" />
+    <path d="M30 15 C35 30, 65 30, 70 15" />
+
+    <!-- 中央部（変形した貝） -->
+    <path d="M40 40 L60 40 L60 55 L40 55 Z" />
+    <path d="M50 55 L50 70" />
+    <path d="M45 70 L55 70" />
+
+    <!-- 寸 -->
+    <path d="M50 75 L50 90" />
+    <path d="M42 85 L58 85" />
+  </g>
+</svg>
