@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <g stroke="black" stroke-width="3" fill="none">
+    <!-- 宀：空間の上部 -->
+    <path d="M30 20 Q50 10, 70 20" />
+    <line x1="35" y1="25" x2="65" y2="25" />
+    
+    <!-- 合う構造 -->
+    <path d="M50 30 L40 50 L60 50 Z" />
+    <line x1="50" y1="50" x2="50" y2="80" />
+  </g>
+</svg>
