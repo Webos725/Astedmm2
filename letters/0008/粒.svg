@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <g stroke="black" stroke-width="3" fill="none">
+    <!-- 米 -->
+    <path d="M50 15 L50 85" />
+    <path d="M30 40 L70 60" />
+    <path d="M30 60 L70 40" />
+    <path d="M35 20 L65 20" />
+    <path d="M35 80 L65 80" />
+    
+    <!-- 立部 -->
+    <path d="M45 90 L55 90" />
+    <path d="M50 90 L50 100" />
+  </g>
+</svg>
