@@ -477,6 +477,7 @@
 鎖 - eng1
 鎧 - xo1
 長 - yaol2
+門 - jao2
 閉 - xuo3
 開 - rong2
 陰 - zal1
