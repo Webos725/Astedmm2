@@ -9,6 +9,10 @@
       src: url('fonts/custom_font3.ttf') format('truetype');
     }
 
+    :root {
+      --glow-color: #00ffff;
+    }
+
     body {
       background-color: #000;
       font-family: sans-serif;
@@ -72,7 +76,6 @@
         0 0 10px var(--glow-color),
         0 0 20px var(--glow-color);
       display: inline-block;
-      --glow-color: #00ffff;
     }
 
     .copy-button {
@@ -95,11 +98,12 @@
   <label for="glowColor">ネオンの色を選んでください:</label>
   <input type="color" id="glowColor" value="#00ffff" oninput="updateGlowColor(this.value)">
 
-  <label for="neonInput">ネオン入力欄（カスタムフォント＋光）:</label>
-  <input type="text" id="neonInput" class="neon-input" placeholder="ここに架空漢字を入力…" oninput="syncToMainInput()">
+  <label for="neonInput">ネオン入力欄（即時変換）:</label>
+  <input type="text" id="neonInput" class="neon-input" placeholder="ここに架空漢字を入力…" oninput="syncToTextareaAndConvert()">
 
-  <textarea id="inputText" rows="4" placeholder="通常の入力欄（非ネオン）でも入力可能"></textarea>
-  <button onclick="convert()">変換する</button>
+  <label for="inputText">通常入力欄（変換ボタンで反映）:</label>
+  <textarea id="inputText" rows="4" placeholder="こちらからも入力可能です"></textarea>
+  <button onclick="manualConvert()">変換する</button>
 
   <div id="result">ここに結果が表示されます</div>
   <button class="copy-button" onclick="copyResult()">結果をコピー</button>
@@ -107,7 +111,7 @@
   <script>
     let dictionary = {};
 
-    // 読み込み
+    // 発音辞書を読み込み
     fetch('pronunciations.txt')
       .then(res => res.text())
       .then(text => {
@@ -117,28 +121,33 @@
         });
       });
 
-    // 色反映
+    // ネオンカラー更新
     function updateGlowColor(color) {
       document.documentElement.style.setProperty('--glow-color', color);
     }
 
-    // ネオン入力とtextareaを同期
-    function syncToMainInput() {
-      document.getElementById("inputText").value = document.getElementById("neonInput").value;
-    }
-
-    // 変換
-    function convert() {
-      const input = document.getElementById("inputText").value;
-      const resultDiv = document.getElementById("result");
-
+    // 発音変換
+    function convert(text) {
       let output = "";
-      for (const c of input) {
+      for (const c of text) {
         output += dictionary[c] || `[${c}]`;
         output += " ";
       }
+      document.getElementById("result").textContent = output.trim();
+    }
 
-      resultDiv.textContent = output.trim();
+    // ネオン欄入力時に同期＆即変換
+    function syncToTextareaAndConvert() {
+      const neonText = document.getElementById("neonInput").value;
+      document.getElementById("inputText").value = neonText;
+      convert(neonText);
+    }
+
+    // 手動変換ボタン
+    function manualConvert() {
+      const text = document.getElementById("inputText").value;
+      document.getElementById("neonInput").value = text;
+      convert(text);
     }
 
     // コピー
