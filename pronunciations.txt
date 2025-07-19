@@ -384,6 +384,7 @@
 蘊 - xaos1
 虫 - a1
 蛇 - zu3
+蛮 - bua2
 蛸 - buom2
 蜘 - buo3
 蝋 - hao2
@@ -455,6 +456,7 @@
 開 - rong2
 陰 - zal1
 隊 - jo2
+雀 - xai2
 雛 - ruom3
 雨 - wao2
 雪 - wu2
