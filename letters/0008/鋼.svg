@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <g stroke="black" stroke-width="3" fill="none">
+    <!-- 金偏：指定通り -->
+    <line x1="30" y1="20" x2="30" y2="80"/>
+    <line x1="20" y1="40" x2="40" y2="40"/>
+    <line x1="25" y1="60" x2="35" y2="60"/>
+
+    <!-- 刀＋口＋中央支柱：断ち切る意志と鋼鉄の重み -->
+    <path d="M60 20 L80 40" />
+    <path d="M80 20 L60 40" />
+    <path d="M70 40 L70 70" />
+    <path d="M60 70 L80 70" />
+  </g>
+</svg>
