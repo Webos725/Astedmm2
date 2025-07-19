@@ -456,6 +456,7 @@
 銅 - jis3
 銭 - ku1
 鋼 - puo2
+錫 - tao1
 録 - zu1
 鎖 - eng1
 鎧 - xo1
