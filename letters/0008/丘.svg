@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <g stroke="black" stroke-width="3" fill="none">
+    <!-- 一：地平線 -->
+    <path d="M30 20 L70 20" />
+    <!-- 丘の頂き・丸み -->
+    <path d="M30 40 Q50 60, 70 40" />
+    <!-- 中央に立つ柱：自然神または古墳的象徴 -->
+    <path d="M50 60 L50 90" />
+  </g>
+</svg>
