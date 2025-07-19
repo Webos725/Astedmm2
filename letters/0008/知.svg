@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <g stroke="black" stroke-width="3" fill="none">
+    <!-- 交差する思考：刃のような直感 -->
+    <path d="M40 20 L60 40" />
+    <path d="M60 20 L40 40" />
+    <!-- 中央柱：意識の縦軸 -->
+    <path d="M50 40 L50 80" />
+    <!-- 意志の平衡 -->
+    <path d="M40 60 L60 60" />
+    <!-- 言偏変形：発信性 -->
+    <path d="M20 50 L35 50 L35 70 L20 70 Z" />
+  </g>
+</svg>
