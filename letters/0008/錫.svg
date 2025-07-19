@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <g stroke="black" stroke-width="3" fill="none">
+    <!-- 金偏：指定通り -->
+    <line x1="30" y1="20" x2="30" y2="80"/>
+    <line x1="20" y1="40" x2="40" y2="40"/>
+    <line x1="25" y1="60" x2="35" y2="60"/>
+    
+    <!-- 易（変化・循環）をモチーフにした右部 -->
+    <path d="M55 25 L85 25" />
+    <path d="M70 25 L70 50" />
+    <path d="M55 40 L85 40" />
+    <path d="M60 50 L80 70" />
+    <path d="M80 50 L60 70" />
+  </g>
+</svg>
