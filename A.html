@@ -11,6 +11,7 @@
     border: 1px solid #ccc;
     padding: 20px;
     min-height: 100px;
+    letter-spacing: -0.05em; /* 文字間隔を少し狭める */
   }
 </style>
 </head>
@@ -20,8 +21,11 @@
 
 <label for="fontUrl">フォントファイルのURLを入力してください：</label><br>
 <input type="text" id="fontUrl" style="width: 100%;" placeholder="例: https://example.com/fonts/myfont.otf" />
+<button id="addFont">保存して追加</button>
 
-<button id="loadFont">フォント読み込み</button>
+<p>保存されたフォントを選択：</p>
+<select id="fontSelector" size="5" style="width: 100%;"></select>
+<button id="loadFont">選択フォントを読み込み</button>
 
 <p>プレビューしたいテキスト：</p>
 <input type="text" id="inputText" value="こんにちは、プレビュー！" style="width: 100%; font-size: 24px;" />
@@ -29,50 +33,80 @@
 <div id="preview">ここにプレビューが表示されます</div>
 
 <script>
-  const loadBtn = document.getElementById('loadFont');
   const fontUrlInput = document.getElementById('fontUrl');
+  const addFontBtn = document.getElementById('addFont');
+  const loadFontBtn = document.getElementById('loadFont');
+  const fontSelector = document.getElementById('fontSelector');
   const preview = document.getElementById('preview');
   const inputText = document.getElementById('inputText');
   let styleElem = null;
-  let fontName = 'ServerLoadedFont';
 
-  loadBtn.addEventListener('click', () => {
-    const url = fontUrlInput.value.trim();
-    if (!url) {
-      alert('フォントのURLを入力してください');
-      return;
-    }
+  const STORAGE_KEY = 'customFontURLs';
+  let fontCount = 0;
 
-    // 既存のスタイルタグを削除
-    if (styleElem) {
-      styleElem.remove();
-    }
-
-    // @font-faceを動的に作成
-    styleElem = document.createElement('style');
-    styleElem.textContent = `
-      @font-face {
-        font-family: '${fontName}';
-        src: url('${url}') format('opentype');
-        font-weight: normal;
-        font-style: normal;
-      }
-    `;
-    document.head.appendChild(styleElem);
-
-    // プレビューのフォントを切り替え
-    preview.style.fontFamily = `'${fontName}', sans-serif`;
-
-    updatePreview();
-  });
-
+  // テキスト更新
   inputText.addEventListener('input', updatePreview);
-
   function updatePreview() {
     preview.textContent = inputText.value;
   }
 
-  // 初期表示
+  // ローカルストレージから読み込む
+  function loadStoredFonts() {
+    const fonts = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    fontSelector.innerHTML = '';
+    fonts.forEach((url, index) => {
+      const option = document.createElement('option');
+      option.value = url;
+      option.textContent = `${index + 1}: ${url}`;
+      fontSelector.appendChild(option);
+    });
+  }
+
+  // URLを保存
+  addFontBtn.addEventListener('click', () => {
+    const url = fontUrlInput.value.trim();
+    if (!url) return alert('URLを入力してください');
+    let fonts = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    if (!fonts.includes(url)) {
+      fonts.push(url);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(fonts));
+      loadStoredFonts();
+    }
+    fontUrlInput.value = '';
+  });
+
+  // フォント読み込み
+  loadFontBtn.addEventListener('click', () => {
+    const selected = Array.from(fontSelector.selectedOptions);
+    if (selected.length === 0) return alert('1つ以上のフォントを選択してください');
+
+    if (styleElem) styleElem.remove();
+    styleElem = document.createElement('style');
+    let cssText = '';
+
+    selected.forEach((opt, idx) => {
+      const url = opt.value;
+      const fontName = `ServerFont${fontCount++}`;
+      cssText += `
+        @font-face {
+          font-family: '${fontName}';
+          src: url('${url}') format('opentype');
+          font-weight: normal;
+          font-style: normal;
+        }
+      `;
+      if (idx === 0) {
+        preview.style.fontFamily = `'${fontName}', sans-serif`;
+      }
+    });
+
+    styleElem.textContent = cssText;
+    document.head.appendChild(styleElem);
+    updatePreview();
+  });
+
+  // 初期化
+  loadStoredFonts();
   updatePreview();
 </script>
 
