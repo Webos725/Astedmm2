@@ -1,6 +1,6 @@
 https://chatgpt.com
 https://google.com
-live at https://konnitiwa768.github.io/Kanic-letter/A.html
+live at https://konnitiwa768.github.io/Astedmm/A.html
 https://konnitiwa768.github.io/Kanic-letter/5o.html
 https://konnitiwa768.github.io/Astedmm/Neon.html
 https://sakaltium.github.io/Kanic-letter/Eb.html
