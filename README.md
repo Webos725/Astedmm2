@@ -7,7 +7,7 @@ https://konnitiwa768.github.io/Kanic-letter/5o.html
 https://konnitiwa768.github.io/Astedmm/Neon.html
 https://sakaltium.github.io/Kanic-letter/Eb.html
 Raw https://github.com/Konnitiwa768/Astedmm/raw/refs/heads/main/fonts/custom_font3.ttf
-
+https://zpdic.ziphil.com/dictionary/2283?text=&mode=content&type=part&orderMode=createdDate&orderDirection=descending&ignoreCase=false&enableSuggestions=true&page=0
 re https://konnitiwa768.github.io/Astedmm/fonts/custom_font3.ttf
 アリスは川辺でおねえさんのよこにすわって、なんにもすることがないのでとても退屈しはじめていました。一、二回はおねえさんの読んでいる本をのぞいてみたけれど、そこには絵も会話もないのです。「絵や会話のない本なんて、なんの役にもたたないじゃないの」とアリスは思いました。
 
