@@ -1,0 +1,37 @@
+name: Download TTF from Pentacom
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch: # 手動実行も可能に
+
+jobs:
+  download-ttf:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies (Chrome, ChromeDriver, Selenium)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wget unzip xvfb libxi6 libgconf-2-4 \
+              libappindicator1 libindicator7 libnss3 libxss1 libgbm1
+          sudo apt-get install -y chromium-browser chromium-chromedriver
+          python3 -m pip install --upgrade pip
+          pip install selenium
+
+      - name: Run Selenium script
+        run: |
+          mkdir -p downloads
+          python3 scripts/download_font.py
+
+      - name: Commit and push downloaded TTF
+        run: |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+          git add downloads/*.ttf
+          git commit -m "Auto-download TTF from Pentacom"
+          git pull --rebase
+          git push
