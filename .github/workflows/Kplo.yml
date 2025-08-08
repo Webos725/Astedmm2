@@ -22,7 +22,7 @@ jobs:
           USER_ID: ${{ secrets.USER_ID }}
           PASS: ${{ secrets.PASS }}
         run: |
-          python3 scripts/upload_ttf_to_zpdic.py
+          python3 scripts/upload_font_to_zpdic.py
 
       - name: Commit and push GIF
         run: |
