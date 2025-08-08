@@ -112,7 +112,7 @@ except Exception as e:
 
 driver.quit()
 log("CLEAR", "処理全体が正常終了")
-    WebDriverWait(driver, 10).until(
+WebDriverWait(driver, 10).until(
         EC.presence_of_element_located((By.TAG_NAME, "input"))
     )
     inputs = driver.find_elements(By.TAG_NAME, "input")
@@ -130,10 +130,10 @@ log("CLEAR", "処理全体が正常終了")
     log("CLEAR", f"設定ページにアクセス: {settings_url}")
     driver.get(settings_url)
 
-    WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.TAG_NAME, "input"))
-    )
-
+    #// WebDriverWait(driver, 10).until(
+    # //    EC.presence_of_element_located((By.TAG_NAME, "input"))
+    # )
+    time.sleep(6)
     # --- アップロード ---
     log("CLEAR", "アップロードフィールドを探す")
     file_input = None
