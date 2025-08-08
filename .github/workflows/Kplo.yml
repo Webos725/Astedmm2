@@ -10,16 +10,24 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install dependencies (Chrome, ChromeDriver, Selenium)
+      - name: Install dependencies (Chrome, ChromeDriver, Selenium, Pillow, imageio)
         run: |
           sudo apt-get update
           sudo apt-get install -y wget unzip xvfb libnss3 libxss1 libgbm1 chromium-browser chromium-chromedriver
           python3 -m pip install --upgrade pip
-          pip install selenium
+          pip install selenium pillow imageio
 
       - name: Run upload script
         env:
           USER_ID: ${{ secrets.USER_ID }}
           PASS: ${{ secrets.PASS }}
         run: |
-          python3 scripts/upload_font_to_zpdic.py
+          python3 scripts/upload_ttf_to_zpdic.py
+
+      - name: Commit and push GIF
+        run: |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+          git add progress.gif
+          git commit -m "Add upload progress GIF"
+          git push
