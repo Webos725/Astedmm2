@@ -5,6 +5,8 @@ from selenium.webdriver.chrome.options import Options
 import time
 import os
 import sys
+import imageio.v2 as imageio  # pip install imageio
+from threading import Thread
 
 def log_clear(msg):
     print(f"[CLEAR] {msg}")
@@ -17,17 +19,21 @@ def log_fail(msg):
 print("[INFO] GitHub Secrets から認証情報を読み込み中...")
 user_id = os.environ.get("USER_ID")
 password = os.environ.get("PASS")
-
 if not user_id or not password:
     log_fail("USER_ID または PASS が設定されていません。")
 
 # --- アップロードファイル確認 ---
 upload_file_path = os.path.abspath("downloads/Conlangg.ttf")
 if not os.path.exists(upload_file_path):
-    log_fail(f"アップロードファイルが存在しません: {upload_file_path}")
+    log_fail(f"{upload_file_path} が存在しません。")
 log_clear(f"アップロードファイルを確認: {upload_file_path}")
 
-# --- Chrome設定 ---
+# スクリーンショット保存フォルダ
+ss_dir = os.path.abspath("screenshots")
+os.makedirs(ss_dir, exist_ok=True)
+gif_path = os.path.join(ss_dir, "run.gif")
+
+# Chrome設定
 chrome_options = Options()
 chrome_options.add_argument("--headless")
 chrome_options.add_argument("--no-sandbox")
@@ -36,6 +42,22 @@ chrome_options.binary_location = "/usr/bin/chromium-browser"
 
 service = Service(executable_path="/usr/bin/chromedriver")
 driver = webdriver.Chrome(service=service, options=chrome_options)
+
+# --- 1秒ごとのスクショ取得 ---
+def take_screenshots():
+    index = 0
+    while not stop_screenshot[0]:
+        filename = os.path.join(ss_dir, f"{index:03d}.png")
+        try:
+            driver.save_screenshot(filename)
+        except:
+            pass
+        time.sleep(1)
+        index += 1
+
+stop_screenshot = [False]
+screenshot_thread = Thread(target=take_screenshots)
+screenshot_thread.start()
 
 try:
     # 1. ログインページへ
@@ -85,4 +107,19 @@ except Exception as e:
     log_fail(f"エラー発生: {e}")
 
 finally:
+    stop_screenshot[0] = True
+    screenshot_thread.join()
+
+    # GIF作成
+    try:
+        images = []
+        for f in sorted(os.listdir(ss_dir)):
+            if f.endswith(".png"):
+                images.append(imageio.imread(os.path.join(ss_dir, f)))
+        if images:
+            imageio.mimsave(gif_path, images, fps=1)
+            log_clear(f"GIF作成完了: {gif_path}")
+    except Exception as e:
+        log_fail(f"GIF作成失敗: {e}")
+
     driver.quit()
