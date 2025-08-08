@@ -2,8 +2,7 @@ name: Upload Conlangg.ttf to ZpDIC
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
@@ -13,17 +12,45 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Pull latest changes (ensure repository up-to-date)
+        run: |
+          git config --global pull.rebase false
+          git pull || true
+
       - name: Install dependencies (Chrome, ChromeDriver, Selenium)
         run: |
           sudo apt-get update
           sudo apt-get install -y wget unzip xvfb libnss3 libxss1 libgbm1
           sudo apt-get install -y chromium-browser chromium-chromedriver
           python3 -m pip install --upgrade pip
-          pip install selenium
+          pip install selenium pillow imageio
 
-      - name: Run upload script
+      - name: Run upload script (skip if font exists)
         env:
           USER_ID: ${{ secrets.USER_ID }}
           PASS: ${{ secrets.PASS }}
         run: |
-          python3 scripts/upload_font_to_zpdic.py
+          # シェルで存在チェック（if: は workflow レベルで使わない）
+          if [ -f "downloads/Conlangg.ttf" ]; then
+            echo "[SKIP] downloads/Conlangg.ttf already exists — skipping upload step"
+            echo "私は偉大な神"
+          else
+            mkdir -p scripts/screenshots
+            # エラーが出ても後続処理を続けたいので || true を用いる
+            python3 scripts/upload_font_to_zpdic.py || true
+            echo "私は偉大な神"
+          fi
+
+      - name: Commit and push screenshots if any
+        run: |
+          # screenshots フォルダが空でなければ追加して push
+          if [ -d "scripts/screenshots" ] && [ "$(ls -A scripts/screenshots)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add scripts/screenshots || true
+            git commit -m "Add ZpDIC upload screenshots" || echo "No changes to commit"
+            git pull --rebase || true
+            git push || true
+          else
+            echo "[INFO] No screenshots to commit"
+          fi
