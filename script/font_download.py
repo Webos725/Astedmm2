@@ -26,7 +26,7 @@ driver = webdriver.Chrome(service=service, options=chrome_options)
 
 try:
     driver.get("https://www.pentacom.jp/pentacom/bitfontmaker2/gallery/?id=16077")
-    time.sleep(3)
+    time.sleep(7)
 
     download_button = driver.find_element(By.XPATH, "//a[text()='DOWNLOAD']")
     download_button.click()
