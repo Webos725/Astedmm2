@@ -1,11 +1,15 @@
 name: Upload Conlangg.ttf to ZpDIC
 
 on:
-  workflow_dispatch:  # 手動実行のみ推奨（自動だとセキュリティリスク大）
+  push:
+    branches:
+      - main
+  workflow_dispatch:
 
 jobs:
   upload-ttf:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -13,7 +17,11 @@ jobs:
       - name: Install dependencies (Chrome, ChromeDriver, Selenium, Pillow, imageio)
         run: |
           sudo apt-get update
-          sudo apt-get install -y wget unzip xvfb libnss3 libxss1 libgbm1 chromium-browser chromium-chromedriver
+          sudo apt-get install -y wget unzip xvfb libnss3 libxss1 libgbm1 \
+                                  fonts-liberation libasound2 libatk-bridge2.0-0 \
+                                  libatk1.0-0 libcups2 libdrm2 libxcomposite1 \
+                                  libxrandr2 libxdamage1 libxkbcommon0 libpango-1.0-0 \
+                                  libgbm1 libgtk-3-0 chromium-browser chromium-chromedriver
           python3 -m pip install --upgrade pip
           pip install selenium pillow imageio
 
@@ -24,10 +32,10 @@ jobs:
         run: |
           python3 scripts/upload_font_to_zpdic.py
 
-      - name: Commit and push GIF
+      - name: Commit and push GIF result
         run: |
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
-          git add screenshots/run.gif
-          git commit -m "Add upload progress GIF"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add result.gif
+          git commit -m "Add execution GIF result" || echo "No changes to commit"
           git push
