@@ -1,0 +1,25 @@
+name: Upload Conlangg.ttf to ZpDIC
+
+on:
+  workflow_dispatch:  # 手動実行のみ推奨（自動だとセキュリティリスク大）
+
+jobs:
+  upload-ttf:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies (Chrome, ChromeDriver, Selenium)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wget unzip xvfb libnss3 libxss1 libgbm1 chromium-browser chromium-chromedriver
+          python3 -m pip install --upgrade pip
+          pip install selenium
+
+      - name: Run upload script
+        env:
+          USER_ID: ${{ secrets.USER_ID }}
+          PASS: ${{ secrets.PASS }}
+        run: |
+          python3 scripts/upload_ttf_to_zpdic.py
