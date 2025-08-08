@@ -23,7 +23,7 @@ jobs:
       - name: Run Selenium script
         run: |
           mkdir -p downloads
-          python3 scripts/download_font.py
+          python3 script/font_download.py
 
       - name: Commit and push downloaded TTF
         run: |
