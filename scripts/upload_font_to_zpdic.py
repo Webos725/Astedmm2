@@ -1,11 +1,12 @@
 import os
 import time
 import imageio
+from PIL import Image
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
-from PIL import Image
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 USER_ID = os.environ.get("USER_ID")
 PASS = os.environ.get("PASS")
@@ -16,92 +17,99 @@ print("[CLEAR] Chrome 起動準備")
 chrome_options = Options()
 chrome_options.add_argument("--headless=new")
 chrome_options.add_argument("--disable-gpu")
+chrome_options.add_argument("--no-sandbox")
 chrome_options.add_argument("--window-size=1280,800")
 chrome_options.binary_location = "/usr/bin/chromium-browser"
 
 driver = webdriver.Chrome(options=chrome_options)
-driver.get("https://zpdic.ziphil.com/login")
+wait = WebDriverWait(driver, 15)
 
-frames = []  # スクリーンショットフレーム格納
+frames = []
 
-def capture_frame():
+def screenshot_step():
+    """現在のブラウザ画面をキャプチャしてframesに追加"""
     png = driver.get_screenshot_as_png()
-    img = Image.open(bytearray(png))
+    img = Image.open(bytearray(png)).convert("RGB")
     frames.append(img)
 
-print("[CLEAR] ログイン開始")
 try:
-    # 1つ目の入力欄
-    driver.find_elements(By.TAG_NAME, "input")[0].send_keys(USER_ID)
-    capture_frame()
-    time.sleep(1)
+    print("[CLEAR] ZpDIC ログインページへアクセス")
+    driver.get("https://zpdic.ziphil.com/login")
+    screenshot_step()
 
-    # 2つ目の入力欄
-    driver.find_elements(By.TAG_NAME, "input")[1].send_keys(PASS)
-    capture_frame()
-    time.sleep(1)
+    # ログイン入力
+    print("[CLEAR] ID/PASS 入力")
+    wait.until(EC.presence_of_element_located((By.TAG_NAME, "input")))
+    inputs = driver.find_elements(By.TAG_NAME, "input")
+    inputs[0].send_keys(USER_ID)
+    inputs[1].send_keys(PASS)
+    screenshot_step()
 
-    # ログインボタン押下（部分一致検索）
-    buttons = driver.find_elements(By.TAG_NAME, "button")
-    for btn in buttons:
-        if "ログイン" in btn.text:
-            btn.click()
-            break
-    capture_frame()
+    # ログインボタン押下
+    print("[CLEAR] ログインボタン押下")
+    login_btn = driver.find_element(By.XPATH, "//button[contains(text(),'ログイン')]")
+    login_btn.click()
+    time.sleep(6)
+    screenshot_step()
 
-    time.sleep(6)  # ページ遷移待ち
-    capture_frame()
     print("[CLEAR] ログイン完了")
 
-    # 設定ページへ
+    # 設定ページへ移動
+    print("[CLEAR] 設定ページへ移動")
     driver.get("https://zpdic.ziphil.com/dictionary/2283/settings")
     time.sleep(3)
-    capture_frame()
+    screenshot_step()
 
-    print("[CLEAR] アップロード試行")
-
-    file_inputs = driver.find_elements(By.TAG_NAME, "input")
-    found_upload = False
-    for f in file_inputs:
+    # ファイルアップロード要素探索
+    print("[CLEAR] ファイルアップロードボタン探索")
+    upload_elem = None
+    candidates = [
+        "//input[@type='file']",
+        "//input[contains(@accept, '.ttf')]",
+        "//input[contains(@name, 'font')]"
+    ]
+    for xpath in candidates:
         try:
-            if f.get_attribute("type") == "file":
-                f.send_keys(FONT_PATH)
-                found_upload = True
-                break
-        except Exception as e:
-            print("[FAIL] file入力でエラー:", e)
+            upload_elem = driver.find_element(By.XPATH, xpath)
+            break
+        except:
+            pass
 
-    if not found_upload:
-        print("[FAIL] ファイルアップロードボタンが見つかりません")
-    else:
-        time.sleep(2)
-        capture_frame()
+    if not upload_elem:
+        raise Exception("アップロード要素が見つかりません")
 
-        # 「変更」ボタンを探してクリック
-        buttons = driver.find_elements(By.TAG_NAME, "button")
-        for btn in buttons:
-            if "変更" in btn.text:
-                btn.click()
-                break
-        print("[CLEAR] アップロード完了")
-        time.sleep(3)
-        capture_frame()
+    # ファイル送信
+    print("[CLEAR] フォントファイル送信")
+    upload_elem.send_keys(FONT_PATH)
+    time.sleep(2)
+    screenshot_step()
+
+    # 保存ボタン押下
+    print("[CLEAR] 保存ボタン押下")
+    buttons = driver.find_elements(By.TAG_NAME, "button")
+    for btn in buttons:
+        if "変更" in btn.text:
+            btn.click()
+            break
+    time.sleep(3)
+    screenshot_step()
+
+    print("[CLEAR] アップロード完了")
 
 except Exception as e:
-    print("[FAIL] 処理中にエラー:", e)
+    print(f"[FAIL] {e}")
 
 finally:
     driver.quit()
-
-# GIF生成
-if frames:
-    frames[0].save(
-        "result.gif",
-        save_all=True,
-        append_images=frames[1:],
-        duration=1000,
-        loop=0
-    )
-    print("[CLEAR] GIF生成完了: result.gif")
-else:
-    print("[FAIL] スクリーンショットがありません")
+    if frames:
+        output_path = "scripts/progress.gif"
+        frames[0].save(
+            output_path,
+            save_all=True,
+            append_images=frames[1:],
+            duration=1000,
+            loop=0
+        )
+        print(f"[CLEAR] GIF保存完了: {output_path}")
+    else:
+        print("[FAIL] スクリーンショットがありません")
