@@ -19,8 +19,8 @@ for glyph in source_font.glyphs():
     if glyph.isWorthOutputting():
         new_glyph = new_font.createChar(glyph.unicode, glyph.glyphname)
         new_glyph.width = glyph.width
-        # アウトラインをコピー
-        new_glyph.foreground = glyph.foreground.copy()
+        glyph.copy()
+        new_glyph.paste()
 
 new_font.generate(output_path)
 
