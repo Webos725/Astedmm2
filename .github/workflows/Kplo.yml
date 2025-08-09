@@ -23,16 +23,6 @@ jobs:
           pip install selenium
           set +e
 
-      - name: Check if Conlangg.ttf already exists
-        run: |
-          set +e
-          git ls-files --error-unmatch scripts/Conlangg.ttf >/dev/null 2>&1
-          if [ $? -eq 0 ]; then
-            echo "Conlangg.ttf already exists in repo. Skipping upload."
-            exit 0
-          fi
-          set -e
-
       - name: Run upload script
         env:
           USER_ID: ${{ secrets.USER_ID }}
