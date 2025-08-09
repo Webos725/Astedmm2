@@ -1,0 +1,32 @@
+name: Convert TTF to WOFF with FontForge
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  convert:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: リポジトリをチェックアウト
+        uses: actions/checkout@v4
+
+      - name: FontForge インストール
+        run: sudo apt-get update && sudo apt-get install -y fontforge python3-fontforge
+
+      - name: TTF → WOFF 変換スクリプト実行
+        run: python3 scripts/convert.py
+
+      - name: woff をコミット & push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add downloads/Conlang.woff
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Convert Conlangg.ttf to Conlang.woff using FontForge"
+            git push
+          fi
