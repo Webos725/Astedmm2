@@ -1,0 +1,37 @@
+name: Convert TTF to WOFF
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  convert:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: リポジトリをチェックアウト
+        uses: actions/checkout@v4
+
+      - name: Python をセットアップ
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: 依存パッケージをインストール
+        run: pip install fonttools
+
+      - name: TTF → WOFF 変換スクリプト実行
+        run: python3 scripts/convert.py
+
+      - name: woff をコミット & push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add downloads/Conlang.woff
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Convert Conlang.ttf to Conlang.woff"
+            git push
+          fi
