@@ -151,7 +151,7 @@ try:
                 if "フォントをアップロード" in txt:
                     radios_to_click.append(lab)
             if radios_to_click:
-                radios_to_click[-1].click()  # 一番右のラベルをクリック
+                radios_to_click[-1].click()
                 return True
         except:
             pass
@@ -169,7 +169,7 @@ try:
                 except:
                     pass
             if matching_radios:
-                matching_radios[-1].click()  # 一番右のラジオをクリック
+                matching_radios[-1].click()
                 return True
         except:
             pass
@@ -185,7 +185,7 @@ try:
                 except:
                     pass
             if candidate_radios:
-                candidate_radios[-1].click()  # 一番右のラジオをクリック
+                candidate_radios[-1].click()
                 return True
         except:
             pass
@@ -251,23 +251,30 @@ try:
     save_shot(driver, "after_file_upload")
 
     def click_change_button():
+        clicked_any = False
+
         candidates = [
             "//button[contains(text(),'変更')]",
             "//button[contains(text(),'保存')]",
             "//input[@type='submit' and (contains(@value,'変更') or contains(@value,'保存'))]",
             "//button[contains(translate(., 'CHANGE', 'change'),'change')]"
         ]
+
         for c in candidates:
             try:
-                el = driver.find_element(By.XPATH, c)
-                el.click()
-                log("CLEAR", f"Clicked change/save button via {c}")
-                return True
-            except:
-                continue
+                elements = driver.find_elements(By.XPATH, c)
+                for el in elements:
+                    try:
+                        el.click()
+                        log("CLEAR", f"Clicked change/save button via {c}")
+                        clicked_any = True
+                    except Exception as e:
+                        log("WARN", f"Failed clicking element {c}: {e}")
+            except Exception as e:
+                log("WARN", f"Failed finding elements by xpath {c}: {e}")
 
         try:
-            radios = driver.find_elements(By.XPATH, "//input[@type='radio' and @checked]")
+            radios = driver.find_elements(By.XPATH, "//input[@type='radio' and (@checked or @selected)]")
             if not radios:
                 radios = [r for r in driver.find_elements(By.XPATH, "//input[@type='radio']") if r.is_selected()]
             if radios:
@@ -277,25 +284,30 @@ try:
                     try:
                         btn.click()
                         log("CLEAR", "Clicked change/save button located below selected radio")
-                        return True
-                    except:
-                        pass
-        except:
-            pass
+                        clicked_any = True
+                    except Exception as e:
+                        log("WARN", f"Failed clicking sibling button: {e}")
+        except Exception as e:
+            log("WARN", f"Error searching radio siblings: {e}")
 
         for b in driver.find_elements(By.TAG_NAME, "button"):
             try:
                 txt = (b.text or "").strip()
                 if "変更" in txt or "保存" in txt:
-                    b.click()
-                    return True
+                    try:
+                        b.click()
+                        clicked_any = True
+                    except Exception as e:
+                        log("WARN", f"Failed clicking button by text fallback: {e}")
             except:
                 pass
 
-        log("WARN", "No change/save button found to click")
-        return False
+        if not clicked_any:
+            log("WARN", "No change/save button clicked")
 
-    safe_action(driver, "Click change/save button", click_change_button)
+        return clicked_any
+
+    safe_action(driver, "Click all change/save buttons", click_change_button)
     time.sleep(3)
     save_shot(driver, "after_click_change")
 
