@@ -2,7 +2,8 @@ name: Upload Conlangg.ttf to ZpDIC
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
@@ -12,45 +13,42 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Pull latest changes (ensure repository up-to-date)
-        run: |
-          git config --global pull.rebase false
-          git pull || true
-
       - name: Install dependencies (Chrome, ChromeDriver, Selenium)
         run: |
+          set -e
           sudo apt-get update
-          sudo apt-get install -y wget unzip xvfb libnss3 libxss1 libgbm1
+          sudo apt-get install -y wget unzip xvfb libnss3 libxss1 libgbm1 git
           sudo apt-get install -y chromium-browser chromium-chromedriver
           python3 -m pip install --upgrade pip
-          pip install selenium pillow imageio
+          pip install selenium
+          set +e
 
-      - name: Run upload script (skip if font exists)
+      - name: Check if Conlangg.ttf already exists
+        run: |
+          set +e
+          git ls-files --error-unmatch scripts/Conlangg.ttf >/dev/null 2>&1
+          if [ $? -eq 0 ]; then
+            echo "Conlangg.ttf already exists in repo. Skipping upload."
+            exit 0
+          fi
+          set -e
+
+      - name: Run upload script
         env:
           USER_ID: ${{ secrets.USER_ID }}
           PASS: ${{ secrets.PASS }}
         run: |
-          # シェルで存在チェック（if: は workflow レベルで使わない）
-          if [ -f "downloads/Conlangg.ttf" ]; then
-            echo "[SKIP] downloads/Conlangg.ttf already exists — skipping upload step"
-            echo "私は偉大な神"
-          else
-            mkdir -p scripts/screenshots
-            # エラーが出ても後続処理を続けたいので || true を用いる
-            python3 scripts/upload_font_to_zpdic.py || true
-            echo "私は偉大な神"
-          fi
+          set +e
+          python3 scripts/upload_font_to_zpdic.py
+          set -e
 
-      - name: Commit and push screenshots if any
+      - name: Commit & Push screenshots
         run: |
-          # screenshots フォルダが空でなければ追加して push
-          if [ -d "scripts/screenshots" ] && [ "$(ls -A scripts/screenshots)" ]; then
-            git config user.name "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
-            git add scripts/screenshots || true
-            git commit -m "Add ZpDIC upload screenshots" || echo "No changes to commit"
-            git pull --rebase || true
-            git push || true
-          else
-            echo "[INFO] No screenshots to commit"
-          fi
+          set +e
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+          mkdir -p scripts/screenshots
+          git add scripts/screenshots/*.png || true
+          git commit -m "Add ZpDIC upload screenshots [skip ci]" || true
+          git push || true
+          set -e
