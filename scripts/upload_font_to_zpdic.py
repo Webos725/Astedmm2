@@ -42,7 +42,7 @@ def safe_action(driver, desc, fn, take_shot=True):
 # ---------- 環境確認 ----------
 USER_ID = os.environ.get("USER_ID")
 PASS = os.environ.get("PASS")
-FONT_PATH = os.path.abspath("downloads/Conlangg.woff")
+FONT_PATH = os.path.abspath("downloads/Conlang.woff")
 
 if not USER_ID:
     log("WARN", "USER_ID not set in environment")
