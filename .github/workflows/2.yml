@@ -1,0 +1,45 @@
+name: Upload Conlangg.ttf to ZpDIC
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  upload-ttf:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies (Chrome, ChromeDriver, Selenium)
+        run: |
+          set -e
+          sudo apt-get update
+          sudo apt-get install -y wget unzip xvfb libnss3 libxss1 libgbm1 git
+          sudo apt-get install -y chromium-browser chromium-chromedriver
+          python3 -m pip install --upgrade pip
+          pip install selenium
+          set +e
+
+      - name: Run upload script
+        env:
+          USER_ID: ${{ secrets.USER_ID }}
+          PASS: ${{ secrets.PASS }}
+        run: |
+          set +e
+          python3 scripts/2.py
+          set -e
+
+      - name: Commit & Push screenshots
+        run: |
+          set +e
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+          mkdir -p scripts/screenshots2
+          git pull
+          git add scripts/screenshots2/*.png || true
+          git commit -m "Add ZpDIC upload screenshots [skip ci]" || true
+          git push || true
+          set -e
