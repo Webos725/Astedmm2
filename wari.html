@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>割り算の筆算表示計算機</title>
+<style>
+  body { font-family: monospace; text-align: center; padding: 20px; }
+  input, select, button {
+    font-size: 16px;
+    margin: 5px;
+    padding: 3px;
+  }
+  pre {
+    text-align: left;
+    display: inline-block;
+    background: #f8f8f8;
+    padding: 10px;
+    border-radius: 6px;
+    min-width: 200px;
+  }
+</style>
+</head>
+<body>
+<h1>割り算の筆算表示計算機</h1>
+<div>
+  <input type="number" id="dividend" placeholder="割られる数" step="any">
+  ÷
+  <input type="number" id="divisor" placeholder="割る数" step="any">
+  <br>
+  小数点桁数:
+  <select id="precision">
+    <option value="0">0桁</option>
+    <option value="1">1桁</option>
+    <option value="2">2桁</option>
+    <option value="3">3桁</option>
+    <option value="4">4桁</option>
+    <option value="5">5桁</option>
+    <option value="6">6桁</option>
+    <option value="7">7桁</option>
+    <option value="8">8桁</option>
+    <option value="9">9桁</option>
+    <option value="10" selected>10桁</option>
+  </select>
+  <br>
+  <button onclick="showLongDivision()">計算</button>
+</div>
+<pre id="output"></pre>
+
+<script>
+function showLongDivision() {
+    const dividendInput = document.getElementById("dividend").value;
+    const divisorInput = document.getElementById("divisor").value;
+    const precision = parseInt(document.getElementById("precision").value);
+    const output = document.getElementById("output");
+
+    const dividend = parseFloat(dividendInput);
+    const divisor = parseFloat(divisorInput);
+
+    if (isNaN(dividend) || isNaN(divisor)) {
+        output.textContent = "両方の数を入力してください。";
+        return;
+    }
+    if (divisor === 0) {
+        output.textContent = "0で割ることはできません。";
+        return;
+    }
+
+    let result = Math.floor(dividend / divisor).toString();
+    let remainder = dividend % divisor;
+
+    let steps = [];
+    let countDecimal = 0;
+    let decimalMode = false;
+
+    while ((remainder !== 0 && countDecimal < precision) || (!decimalMode && remainder !== 0)) {
+        if (!decimalMode) {
+            result += ".";
+            decimalMode = true;
+        }
+        remainder *= 10;
+        let digit = Math.floor(remainder / divisor);
+        result += digit.toString();
+        remainder = remainder % divisor;
+        steps.push(`→ ${remainder} ÷ ${divisor} = ${digit} 余り ${remainder}`);
+        if (decimalMode) countDecimal++;
+    }
+
+    let display = "";
+    display += `   ${result}\n`;
+    display += `${divisor} ) ${dividend}\n`;
+    display += "\n途中計算:\n" + steps.join("\n");
+
+    output.textContent = display;
+}
+</script>
+</body>
+</html>
