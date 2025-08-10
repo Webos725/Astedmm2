@@ -1,4 +1,6 @@
 https://chatgpt.com
+https://win32.run
+https://huggingface.co
 https://colab.google.research.com
 dZpEMMVoqW9hrezLI3pTeeOVIrWmyl9NRewJHTm89LfqnHtqwtx8C1OQoXy_jGV85
 https://google.com
