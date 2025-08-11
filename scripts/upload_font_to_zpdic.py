@@ -75,7 +75,11 @@ wait = WebDriverWait(driver, 15)
 # ---------- 実行本体 ----------
 try:
     safe_action(driver, "Open login page", lambda: driver.get("https://zpdic.ziphil.com/login"))
-    wait.until(EC.presence_of_element_located((By.TAG_NAME, "input")))
+
+    try:
+        wait.until(EC.presence_of_element_located((By.TAG_NAME, "input")))
+    except:
+        log("WARN", "Login inputs not detected within wait timeout")
     save_shot(driver, "login_page_loaded")
 
     def fill_credentials():
@@ -94,8 +98,7 @@ try:
             return
         except:
             pass
-        names = ["username", "login", "email"]
-        for n in names:
+        for n in ["username", "login", "email"]:
             try:
                 e = driver.find_element(By.NAME, n)
                 e.clear(); e.send_keys(USER_ID or "")
@@ -130,37 +133,41 @@ try:
             pass
     safe_action(driver, "Click login button", click_login)
 
-    time.sleep(6)
+    wait.until(EC.url_contains("/home"))
     save_shot(driver, "after_login")
 
     settings_url = "https://zpdic.ziphil.com/dictionary/2283/settings"
     safe_action(driver, f"Open settings page {settings_url}", lambda: driver.get(settings_url))
-    wait.until(EC.presence_of_element_located((By.TAG_NAME, "label")))
+    wait.until(EC.presence_of_element_located((By.TAG_NAME, "body")))
     save_shot(driver, "settings_page_loaded")
 
     def select_font_upload_radio():
         radios_to_click = []
-        labels = driver.find_elements(By.TAG_NAME, "label")
-        for lab in labels:
-            if "フォントをアップロード" in (lab.text or ""):
-                radios_to_click.append(lab)
-        if radios_to_click:
-            radios_to_click[-1].click()
-            return True
+        try:
+            labels = driver.find_elements(By.TAG_NAME, "label")
+            for lab in labels:
+                txt = (lab.text or "").strip()
+                if "フォントをアップロード" in txt:
+                    radios_to_click.append(lab)
+            if radios_to_click:
+                radios_to_click[-1].click()
+                return True
+        except:
+            pass
         return False
+
     safe_action(driver, "Select 'フォントをアップロード' radio", select_font_upload_radio)
     save_shot(driver, "after_select_radio")
 
     def upload_file():
-        candidates = [
+        found = False
+        for sel in [
             "//input[@type='file']",
             "//input[contains(@accept,'.ttf')]",
             "//input[contains(@name,'font')]",
             "//input[contains(@class,'file')]",
             "//input"
-        ]
-        found = False
-        for sel in candidates:
+        ]:
             try:
                 el = driver.find_element(By.XPATH, sel)
                 driver.execute_script("arguments[0].style.display='block'; arguments[0].style.visibility='visible';", el)
@@ -170,35 +177,48 @@ try:
                 break
             except:
                 continue
+        if not found:
+            log("WARN", "No file input accepted the font path")
+
         if found:
-            log("CLEAR", "Upload complete, waiting for preview/acknowledgement...")
+            log("CLEAR", "Upload complete, waiting for preview update...")
             try:
-                wait.until(EC.presence_of_element_located((By.XPATH, "//div[contains(@class,'font-preview')]")))
+                wait.until(EC.presence_of_element_located(
+                    (By.XPATH, "//div[contains(@class,'font-preview') or contains(text(),'Conlangg')]")
+                ))
+                log("OK", "Font preview appeared")
             except:
-                log("WARN", "Font preview not detected, continuing anyway")
+                log("WARN", "Font preview not detected, proceeding anyway")
         return found
+
     safe_action(driver, "Upload font file via file input", upload_file)
     save_shot(driver, "after_file_upload")
 
     def click_change_button():
         try:
-            # フォントアップロードのラジオボタン近くの保存ボタンを優先
-            radio = driver.find_element(By.XPATH, "//input[@type='radio' and @checked or @type='radio' and @selected]")
-            btn = radio.find_element(By.XPATH, "./ancestor::div[1]//button[contains(text(),'変更') or contains(text(),'保存')]")
+            # アップロードラジオボタン近くの保存/変更ボタンをクリック
+            btn = wait.until(EC.element_to_be_clickable(
+                (By.XPATH, "//label[contains(text(),'フォントをアップロード')]/ancestor::div[1]//button[contains(text(),'変更') or contains(text(),'保存')]")
+            ))
             btn.click()
-            log("CLEAR", "Clicked targeted save button")
-            wait.until(EC.presence_of_element_located((By.XPATH, "//*[contains(text(),'保存しました') or contains(text(),'変更しました')]")))
+            log("CLEAR", "Clicked save button near font upload option")
+            # 保存完了メッセージ待ち
+            wait.until(EC.presence_of_element_located(
+                (By.XPATH, "//*[contains(text(),'保存しました') or contains(text(),'変更しました')]")
+            ))
             log("OK", "Save confirmed on page")
             return True
         except Exception as e:
-            log("WARN", f"Save button click failed: {e}")
+            log("WARN", f"Save button click failed or confirmation missing: {e}")
             return False
-    safe_action(driver, "Click save button", click_change_button)
+
+    safe_action(driver, "Click change/save button", click_change_button)
     save_shot(driver, "after_click_change")
 
     log("CLEAR", "Script completed main steps")
+
 except Exception as e:
-    log("FAIL", f"Unexpected error: {e}")
+    log("FAIL", f"Unexpected top-level error: {e}")
     traceback.print_exc()
     try:
         save_shot(driver, "fatal_error")
