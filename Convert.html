@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>人工言語フォント表示</title>
+<style>
+  @font-face {
+    font-family: 'ConlangFont';
+    src: url('https://konnitiwa768.github.io/downloads/Conlangg.ttf') format('truetype');
+  }
+
+  body {
+    font-family: Arial, sans-serif;
+    background: #f0f0f0;
+    padding: 20px;
+  }
+
+  h1 {
+    font-size: 1.4rem;
+  }
+
+  textarea {
+    width: 100%;
+    height: 100px;
+    font-size: 1.1rem;
+    padding: 10px;
+    margin-bottom: 15px;
+    resize: vertical;
+  }
+
+  #preview {
+    font-family: 'ConlangFont', sans-serif;
+    font-size: 2rem;
+    padding: 20px;
+    border: 2px solid #ccc;
+    background: #fff;
+    min-height: 80px;
+    white-space: pre-wrap;
+    transition: all 0.2s ease;
+  }
+
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 15px;
+  }
+
+  label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+</style>
+</head>
+<body>
+
+<h1>人工言語フォント表示</h1>
+<textarea id="inputText" placeholder="ここに文字を入力..."></textarea>
+
+<div class="controls">
+  <label>文字色: <input type="color" id="colorPicker" value="#000000"></label>
+  <label>背景色: <input type="color" id="bgColorPicker" value="#ffffff"></label>
+  <label><input type="checkbox" id="boldToggle"> 太字</label>
+  <label><input type="checkbox" id="italicToggle"> 斜体</label>
+  <label>サイズ: <input type="range" id="sizeSlider" min="10" max="100" value="32"></label>
+  <label><input type="checkbox" id="shadowToggle"> シャドウ</label>
+  <label><input type="checkbox" id="embossToggle"> エンボス</label>
+</div>
+
+<h2>プレビュー</h2>
+<div id="preview"></div>
+
+<script>
+const inputText = document.getElementById('inputText');
+const preview = document.getElementById('preview');
+const colorPicker = document.getElementById('colorPicker');
+const bgColorPicker = document.getElementById('bgColorPicker');
+const boldToggle = document.getElementById('boldToggle');
+const italicToggle = document.getElementById('italicToggle');
+const sizeSlider = document.getElementById('sizeSlider');
+const shadowToggle = document.getElementById('shadowToggle');
+const embossToggle = document.getElementById('embossToggle');
+
+function updatePreview() {
+  preview.textContent = inputText.value || "（ここにプレビュー）";
+  preview.style.color = colorPicker.value;
+  preview.style.backgroundColor = bgColorPicker.value;
+  preview.style.fontWeight = boldToggle.checked ? 'bold' : 'normal';
+  preview.style.fontStyle = italicToggle.checked ? 'italic' : 'normal';
+  preview.style.fontSize = sizeSlider.value + 'px';
+
+  if (shadowToggle.checked) {
+    preview.style.textShadow = '2px 2px 4px rgba(0,0,0,0.5)';
+  } else {
+    preview.style.textShadow = 'none';
+  }
+
+  if (embossToggle.checked) {
+    preview.style.textShadow = 
+      '1px 1px 0 #ccc, -1px -1px 0 #fff'; // 簡易エンボス効果
+  } 
+  if (shadowToggle.checked && embossToggle.checked) {
+    preview.style.textShadow =
+      '2px 2px 4px rgba(0,0,0,0.5), 1px 1px 0 #ccc, -1px -1px 0 #fff';
+  }
+}
+
+[inputText, colorPicker, bgColorPicker, boldToggle, italicToggle, sizeSlider, shadowToggle, embossToggle]
+  .forEach(el => el.addEventListener('input', updatePreview));
+
+// 初期表示
+updatePreview();
+</script>
+
+</body>
+</html>
