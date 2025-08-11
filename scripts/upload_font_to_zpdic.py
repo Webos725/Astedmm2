@@ -2,6 +2,7 @@
 import os
 import time
 import traceback
+import base64
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
@@ -206,65 +207,61 @@ try:
             "//input"
         ]
         found = False
+        file_input = None
+
+        # ---- send_keys をまず試す ----
         for sel in candidates:
             try:
                 el = driver.find_element(By.XPATH, sel)
-                try:
-                    driver.execute_script("arguments[0].style.display='block'; arguments[0].style.visibility='visible';", el)
-                except:
-                    pass
-                try:
-                    el.send_keys(FONT_PATH)
-                    found = True
-                    log("CLEAR", f"Sent file to element {sel}")
-                    break
-                except Exception as e:
-                    log("WARN", f"send_keys failed on {sel}: {e}")
-            except Exception:
-                continue
-        if not found:
-            try:
-                for inp in driver.find_elements(By.TAG_NAME, "input"):
-                    try:
-                        t = (inp.get_attribute("type") or "").lower()
-                        if t == "file" or (inp.get_attribute("accept") and ".ttf" in (inp.get_attribute("accept") or "")):
-                            try:
-                                driver.execute_script("arguments[0].style.display='block'; arguments[0].style.visibility='visible';", inp)
-                            except:
-                                pass
-                            try:
-                                inp.send_keys(FONT_PATH)
-                                found = True
-                                break
-                            except:
-                                pass
-                    except:
-                        pass
-            except:
-                pass
-        if not found:
-            log("WARN", "No file input accepted the font path")
+                driver.execute_script("arguments[0].style.display='block'; arguments[0].style.visibility='visible';", el)
+                el.send_keys(FONT_PATH)
+                file_input = el
+                found = True
+                log("CLEAR", f"Sent file via send_keys to {sel}")
+                break
+            except Exception as e:
+                log("WARN", f"send_keys failed on {sel}: {e}")
 
+        time.sleep(3)  # send_keys後の待機
+
+        # ---- JSで直接Fileオブジェクトを注入 ----
+        try:
+            if file_input is None:
+                file_input = driver.find_element(By.CSS_SELECTOR, "input[type=file]")
+            with open(FONT_PATH, "rb") as f:
+                b64_data = base64.b64encode(f.read()).decode("utf-8")
+            js = """
+            var b64 = arguments[0];
+            var filename = arguments[1];
+            var content = atob(b64);
+            var array = new Uint8Array(content.length);
+            for (var i = 0; i < content.length; i++) {
+                array[i] = content.charCodeAt(i);
+            }
+            var blob = new Blob([array], {type: "font/ttf"});
+            var file = new File([blob], filename, {type: "font/ttf"});
+            var dt = new DataTransfer();
+            dt.items.add(file);
+            arguments[2].files = dt.files;
+            arguments[2].dispatchEvent(new Event('change', { bubbles: true }));
+            """
+            driver.execute_script(js, b64_data, os.path.basename(FONT_PATH), file_input)
+            found = True
+            log("CLEAR", "Injected File via JS")
+        except Exception as e:
+            log("WARN", f"JS injection failed: {e}")
+
+        # ---- ファイル名確認 ----
         if found:
-            log("CLEAR", "Upload complete, waiting for file name to appear...")
             try:
                 wait.until(EC.presence_of_element_located((By.XPATH, "//*[contains(text(),'.ttf') or contains(text(),'Conlangg')]")))
                 log("OK", "Font file name appeared after upload")
             except:
                 log("WARN", "Font file name not detected in DOM")
-        return found
+        else:
+            log("WARN", "No file input accepted the font path")
 
-    def upload_file_and_confirm():
-        if not upload_file():
-            return False
-        # 再度ラジオを選択
-        select_font_upload_radio()
-        time.sleep(1)
-        # 保存ボタン押下
-        click_change_button()
-        # 反映待ち
-        time.sleep(20)
-        return True
+        return found
 
     def click_change_button():
         clicked_any = False
@@ -287,6 +284,18 @@ try:
             except Exception as e:
                 log("WARN", f"Failed finding elements by xpath {c}: {e}")
         return clicked_any
+
+    def upload_file_and_confirm():
+        if not upload_file():
+            return False
+        # 再度ラジオを選択
+        select_font_upload_radio()
+        time.sleep(1)
+        # 保存ボタン押下
+        click_change_button()
+        # 反映待ち
+        time.sleep(20)
+        return True
 
     safe_action(driver, "Upload font file and confirm", upload_file_and_confirm)
     save_shot(driver, "after_upload_and_confirm")
