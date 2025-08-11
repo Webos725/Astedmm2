@@ -42,7 +42,7 @@ def safe_action(driver, desc, fn, take_shot=True):
 # ---------- 環境確認 ----------
 USER_ID = os.environ.get("USER_ID")
 PASS = os.environ.get("PASS")
-FONT_PATH = os.path.abspath("downloads/Conlang.woff")
+FONT_PATH = os.path.abspath("downloads/Conlangg.ttf")  # ここをTTFに変更
 
 if not USER_ID:
     log("WARN", "USER_ID not set in environment")
@@ -244,6 +244,11 @@ try:
                 pass
         if not found:
             log("WARN", "No file input accepted the font path")
+
+        if found:
+            log("CLEAR", "Upload complete, waiting 6 seconds for processing...")
+            time.sleep(6)  # 追加: アップロード反映待ち
+
         return found
 
     safe_action(driver, "Upload font file via file input", upload_file)
