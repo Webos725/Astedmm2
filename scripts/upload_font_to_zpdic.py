@@ -246,8 +246,8 @@ try:
             log("WARN", "No file input accepted the font path")
 
         if found:
-            log("CLEAR", "Upload complete, waiting 6 seconds for processing...")
-            time.sleep(6)  # 追加: アップロード反映待ち
+            log("CLEAR", "Upload complete, waiting 10 seconds for processing...")
+            time.sleep(10)  # 追加: アップロード反映待ち
 
         return found
 
