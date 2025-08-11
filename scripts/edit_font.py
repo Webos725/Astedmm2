@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 import os
-from datetime import datetime, timezone
 from fontTools.ttLib import TTFont
 from fontTools.misc import timeTools
+from fontTools.ttLib.tables.O_S_2f_2 import Panose
 
 FONT_PATH = os.path.abspath("downloads/Conlangg.ttf")
 
@@ -42,7 +42,22 @@ os2.ySubscriptXSize = 650
 os2.ySubscriptYSize = 699
 os2.ySuperscriptXSize = 650
 os2.ySuperscriptYSize = 699
-os2.panose = (2, 11, 5, 3, 2, 2, 4, 2, 2, 4)
+
+# Panose をオブジェクトで設定
+p = Panose()
+p.bFamilyType = 2      # Latin Text
+p.bSerifStyle = 11     # Normal Sans
+p.bWeight = 5          # Medium
+p.bProportion = 3
+p.bContrast = 2
+p.bStrokeVariation = 2
+p.bArmStyle = 4
+p.bLetterForm = 2
+p.bMidline = 2
+p.bXHeight = 4
+os2.panose = p
+
+# Unicode 全範囲サポート
 os2.ulUnicodeRange1 = 0xFFFFFFFF
 os2.ulUnicodeRange2 = 0xFFFFFFFF
 os2.ulUnicodeRange3 = 0xFFFFFFFF
@@ -51,7 +66,7 @@ os2.ulUnicodeRange4 = 0xFFFFFFFF
 # ===== headテーブル設定 =====
 head = font["head"]
 head.fontRevision = 1.000
-now_timestamp = timeTools.timestampNow()  # ← Mac epochからの秒数
+now_timestamp = timeTools.timestampNow()
 head.created = now_timestamp
 head.modified = now_timestamp
 
