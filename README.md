@@ -7,6 +7,7 @@ https://google.com
 live at https://konnitiwa768.github.io/Astedmm/A.html
 https://konnitiwa768.github.io/Battle-of-Citium/Zp.html
 https://konnitiwa768.github.io/Kanic-letter/5o.html
+https://konnitiwa768.github.io/Kanic-letter/Convert.html
 https://konnitiwa768.github.io/Astedmm/Neon.html
 https://konnitiwa768.github.io/Astedmm/wari.html
 https://sakaltium.github.io/Kanic-letter/Eb.html
