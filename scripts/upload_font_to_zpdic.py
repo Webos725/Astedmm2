@@ -49,7 +49,7 @@ if not USER_ID:
 if not PASS:
     log("WARN", "PASS not set in environment")
 if not os.path.exists(FONT_PATH):
-    log("WARN", f"Font file not found at {FONT_PATH}")
+    log("WARN", f"Font file not found at {FONT_PATH} — the workflow shell will skip running this script if so.")
 
 # ---------- Chrome 起動設定 ----------
 log("CLEAR", "Starting Chrome (headless)")
@@ -70,150 +70,238 @@ except Exception as e:
         log("FAIL", f"Second attempt to start Chrome failed: {e2}")
         raise SystemExit(1)
 
-wait = WebDriverWait(driver, 15)
+wait = WebDriverWait(driver, 12)
+
+# ---------- 関数群 ----------
+def fill_credentials():
+    inputs = driver.find_elements(By.TAG_NAME, "input")
+    if len(inputs) >= 2:
+        inputs[0].clear()
+        inputs[0].send_keys(USER_ID or "")
+        inputs[1].clear()
+        inputs[1].send_keys(PASS or "")
+        return
+    try:
+        uid = driver.find_element(By.NAME, "userId")
+        pwd = driver.find_element(By.NAME, "password")
+        uid.clear(); uid.send_keys(USER_ID or "")
+        pwd.clear(); pwd.send_keys(PASS or "")
+        return
+    except:
+        pass
+    names = ["username", "login", "email"]
+    for n in names:
+        try:
+            e = driver.find_element(By.NAME, n)
+            e.clear(); e.send_keys(USER_ID or "")
+            break
+        except:
+            continue
+
+def click_login():
+    candidates = [
+        "//button[contains(text(),'ログイン')]",
+        "//button[contains(text(),'ログ in')]",
+        "//input[@type='submit' and (contains(@value,'ログイン') or contains(@value,'Login'))]",
+        "//button[contains(translate(., 'LOGIN', 'login'), 'login')]"
+    ]
+    for c in candidates:
+        try:
+            el = driver.find_element(By.XPATH, c)
+            el.click()
+            return
+        except:
+            continue
+    for b in driver.find_elements(By.TAG_NAME, "button"):
+        if "ログイン" in (b.text or "") or "Login" in (b.text or ""):
+            b.click()
+            return
+    try:
+        inputs = driver.find_elements(By.TAG_NAME, "input")
+        if len(inputs) >= 2:
+            inputs[1].send_keys("\n")
+    except:
+        pass
+
+def select_font_upload_radio():
+    radios_to_click = []
+    try:
+        labels = driver.find_elements(By.TAG_NAME, "label")
+        for lab in labels:
+            txt = (lab.text or "").strip()
+            if "フォントをアップロード" in txt:
+                radios_to_click.append(lab)
+        if radios_to_click:
+            radios_to_click[-1].click()
+            return True
+    except:
+        pass
+
+    try:
+        radios = driver.find_elements(By.XPATH, "//input[@type='radio']")
+        matching_radios = []
+        for r in radios:
+            try:
+                rid = r.get_attribute("id")
+                if rid:
+                    lab = driver.find_element(By.XPATH, f"//label[@for='{rid}']")
+                    if "フォントをアップロード" in (lab.text or ""):
+                        matching_radios.append(r)
+            except:
+                pass
+        if matching_radios:
+            matching_radios[-1].click()
+            return True
+    except:
+        pass
+
+    try:
+        elems = driver.find_elements(By.XPATH, "//*[contains(text(),'アップロード') or contains(text(),'フォント')]")
+        candidate_radios = []
+        for e in elems:
+            try:
+                parent = e.find_element(By.XPATH, "./ancestor::div[1]")
+                candidate = parent.find_element(By.XPATH, ".//input[@type='radio']")
+                candidate_radios.append(candidate)
+            except:
+                pass
+        if candidate_radios:
+            candidate_radios[-1].click()
+            return True
+    except:
+        pass
+
+    return False
+
+def upload_file():
+    candidates = [
+        "//input[@type='file']",
+        "//input[contains(@accept,'.ttf')]",
+        "//input[contains(@name,'font')]",
+        "//input[contains(@class,'file')]",
+        "//input"
+    ]
+    found = False
+    for sel in candidates:
+        try:
+            el = driver.find_element(By.XPATH, sel)
+            try:
+                driver.execute_script("arguments[0].style.display='block'; arguments[0].style.visibility='visible';", el)
+            except:
+                pass
+            try:
+                el.send_keys(FONT_PATH)
+                found = True
+                log("CLEAR", f"Sent file to element {sel}")
+                break
+            except Exception as e:
+                log("WARN", f"send_keys failed on {sel}: {e}")
+        except Exception:
+            continue
+    if not found:
+        try:
+            for inp in driver.find_elements(By.TAG_NAME, "input"):
+                try:
+                    t = (inp.get_attribute("type") or "").lower()
+                    if t == "file" or (inp.get_attribute("accept") and ".ttf" in (inp.get_attribute("accept") or "")):
+                        try:
+                            driver.execute_script("arguments[0].style.display='block'; arguments[0].style.visibility='visible';", inp)
+                        except:
+                            pass
+                        try:
+                            inp.send_keys(FONT_PATH)
+                            found = True
+                            break
+                        except:
+                            pass
+                except:
+                    pass
+        except:
+            pass
+    if not found:
+        log("WARN", "No file input accepted the font path")
+
+    if found:
+        log("CLEAR", "Upload complete, waiting for processing...")
+    return found
+
+def click_change_button():
+    clicked_any = False
+    candidates = [
+        "//button[contains(text(),'変更')]",
+        "//button[contains(text(),'保存')]",
+        "//input[@type='submit' and (contains(@value,'変更') or contains(@value,'保存'))]",
+        "//button[contains(translate(., 'CHANGE', 'change'),'change')]"
+    ]
+    for c in candidates:
+        try:
+            elements = driver.find_elements(By.XPATH, c)
+            for el in elements:
+                try:
+                    el.click()
+                    log("CLEAR", f"Clicked change/save button via {c}")
+                    clicked_any = True
+                except Exception as e:
+                    log("WARN", f"Failed clicking element {c}: {e}")
+        except Exception as e:
+            log("WARN", f"Failed finding elements by xpath {c}: {e}")
+
+    for b in driver.find_elements(By.TAG_NAME, "button"):
+        try:
+            txt = (b.text or "").strip()
+            if "変更" in txt or "保存" in txt:
+                try:
+                    b.click()
+                    clicked_any = True
+                except Exception as e:
+                    log("WARN", f"Failed clicking button by text fallback: {e}")
+        except:
+            pass
+
+    if not clicked_any:
+        log("WARN", "No change/save button clicked")
+    return clicked_any
+
+def upload_file_and_confirm():
+    uploaded = upload_file()
+    if not uploaded:
+        return False
+    select_font_upload_radio()
+    try:
+        wait.until(EC.presence_of_element_located((By.XPATH, "//*[contains(text(),'.ttf') or contains(text(),'Conlangg')]")))
+        log("OK", "Font file name appeared in DOM after upload")
+    except:
+        log("WARN", "Font file name not detected after upload")
+    time.sleep(1)
+    click_change_button()
+    time.sleep(5)
+    return True
 
 # ---------- 実行本体 ----------
 try:
     safe_action(driver, "Open login page", lambda: driver.get("https://zpdic.ziphil.com/login"))
-
     try:
         wait.until(EC.presence_of_element_located((By.TAG_NAME, "input")))
     except:
         log("WARN", "Login inputs not detected within wait timeout")
     save_shot(driver, "login_page_loaded")
 
-    def fill_credentials():
-        inputs = driver.find_elements(By.TAG_NAME, "input")
-        if len(inputs) >= 2:
-            inputs[0].clear()
-            inputs[0].send_keys(USER_ID or "")
-            inputs[1].clear()
-            inputs[1].send_keys(PASS or "")
-            return
-        try:
-            uid = driver.find_element(By.NAME, "userId")
-            pwd = driver.find_element(By.NAME, "password")
-            uid.clear(); uid.send_keys(USER_ID or "")
-            pwd.clear(); pwd.send_keys(PASS or "")
-            return
-        except:
-            pass
-        for n in ["username", "login", "email"]:
-            try:
-                e = driver.find_element(By.NAME, n)
-                e.clear(); e.send_keys(USER_ID or "")
-                break
-            except:
-                continue
     safe_action(driver, "Fill credentials", fill_credentials)
-
-    def click_login():
-        candidates = [
-            "//button[contains(text(),'ログイン')]",
-            "//button[contains(text(),'ログ in')]",
-            "//input[@type='submit' and (contains(@value,'ログイン') or contains(@value,'Login'))]",
-            "//button[contains(translate(., 'LOGIN', 'login'), 'login')]"
-        ]
-        for c in candidates:
-            try:
-                el = driver.find_element(By.XPATH, c)
-                el.click()
-                return
-            except:
-                continue
-        for b in driver.find_elements(By.TAG_NAME, "button"):
-            if "ログイン" in (b.text or "") or "Login" in (b.text or ""):
-                b.click()
-                return
-        try:
-            inputs = driver.find_elements(By.TAG_NAME, "input")
-            if len(inputs) >= 2:
-                inputs[1].send_keys("\n")
-        except:
-            pass
     safe_action(driver, "Click login button", click_login)
-
-    wait.until(EC.url_contains("/home"))
+    time.sleep(6)
     save_shot(driver, "after_login")
 
     settings_url = "https://zpdic.ziphil.com/dictionary/2283/settings"
     safe_action(driver, f"Open settings page {settings_url}", lambda: driver.get(settings_url))
-    wait.until(EC.presence_of_element_located((By.TAG_NAME, "body")))
+    time.sleep(3)
     save_shot(driver, "settings_page_loaded")
 
-    def select_font_upload_radio():
-        radios_to_click = []
-        try:
-            labels = driver.find_elements(By.TAG_NAME, "label")
-            for lab in labels:
-                txt = (lab.text or "").strip()
-                if "フォントをアップロード" in txt:
-                    radios_to_click.append(lab)
-            if radios_to_click:
-                radios_to_click[-1].click()
-                return True
-        except:
-            pass
-        return False
-
     safe_action(driver, "Select 'フォントをアップロード' radio", select_font_upload_radio)
+    time.sleep(1)
     save_shot(driver, "after_select_radio")
 
-    def upload_file():
-        found = False
-        for sel in [
-            "//input[@type='file']",
-            "//input[contains(@accept,'.ttf')]",
-            "//input[contains(@name,'font')]",
-            "//input[contains(@class,'file')]",
-            "//input"
-        ]:
-            try:
-                el = driver.find_element(By.XPATH, sel)
-                driver.execute_script("arguments[0].style.display='block'; arguments[0].style.visibility='visible';", el)
-                el.send_keys(FONT_PATH)
-                found = True
-                log("CLEAR", f"Sent file to element {sel}")
-                break
-            except:
-                continue
-        if not found:
-            log("WARN", "No file input accepted the font path")
-
-        if found:
-            log("CLEAR", "Upload complete, waiting for preview update...")
-            try:
-                wait.until(EC.presence_of_element_located(
-                    (By.XPATH, "//div[contains(@class,'font-preview') or contains(text(),'Conlangg')]")
-                ))
-                log("OK", "Font preview appeared")
-            except:
-                log("WARN", "Font preview not detected, proceeding anyway")
-        return found
-
-    safe_action(driver, "Upload font file via file input", upload_file)
-    save_shot(driver, "after_file_upload")
-
-    def click_change_button():
-        try:
-            # アップロードラジオボタン近くの保存/変更ボタンをクリック
-            btn = wait.until(EC.element_to_be_clickable(
-                (By.XPATH, "//label[contains(text(),'フォントをアップロード')]/ancestor::div[1]//button[contains(text(),'変更') or contains(text(),'保存')]")
-            ))
-            btn.click()
-            log("CLEAR", "Clicked save button near font upload option")
-            # 保存完了メッセージ待ち
-            wait.until(EC.presence_of_element_located(
-                (By.XPATH, "//*[contains(text(),'保存しました') or contains(text(),'変更しました')]")
-            ))
-            log("OK", "Save confirmed on page")
-            return True
-        except Exception as e:
-            log("WARN", f"Save button click failed or confirmation missing: {e}")
-            return False
-
-    safe_action(driver, "Click change/save button", click_change_button)
-    save_shot(driver, "after_click_change")
+    safe_action(driver, "Upload font file and confirm", upload_file_and_confirm)
+    save_shot(driver, "after_upload_and_confirm")
 
     log("CLEAR", "Script completed main steps")
 
