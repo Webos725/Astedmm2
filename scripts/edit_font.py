@@ -20,14 +20,15 @@ postscript_name = f"{new_family_name.replace(' ', '')}-{new_subfamily_name}"
 
 for record in name_table.names:
     try:
+        encoding = record.getEncoding() or "utf_16_be"
         if record.nameID == 1:
-            record.string = new_family_name.encode(record.getEncoding())
+            record.string = new_family_name.encode(encoding)
         elif record.nameID == 2:
-            record.string = new_subfamily_name.encode(record.getEncoding())
+            record.string = new_subfamily_name.encode(encoding)
         elif record.nameID == 4:
-            record.string = full_name.encode(record.getEncoding())
+            record.string = full_name.encode(encoding)
         elif record.nameID == 6:
-            record.string = postscript_name.encode(record.getEncoding())
+            record.string = postscript_name.encode(encoding)
         elif record.nameID == 0:
             record.string = b"Public Domain / Open License"
     except Exception:
@@ -43,11 +44,11 @@ os2.ySubscriptYSize = 699
 os2.ySuperscriptXSize = 650
 os2.ySuperscriptYSize = 699
 
-# Panose をオブジェクトで設定
+# Panose 設定
 p = Panose()
-p.bFamilyType = 2      # Latin Text
-p.bSerifStyle = 11     # Normal Sans
-p.bWeight = 5          # Medium
+p.bFamilyType = 2
+p.bSerifStyle = 11
+p.bWeight = 5
 p.bProportion = 3
 p.bContrast = 2
 p.bStrokeVariation = 2
@@ -75,6 +76,6 @@ post = font["post"]
 post.isFixedPitch = 0
 post.italicAngle = 0
 
-# 保存
+# 保存（上書き）
 font.save(FONT_PATH)
 print(f"[OK] {FONT_PATH} を更新しました")
