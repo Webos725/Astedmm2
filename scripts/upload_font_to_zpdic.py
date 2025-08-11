@@ -263,7 +263,7 @@ try:
         # 保存ボタン押下
         click_change_button()
         # 反映待ち
-        time.sleep(5)
+        time.sleep(20)
         return True
 
     def click_change_button():
