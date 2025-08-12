@@ -2,7 +2,6 @@
 import os
 import time
 import traceback
-import base64
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
@@ -10,7 +9,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 # ---------- 設定 ----------
-SCREENSHOT_DIR = os.path.abspath("scripts/screenshots")
+SCREENSHOT_DIR = os.path.abspath("scripts/screenshots2")
 os.makedirs(SCREENSHOT_DIR, exist_ok=True)
 
 def log(tag, msg):
@@ -43,7 +42,7 @@ def safe_action(driver, desc, fn, take_shot=True):
 # ---------- 環境確認 ----------
 USER_ID = os.environ.get("USER_ID")
 PASS = os.environ.get("PASS")
-FONT_PATH = os.path.abspath("downloads/Conlangg.ttf")  # TTF
+FONT_PATH = os.path.abspath("downloads/Conlangg.ttf")
 
 if not USER_ID:
     log("WARN", "USER_ID not set in environment")
@@ -207,70 +206,60 @@ try:
             "//input"
         ]
         found = False
-        file_input = None
-
-        # ---- send_keys をまず試す ----
         for sel in candidates:
             try:
                 el = driver.find_element(By.XPATH, sel)
-                driver.execute_script("arguments[0].style.display='block'; arguments[0].style.visibility='visible';", el)
-                el.send_keys(FONT_PATH)
-                file_input = el
-                found = True
-                log("CLEAR", f"Sent file via send_keys to {sel}")
-                break
-            except Exception as e:
-                log("WARN", f"send_keys failed on {sel}: {e}")
-
-        time.sleep(3)  # send_keys後の待機
-
-        # ---- JSで直接Fileオブジェクトを注入 ----
-        try:
-            if file_input is None:
-                file_input = driver.find_element(By.CSS_SELECTOR, "input[type=file]")
-            with open(FONT_PATH, "rb") as f:
-                b64_data = base64.b64encode(f.read()).decode("utf-8")
-            js = """
-            var b64 = arguments[0];
-            var filename = arguments[1];
-            var content = atob(b64);
-            var array = new Uint8Array(content.length);
-            for (var i = 0; i < content.length; i++) {
-                array[i] = content.charCodeAt(i);
-            }
-            var blob = new Blob([array], {type: "font/ttf"});
-            var file = new File([blob], filename, {type: "font/ttf"});
-            var dt = new DataTransfer();
-            dt.items.add(file);
-            arguments[2].files = dt.files;
-            arguments[2].dispatchEvent(new Event('change', { bubbles: true }));
-            """
-            driver.execute_script(js, b64_data, os.path.basename(FONT_PATH), file_input)
-            found = True
-            log("CLEAR", "Injected File via JS")
-        except Exception as e:
-            log("WARN", f"JS injection failed: {e}")
-
-        # ---- ファイル名確認 ----
-        if found:
+                try:
+                    driver.execute_script("arguments[0].style.display='block'; arguments[0].style.visibility='visible';", el)
+                except:
+                    pass
+                try:
+                    el.send_keys(FONT_PATH)
+                    found = True
+                    log("CLEAR", f"Sent file to element {sel}")
+                    break
+                except Exception as e:
+                    log("WARN", f"send_keys failed on {sel}: {e}")
+            except Exception:
+                continue
+        if not found:
             try:
-                wait.until(EC.presence_of_element_located((By.XPATH, "//*[contains(text(),'.ttf') or contains(text(),'Conlangg')]")))
-                log("OK", "Font file name appeared after upload")
+                for inp in driver.find_elements(By.TAG_NAME, "input"):
+                    try:
+                        t = (inp.get_attribute("type") or "").lower()
+                        if t == "file" or (inp.get_attribute("accept") and ".ttf" in (inp.get_attribute("accept") or "")):
+                            try:
+                                driver.execute_script("arguments[0].style.display='block'; arguments[0].style.visibility='visible';", inp)
+                            except:
+                                pass
+                            try:
+                                inp.send_keys(FONT_PATH)
+                                found = True
+                                break
+                            except:
+                                pass
+                    except:
+                        pass
             except:
-                log("WARN", "Font file name not detected in DOM")
-        else:
+                pass
+        if not found:
             log("WARN", "No file input accepted the font path")
-
         return found
+
+    safe_action(driver, "Upload font file via file input", upload_file)
+    time.sleep(2)
+    save_shot(driver, "after_file_upload")
 
     def click_change_button():
         clicked_any = False
+
         candidates = [
             "//button[contains(text(),'変更')]",
             "//button[contains(text(),'保存')]",
             "//input[@type='submit' and (contains(@value,'変更') or contains(@value,'保存'))]",
             "//button[contains(translate(., 'CHANGE', 'change'),'change')]"
         ]
+
         for c in candidates:
             try:
                 elements = driver.find_elements(By.XPATH, c)
@@ -283,22 +272,73 @@ try:
                         log("WARN", f"Failed clicking element {c}: {e}")
             except Exception as e:
                 log("WARN", f"Failed finding elements by xpath {c}: {e}")
+
+        try:
+            radios = driver.find_elements(By.XPATH, "//input[@type='radio' and (@checked or @selected)]")
+            if not radios:
+                radios = [r for r in driver.find_elements(By.XPATH, "//input[@type='radio']") if r.is_selected()]
+            if radios:
+                radio = radios[-1]
+                sibling_buttons = radio.find_elements(By.XPATH, "./following-sibling::*[self::button or self::input[@type='button' or @type='submit']]")
+                for btn in sibling_buttons:
+                    try:
+                        btn.click()
+                        log("CLEAR", "Clicked change/save button located below selected radio")
+                        clicked_any = True
+                    except Exception as e:
+                        log("WARN", f"Failed clicking sibling button: {e}")
+        except Exception as e:
+            log("WARN", f"Error searching radio siblings: {e}")
+
+        for b in driver.find_elements(By.TAG_NAME, "button"):
+            try:
+                txt = (b.text or "").strip()
+                if "変更" in txt or "保存" in txt:
+                    try:
+                        b.click()
+                        clicked_any = True
+                    except Exception as e:
+                        log("WARN", f"Failed clicking button by text fallback: {e}")
+            except:
+                pass
+
+        if not clicked_any:
+            log("WARN", "No change/save button clicked")
+
         return clicked_any
 
-    def upload_file_and_confirm():
-        if not upload_file():
-            return False
-        # 再度ラジオを選択
-        select_font_upload_radio()
-        time.sleep(1)
-        # 保存ボタン押下
-        click_change_button()
-        # 反映待ち
-        time.sleep(20)
-        return True
+    safe_action(driver, "Click all change/save buttons", click_change_button)
+    time.sleep(3)
+    save_shot(driver, "after_click_change")
 
-    safe_action(driver, "Upload font file and confirm", upload_file_and_confirm)
-    save_shot(driver, "after_upload_and_confirm")
+    def touch_all_ui():
+        try:
+            for inp in driver.find_elements(By.TAG_NAME, "input"):
+                try:
+                    t = (inp.get_attribute("type") or "").lower()
+                    if t in ("radio", "checkbox"):
+                        try:
+                            inp.click()
+                        except:
+                            pass
+                except:
+                    pass
+            for sel in driver.find_elements(By.TAG_NAME, "select"):
+                try:
+                    opts = sel.find_elements(By.TAG_NAME, "option")
+                    for o in opts[:3]:
+                        try:
+                            o.click()
+                            time.sleep(0.2)
+                        except:
+                            pass
+                except:
+                    pass
+        except:
+            pass
+
+    safe_action(driver, "Touch all UI elements (non-destructive)", touch_all_ui)
+    save_shot(driver, "after_touch_ui")
 
     log("CLEAR", "Script completed main steps (errors were logged but not fatal)")
 
