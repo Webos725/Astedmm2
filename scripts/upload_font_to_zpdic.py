@@ -9,7 +9,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 # ---------- 設定 ----------
-SCREENSHOT_DIR = os.path.abspath("scripts/screenshots2")
+SCREENSHOT_DIR = os.path.abspath("scripts/screenshots")
 os.makedirs(SCREENSHOT_DIR, exist_ok=True)
 
 def log(tag, msg):
@@ -42,7 +42,7 @@ def safe_action(driver, desc, fn, take_shot=True):
 # ---------- 環境確認 ----------
 USER_ID = os.environ.get("USER_ID")
 PASS = os.environ.get("PASS")
-FONT_PATH = os.path.abspath("downloads/font.ttf")
+FONT_PATH = os.path.abspath("downloads/font2.ttf")
 
 if not USER_ID:
     log("WARN", "USER_ID not set in environment")
