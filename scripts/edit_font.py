@@ -9,7 +9,8 @@ FONT_PATH = os.path.abspath("downloads/Conlangg.ttf")
 if not os.path.exists(FONT_PATH):
     raise FileNotFoundError(f"{FONT_PATH} が見つかりません")
 
-font = TTFont(FONT_PATH)
+# lazy=True で開く
+font = TTFont(FONT_PATH, lazy=True)
 
 # ===== nameテーブル設定 =====
 name_table = font["name"]
@@ -20,7 +21,7 @@ postscript_name = f"{new_family_name.replace(' ', '')}-{new_subfamily_name}"
 
 for record in name_table.names:
     try:
-        encoding = record.getEncoding() or "utf_16_be"
+        encoding = "utf_16_be"  # 安定エンコード固定
         if record.nameID == 1:
             record.string = new_family_name.encode(encoding)
         elif record.nameID == 2:
@@ -58,11 +59,19 @@ p.bMidline = 2
 p.bXHeight = 4
 os2.panose = p
 
-# Unicode 全範囲サポート
-os2.ulUnicodeRange1 = 0xFFFFFFFF
-os2.ulUnicodeRange2 = 0xFFFFFFFF
-os2.ulUnicodeRange3 = 0xFFFFFFFF
-os2.ulUnicodeRange4 = 0xFFFFFFFF
+# Unicode Range → 実際の cmap に基づく範囲に設定
+cmap = font["cmap"]
+codepoints = set()
+for table in cmap.tables:
+    codepoints.update(table.cmap.keys())
+
+# ここでは安全のため、範囲自動設定関数を呼ぶ
+from fontTools.ttLib.tables._o_s_2f_2 import getUnicodeRanges
+ulUnicodeRange1, ulUnicodeRange2, ulUnicodeRange3, ulUnicodeRange4 = getUnicodeRanges(codepoints)
+os2.ulUnicodeRange1 = ulUnicodeRange1
+os2.ulUnicodeRange2 = ulUnicodeRange2
+os2.ulUnicodeRange3 = ulUnicodeRange3
+os2.ulUnicodeRange4 = ulUnicodeRange4
 
 # ===== headテーブル設定 =====
 head = font["head"]
@@ -76,6 +85,6 @@ post = font["post"]
 post.isFixedPitch = 0
 post.italicAngle = 0
 
-# 保存（上書き）
-font.save(FONT_PATH)
+# 保存（上書き、テーブル順保持）
+font.save(FONT_PATH, reorderTables=False)
 print(f"[OK] {FONT_PATH} を更新しました")
