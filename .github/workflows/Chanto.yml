@@ -22,7 +22,10 @@ jobs:
           python-version: "3.x"
 
       - name: Install fontTools
-        run: pip install fonttools
+        run: |
+          pip install fonttools
+          pip install --upgrade fonttools
+
 
       - name: Run font edit script
         run: python scripts/edit_font.py
