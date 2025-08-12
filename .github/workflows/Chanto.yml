@@ -35,6 +35,6 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git pull 
-          git add downloads/Conlangg.ttf
+          git add downloads/font2.ttf
           git commit -m "Update Conlangg.ttf with new metadata" || echo "No changes to commit"
           git push
