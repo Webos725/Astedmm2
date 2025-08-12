@@ -1,0 +1,27 @@
+name: Check Font Integrity
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - master
+      - develop
+
+jobs:
+  check-font:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install dependencies
+        run: pip install fonttools
+
+      - name: Run font check script
+        run: python scripts/check_font.py
