@@ -197,51 +197,42 @@ try:
     time.sleep(3)
     save_shot(driver, "after_select_radio")
 
+    # ---------- ここから send_keys → JS dispatch fallback ----------
     def upload_file():
-        candidates = [
-            "//input[@type='file']",
-            "//input[contains(@accept,'.ttf')]",
-            "//input[contains(@name,'font')]",
-            "//input[contains(@class,'file')]",
-            "//input"
-        ]
         found = False
-        for sel in candidates:
+        # 1. 通常 send_keys 試行
+        for inp in driver.find_elements(By.XPATH, "//input[@type='file']"):
             try:
-                el = driver.find_element(By.XPATH, sel)
+                driver.execute_script("""
+                arguments[0].style.display='block';
+                arguments[0].style.visibility='visible';
+                arguments[0].removeAttribute('readonly');
+                arguments[0].style.pointerEvents='auto';
+                """, inp)
+                inp.send_keys(FONT_PATH)
+                found = True
+                log("CLEAR", "Font uploaded via send_keys")
+                break
+            except:
+                continue
+
+        # 2. 3秒待機後、JS dispatch fallback
+        if not found:
+            time.sleep(3)
+            for inp in driver.find_elements(By.XPATH, "//input[@type='file']"):
                 try:
-                    driver.execute_script("arguments[0].style.display='block'; arguments[0].style.visibility='visible';", el)
-                except:
-                    pass
-                try:
-                    el.send_keys(FONT_PATH)
+                    driver.execute_script("""
+                    let fileInput = arguments[0];
+                    let dt = new DataTransfer();
+                    dt.items.add(new File([''], '{}'));
+                    fileInput.files = dt.files;
+                    fileInput.dispatchEvent(new Event('change', {bubbles:true}));
+                    """.format(os.path.basename(FONT_PATH)), inp)
                     found = True
-                    log("CLEAR", f"Sent file to element {sel}")
+                    log("CLEAR", "Font uploaded via JS dispatch fallback")
                     break
                 except Exception as e:
-                    log("WARN", f"send_keys failed on {sel}: {e}")
-            except Exception:
-                continue
-        if not found:
-            try:
-                for inp in driver.find_elements(By.TAG_NAME, "input"):
-                    try:
-                        t = (inp.get_attribute("type") or "").lower()
-                        if t == "file" or (inp.get_attribute("accept") and ".ttf" in (inp.get_attribute("accept") or "")):
-                            try:
-                                driver.execute_script("arguments[0].style.display='block'; arguments[0].style.visibility='visible';", inp)
-                            except:
-                                pass
-                            try:
-                                inp.send_keys(FONT_PATH)
-                                found = True
-                                break
-                            except:
-                                pass
-                    except:
-                        pass
-            except:
-                pass
+                    log("WARN", f"File upload JS dispatch failed: {e}")
         if not found:
             log("WARN", "No file input accepted the font path")
         return found
@@ -250,6 +241,7 @@ try:
     time.sleep(12)
     save_shot(driver, "after_file_upload")
 
+    # ---------- 以下は既存処理そのまま ----------
     def click_change_button():
         clicked_any = False
 
