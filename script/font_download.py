@@ -55,7 +55,7 @@ try:
             break
 
     if ttf_file_path:
-        fixed_path = os.path.join(download_dir, "font.ttf")
+        fixed_path = os.path.join(download_dir, "font5.ttf")
         shutil.move(ttf_file_path, fixed_path)
         print(f"ダウンロード完了: {fixed_path}")
     else:
