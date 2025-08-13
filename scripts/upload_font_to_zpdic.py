@@ -194,7 +194,7 @@ try:
 
     safe_action(driver, "Select 'フォントをアップロード' radio", select_font_upload_radio)
 
-    time.sleep(1)
+    time.sleep(3)
     save_shot(driver, "after_select_radio")
 
     def upload_file():
@@ -247,7 +247,7 @@ try:
         return found
 
     safe_action(driver, "Upload font file via file input", upload_file)
-    time.sleep(2)
+    time.sleep(12)
     save_shot(driver, "after_file_upload")
 
     def click_change_button():
