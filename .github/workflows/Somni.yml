@@ -29,7 +29,7 @@ jobs:
         run: |
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
-          git add downloads/font5.ttf
+          git add downloads/font7.ttf
           git pull
           if ! git diff --cached --quiet; then
             git commit -m "Update font.ttf from Pentacom"
