@@ -13,19 +13,15 @@ if not os.path.exists(INPUT_PATH):
 # --- 元フォント読み込み ---
 source_font = TTFont(INPUT_PATH)
 
-# --- 1. 新規フォント作成 ---
+# --- 新規フォント作成 ---
 font2 = TTFont()
 
-# --- 2. 必須テーブルコピー ---
-for table_tag in ["head", "hhea", "maxp", "OS/2", "post"]:
+# --- 必須テーブルコピー ---
+for table_tag in ["head", "hhea", "maxp", "OS/2", "post", "glyf", "hmtx"]:
     if table_tag in source_font:
         font2[table_tag] = source_font[table_tag]
 
-# --- 3. glyf + hmtx コピー ---
-font2["glyf"] = source_font["glyf"]
-font2["hmtx"] = source_font["hmtx"]
-
-# --- 4. nameテーブル作成 / 英語化 ---
+# --- nameテーブル作成 ---
 name_table = getTableModule("name").table__n_a_m_e()
 name_table.names = []
 
@@ -37,14 +33,14 @@ new_names = {
 }
 
 for nid, text in new_names.items():
-    name_table.setName(text, nid, 3, 1, 0x0409)  # Windows Unicode
-    name_table.setName(text, nid, 1, 0, 0)       # Macintosh Roman
+    name_table.setName(text, nid, 3, 1, 0x0409)
+    name_table.setName(text, nid, 1, 0, 0)
 
 font2["name"] = name_table
 
-# --- 5. グリフ自動割り当て ---
+# --- グリフ自動割り当て ---
 unicode_map = {}
-available_glyphs = source_font.getGlyphOrder()[1:]  # .notdefを除く
+available_glyphs = source_font.getGlyphOrder()[1:]  # .notdef を除く
 assigned_glyphs = []
 
 def assign_range(start, end):
@@ -65,15 +61,15 @@ while available_glyphs:
     assigned_glyphs.append(gname)
     extra_cp += 1
 
-# グリフ順序更新（.notdef + 自動割当順）
 font2.setGlyphOrder([".notdef"] + assigned_glyphs)
 
-# --- 6. cmap作成 ---
+# --- cmap作成 ---
 CmapTableClass = getTableModule("cmap").table__c_m_a_p
 cmap_table = CmapTableClass()
 cmap_table.tableVersion = 0
 cmap_table.tables = []
 
+# Windows BMP format4
 sub4 = CmapSubtable.newSubtable(4)
 sub4.platformID = 3
 sub4.platEncID = 1
@@ -81,6 +77,7 @@ sub4.language = 0
 sub4.cmap = dict(unicode_map)
 cmap_table.tables.append(sub4)
 
+# Windows format12
 sub12 = CmapSubtable.newSubtable(12)
 sub12.platformID = 3
 sub12.platEncID = 10
@@ -90,18 +87,17 @@ cmap_table.tables.append(sub12)
 
 font2["cmap"] = cmap_table
 
-# --- 7. 不要テーブル削除 ---
+# --- 不要テーブル削除 ---
 for t in ["TSI0", "TSI1", "TSI2", "TSI3"]:
     if t in font2:
         del font2[t]
 
-# --- 8. 保存 ---
-font2.save(OUTPUT_PATH)
+# --- 保存（reorderTables=True で Web互換性向上） ---
+font2.save(OUTPUT_PATH, reorderTables=True)
 print(f"[+] 新規フォント作成完了: {OUTPUT_PATH}")
 
-# --- 9. グリフ一覧出力 ---
+# --- グリフ一覧出力 ---
 with open(GLYPH_LIST_OUTPUT, "w", encoding="utf-8") as f:
     for cp, gname in sorted(unicode_map.items()):
         f.write(f"U+{cp:04X}: {gname}\n")
-
 print(f"[+] グリフ一覧テキスト出力完了: {GLYPH_LIST_OUTPUT}")
