@@ -31,8 +31,8 @@ service = Service(executable_path="/usr/bin/chromedriver")
 driver = webdriver.Chrome(service=service, options=chrome_options)
 
 try:
-    driver.get("https://www.pentacom.jp/pentacom/bitfontmaker2/gallery/?id=18818") 
-    # 18810
+    driver.get("https://www.pentacom.jp/pentacom/bitfontmaker2/gallery/?id=18810") 
+    # 18818
     time.sleep(4)
 
     # DOWNLOADボタン押下
@@ -55,7 +55,7 @@ try:
             break
 
     if ttf_file_path:
-        fixed_path = os.path.join(download_dir, "font7.ttf")
+        fixed_path = os.path.join(download_dir, "font9.ttf")
         shutil.move(ttf_file_path, fixed_path)
         print(f"ダウンロード完了: {fixed_path}")
     else:
