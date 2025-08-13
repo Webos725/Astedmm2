@@ -1,0 +1,30 @@
+name: Convert TTF to WOFF and Commit
+
+on:
+  workflow_dispatch:
+
+jobs:
+  convert-and-commit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: リポジトリをチェックアウト
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: sfnt2woff をインストール
+        run: sudo apt-get update && sudo apt-get install -y woff-tools
+
+      - name: TTFをWOFFに変換
+        run: |
+          cd downloads
+          sfnt2woff font9.ttf
+
+      - name: 変換結果をコミット
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add downloads/font9.woff
+          git commit -m "Add generated font9.woff from font9.ttf" || echo "No changes to commit"
+          git push
