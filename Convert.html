@@ -5,8 +5,12 @@
 <title>人工言語フォント表示！</title>
 <style>
   @font-face {
-    font-family: 'ConlangFont';
+    font-family: 'ConlangFont1';
     src: url('https://konnitiwa768.github.io/Astedmm/downloads/font.ttf') format('truetype');
+  }
+  @font-face {
+    font-family: 'ConlangFont2';
+    src: url('https://konnitiwa768.github.io/Astedmm/downloads/font5.ttf') format('truetype');
   }
 
   body {
@@ -29,7 +33,7 @@
   }
 
   #preview {
-    font-family: 'ConlangFont', sans-serif;
+    font-family: 'ConlangFont1', sans-serif;
     font-size: 2rem;
     padding: 20px;
     border: 2px solid #ccc;
@@ -59,6 +63,12 @@
 <textarea id="inputText" placeholder="ここに文字を入力してください..."></textarea>
 
 <div class="controls">
+  <label>フォント:
+    <select id="fontSelect">
+      <option value="ConlangFont1">font.ttf</option>
+      <option value="ConlangFont2">font5.ttf</option>
+    </select>
+  </label>
   <label>文字色: <input type="color" id="colorPicker" value="#000000"></label>
   <label>背景色: <input type="color" id="bgColorPicker" value="#ffffff"></label>
   <label><input type="checkbox" id="boldToggle"> 太字</label>
@@ -81,6 +91,7 @@ const italicToggle = document.getElementById('italicToggle');
 const sizeSlider = document.getElementById('sizeSlider');
 const shadowToggle = document.getElementById('shadowToggle');
 const embossToggle = document.getElementById('embossToggle');
+const fontSelect = document.getElementById('fontSelect');
 
 function updatePreview() {
   preview.textContent = inputText.value || "（ここにプレビュー）";
@@ -89,6 +100,7 @@ function updatePreview() {
   preview.style.fontWeight = boldToggle.checked ? 'bold' : 'normal';
   preview.style.fontStyle = italicToggle.checked ? 'italic' : 'normal';
   preview.style.fontSize = sizeSlider.value + 'px';
+  preview.style.fontFamily = fontSelect.value + ", sans-serif";
 
   if (shadowToggle.checked) {
     preview.style.textShadow = '2px 2px 4px rgba(0,0,0,0.5)';
@@ -98,7 +110,7 @@ function updatePreview() {
 
   if (embossToggle.checked) {
     preview.style.textShadow = 
-      '1px 1px 0 #ccc, -1px -1px 0 #fff'; // 簡易エンボス効果
+      '1px 1px 0 #ccc, -1px -1px 0 #fff';
   } 
   if (shadowToggle.checked && embossToggle.checked) {
     preview.style.textShadow =
@@ -106,8 +118,10 @@ function updatePreview() {
   }
 }
 
-[inputText, colorPicker, bgColorPicker, boldToggle, italicToggle, sizeSlider, shadowToggle, embossToggle]
-  .forEach(el => el.addEventListener('input', updatePreview));
+[
+  inputText, colorPicker, bgColorPicker, boldToggle,
+  italicToggle, sizeSlider, shadowToggle, embossToggle, fontSelect
+].forEach(el => el.addEventListener('input', updatePreview));
 
 // 初期表示
 updatePreview();
