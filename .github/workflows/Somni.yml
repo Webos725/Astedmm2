@@ -31,9 +31,9 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git add downloads/font7.ttf
           git pull
+
           if ! git diff --cached --quiet; then
             git commit -m "Update font.ttf from Pentacom"
-            git pull
             git push
           else
             echo "No changes in font.ttf, skipping commit."
