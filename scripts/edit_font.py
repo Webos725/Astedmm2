@@ -39,7 +39,6 @@ for nid, text in new_names.items():
 font2["name"] = name_table
 
 # --- 4. グリフ自動割り当て ---
-# ASCII 0x20-0x7E → Latin-1 0xA0-0xFF → 残り
 unicode_map = {}
 available_glyphs = source_font.getGlyphOrder()[1:]  # .notdefを除く
 assigned_glyphs = []
@@ -55,7 +54,6 @@ def assign_range(start, end):
 assign_range(0x20, 0x7E)  # ASCII
 assign_range(0xA0, 0xFF)  # Latin-1
 
-# 残りは順に未割当コードに
 extra_cp = 0x0100
 while available_glyphs:
     gname = available_glyphs.pop(0)
@@ -67,13 +65,14 @@ while available_glyphs:
 font2.setGlyphOrder([".notdef"] + assigned_glyphs)
 font2["hmtx"] = source_font["hmtx"]
 
-# --- 5. cmap作成 ---
+# --- 5. cmap作成（安定版） ---
 CmapTableClass = getTableModule("cmap").table__c_m_a_p
 cmap_table = CmapTableClass()
+# 明示的に初期化
 cmap_table.tableVersion = 0
 cmap_table.tables = []
 
-# Windows BMP format4
+# Windows format4
 sub4 = CmapSubtable.newSubtable(4)
 sub4.platformID = 3
 sub4.platEncID = 1
@@ -81,7 +80,7 @@ sub4.language = 0
 sub4.cmap = dict(unicode_map)
 cmap_table.tables.append(sub4)
 
-# Windows 32bit format12
+# Windows format12
 sub12 = CmapSubtable.newSubtable(12)
 sub12.platformID = 3
 sub12.platEncID = 10
@@ -104,32 +103,5 @@ print(f"[+] 新規フォント作成完了: {OUTPUT_PATH}")
 with open(GLYPH_LIST_OUTPUT, "w", encoding="utf-8") as f:
     for cp, gname in sorted(unicode_map.items()):
         f.write(f"U+{cp:04X}: {gname}\n")
-
-print(f"[+] グリフ一覧テキスト出力完了: {GLYPH_LIST_OUTPUT}")
-cmap_table.tables.append(sub4)
-
-# Windows 32bit format12
-sub12 = CmapSubtable.newSubtable(12)
-sub12.platformID = 3
-sub12.platEncID = 10
-sub12.language = 0
-sub12.cmap = dict(unicode_tbl.cmap)
-cmap_table.tables.append(sub12)
-
-font2["cmap"] = cmap_table
-
-# --- 6. 不要テーブル削除 ---
-for t in ["TSI0", "TSI1", "TSI2", "TSI3"]:
-    if t in font2:
-        del font2[t]
-
-# --- 7. 保存 ---
-font2.save(OUTPUT_PATH)
-print(f"[+] 新規フォント作成完了: {OUTPUT_PATH}")
-
-# --- 8. グリフ一覧出力 ---
-with open(GLYPH_LIST_OUTPUT, "w", encoding="utf-8") as f:
-    for g in glyph_order:
-        f.write(f"{g}\n")
 
 print(f"[+] グリフ一覧テキスト出力完了: {GLYPH_LIST_OUTPUT}")
