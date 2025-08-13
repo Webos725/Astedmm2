@@ -31,7 +31,7 @@ service = Service(executable_path="/usr/bin/chromedriver")
 driver = webdriver.Chrome(service=service, options=chrome_options)
 
 try:
-    driver.get("https://www.pentacom.jp/pentacom/bitfontmaker2/gallery/?id=18810") 
+    driver.get("https://www.pentacom.jp/pentacom/bitfontmaker2/gallery/?id=18818") 
     # 18810
     time.sleep(4)
 
