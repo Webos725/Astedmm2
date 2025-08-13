@@ -17,11 +17,15 @@ source_font = TTFont(INPUT_PATH)
 font2 = TTFont()
 
 # --- 2. 必須テーブルコピー ---
-for table_tag in ["head", "hhea", "maxp", "hmtx", "OS/2", "post"]:
+for table_tag in ["head", "hhea", "maxp", "OS/2", "post"]:
     if table_tag in source_font:
         font2[table_tag] = source_font[table_tag]
 
-# --- 3. nameテーブル作成 / 英語化 ---
+# --- 3. glyf + hmtx コピー ---
+font2["glyf"] = source_font["glyf"]
+font2["hmtx"] = source_font["hmtx"]
+
+# --- 4. nameテーブル作成 / 英語化 ---
 name_table = getTableModule("name").table__n_a_m_e()
 name_table.names = []
 
@@ -38,7 +42,7 @@ for nid, text in new_names.items():
 
 font2["name"] = name_table
 
-# --- 4. グリフ自動割り当て ---
+# --- 5. グリフ自動割り当て ---
 unicode_map = {}
 available_glyphs = source_font.getGlyphOrder()[1:]  # .notdefを除く
 assigned_glyphs = []
@@ -63,16 +67,13 @@ while available_glyphs:
 
 # グリフ順序更新（.notdef + 自動割当順）
 font2.setGlyphOrder([".notdef"] + assigned_glyphs)
-font2["hmtx"] = source_font["hmtx"]
 
-# --- 5. cmap作成（安定版） ---
+# --- 6. cmap作成 ---
 CmapTableClass = getTableModule("cmap").table__c_m_a_p
 cmap_table = CmapTableClass()
-# 明示的に初期化
 cmap_table.tableVersion = 0
 cmap_table.tables = []
 
-# Windows format4
 sub4 = CmapSubtable.newSubtable(4)
 sub4.platformID = 3
 sub4.platEncID = 1
@@ -80,7 +81,6 @@ sub4.language = 0
 sub4.cmap = dict(unicode_map)
 cmap_table.tables.append(sub4)
 
-# Windows format12
 sub12 = CmapSubtable.newSubtable(12)
 sub12.platformID = 3
 sub12.platEncID = 10
@@ -90,16 +90,16 @@ cmap_table.tables.append(sub12)
 
 font2["cmap"] = cmap_table
 
-# --- 6. 不要テーブル削除 ---
+# --- 7. 不要テーブル削除 ---
 for t in ["TSI0", "TSI1", "TSI2", "TSI3"]:
     if t in font2:
         del font2[t]
 
-# --- 7. 保存 ---
+# --- 8. 保存 ---
 font2.save(OUTPUT_PATH)
 print(f"[+] 新規フォント作成完了: {OUTPUT_PATH}")
 
-# --- 8. グリフ一覧出力 ---
+# --- 9. グリフ一覧出力 ---
 with open(GLYPH_LIST_OUTPUT, "w", encoding="utf-8") as f:
     for cp, gname in sorted(unicode_map.items()):
         f.write(f"U+{cp:04X}: {gname}\n")
