@@ -25,13 +25,15 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install dependencies
+      - name: Install dependencies (Chrome, ChromeDriver, Selenium)
         run: |
+          set -e
           sudo apt-get update
-          sudo apt-get install -y unzip chromium-browser chromium-chromedriver
-          python -m pip install --upgrade pip
+          sudo apt-get install -y wget unzip xvfb libnss3 libxss1 libgbm1 git
+          sudo apt-get install -y chromium-browser chromium-chromedriver
+          python3 -m pip install --upgrade pip
           pip install selenium requests
-
+          set +e
       - name: Run fontstruct download script
         run: python scripts/fontstruct.py
 
