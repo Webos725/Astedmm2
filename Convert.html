@@ -12,8 +12,7 @@
     font-family: 'ConlangFont2';
     src: url('https://konnitiwa768.github.io/Astedmm/downloads/font5.ttf') format('truetype');
   }
-
-  font-face {
+  @font-face {
     font-family: 'ConlangFont3';
     src: url('https://konnitiwa768.github.io/Astedmm/downloads/font2.ttf') format('truetype');
   }
@@ -74,7 +73,6 @@
       <option value="ConlangFont2">font5.ttf</option>
       <option value="ConlangFont3">font2.ttf</option>
     </select>
-    </select>
   </label>
   <label>文字色: <input type="color" id="colorPicker" value="#000000"></label>
   <label>背景色: <input type="color" id="bgColorPicker" value="#ffffff"></label>
@@ -91,8 +89,7 @@
 <script>
 const inputText = document.getElementById('inputText');
 const preview = document.getElementById('preview');
-const colo
-  rPicker = document.getElementById('colorPicker');
+const colorPicker = document.getElementById('colorPicker');
 const bgColorPicker = document.getElementById('bgColorPicker');
 const boldToggle = document.getElementById('boldToggle');
 const italicToggle = document.getElementById('italicToggle');
@@ -110,19 +107,16 @@ function updatePreview() {
   preview.style.fontSize = sizeSlider.value + 'px';
   preview.style.fontFamily = fontSelect.value + ", sans-serif";
 
-  if (shadowToggle.checked) {
-    preview.style.textShadow = '2px 2px 4px rgba(0,0,0,0.5)';
-  } else {
-    preview.style.textShadow = 'none';
-  }
-
-  if (embossToggle.checked) {
-    preview.style.textShadow = 
-      '1px 1px 0 #ccc, -1px -1px 0 #fff';
-  } 
+  // シャドウ・エンボスの組み合わせ
   if (shadowToggle.checked && embossToggle.checked) {
     preview.style.textShadow =
       '2px 2px 4px rgba(0,0,0,0.5), 1px 1px 0 #ccc, -1px -1px 0 #fff';
+  } else if (shadowToggle.checked) {
+    preview.style.textShadow = '2px 2px 4px rgba(0,0,0,0.5)';
+  } else if (embossToggle.checked) {
+    preview.style.textShadow = '1px 1px 0 #ccc, -1px -1px 0 #fff';
+  } else {
+    preview.style.textShadow = 'none';
   }
 }
 
