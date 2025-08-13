@@ -13,6 +13,11 @@
     src: url('https://konnitiwa768.github.io/Astedmm/downloads/font5.ttf') format('truetype');
   }
 
+  font-face {
+    font-family: 'ConlangFont3';
+    src: url('https://konnitiwa768.github.io/Astedmm/downloads/font2.ttf') format('truetype');
+  }
+
   body {
     font-family: Arial, sans-serif;
     background: #f0f0f0;
@@ -67,6 +72,8 @@
     <select id="fontSelect">
       <option value="ConlangFont1">font.ttf</option>
       <option value="ConlangFont2">font5.ttf</option>
+      <option value="ConlangFont3">font2.ttf</option>
+    </select>
     </select>
   </label>
   <label>文字色: <input type="color" id="colorPicker" value="#000000"></label>
@@ -84,7 +91,8 @@
 <script>
 const inputText = document.getElementById('inputText');
 const preview = document.getElementById('preview');
-const colorPicker = document.getElementById('colorPicker');
+const colo
+  rPicker = document.getElementById('colorPicker');
 const bgColorPicker = document.getElementById('bgColorPicker');
 const boldToggle = document.getElementById('boldToggle');
 const italicToggle = document.getElementById('italicToggle');
