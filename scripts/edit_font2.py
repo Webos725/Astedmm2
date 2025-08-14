@@ -6,8 +6,8 @@ from fontTools.ttLib import TTFont
 # ==== パス設定 ====
 NOTO_URL = "https://github.com/notofonts/notofonts.github.io/raw/noto-monthly-release-2025.08.01/fonts/NotoSans/hinted/ttf/NotoSans-Regular.ttf"
 NOTO_PATH = os.path.abspath("downloads/noto_sans.ttf")
-SRC_FONT_PATH = os.path.abspath("downloads/font.ttf")   # コピー元
-OUT_FONT_PATH = os.path.abspath("downloads/font2.ttf")  # 出力先
+SRC_FONT_PATH = os.path.abspath("downloads/font.ttf")
+OUT_FONT_PATH = os.path.abspath("downloads/font2.ttf")
 
 os.makedirs("downloads", exist_ok=True)
 
@@ -24,46 +24,54 @@ noto_font = TTFont(NOTO_PATH)
 src_font = TTFont(SRC_FONT_PATH)
 
 # ==== 3. 名前を変更 ====
-name_table = noto_font["name"]
-for record in name_table.names:
+for record in noto_font["name"].names:
     if record.nameID in (1, 4, 6):
         record.string = "jibun font".encode("utf-16-be")
 
-# ==== 4. 既存グリフをすべて消去 ====
-keep_glyphs = {".notdef"}
-for glyph_name in noto_font.getGlyphOrder():
-    if glyph_name not in keep_glyphs:
-        noto_font["glyf"].glyphs[glyph_name] = noto_font["glyf"].glyphs[".notdef"]
+# ==== 4. 新しいグリフ順を作成 ====
+keep_glyphs = [".notdef"]
+src_glyph_order = src_font.getGlyphOrder()
+new_glyph_order = keep_glyphs + [g for g in src_glyph_order if g not in keep_glyphs]
 
+# ==== 5. glyf と hmtx を完全作り直し ====
+new_glyf = {}
+new_hmtx = {}
+
+src_glyf = src_font["glyf"]
+src_hmtx = src_font["hmtx"]
+
+# .notdefは元Noto Sansのを使う
+new_glyf[".notdef"] = noto_font["glyf"].glyphs[".notdef"]
+new_hmtx[".notdef"] = noto_font["hmtx"].metrics[".notdef"]
+
+# コピー元の全グリフ追加
+for gname in src_glyph_order:
+    if gname == ".notdef":
+        continue
+    new_glyf[gname] = src_glyf.glyphs[gname]
+    if gname in src_hmtx.metrics:
+        new_hmtx[gname] = src_hmtx.metrics[gname]
+    else:
+        new_hmtx[gname] = new_hmtx[".notdef"]
+
+# 置き換え
+noto_font["glyf"].glyphs.clear()
+noto_font["glyf"].glyphs.update(new_glyf)
+
+noto_font["hmtx"].metrics.clear()
+noto_font["hmtx"].metrics.update(new_hmtx)
+
+# ==== 6. cmap更新 ====
+src_cmap_data = {}
+for table in src_font["cmap"].tables:
+    src_cmap_data.update(table.cmap)
 for table in noto_font["cmap"].tables:
     table.cmap.clear()
+    table.cmap.update(src_cmap_data)
 
-# ==== 5. コピー元グリフを追加 ====
-src_glyph_order = src_font.getGlyphOrder()
-new_glyph_order = list(keep_glyphs) + [g for g in src_glyph_order if g not in keep_glyphs]
-
-# glyfコピー
-for glyph_name in src_glyph_order:
-    noto_font["glyf"].glyphs[glyph_name] = src_font["glyf"].glyphs[glyph_name]
-
-# hmtxコピー
-for glyph_name in src_glyph_order:
-    if glyph_name in src_font["hmtx"].metrics:
-        noto_font["hmtx"].metrics[glyph_name] = src_font["hmtx"].metrics[glyph_name]
-    else:
-        # 幅情報がなければ.notdefの幅を使う
-        noto_font["hmtx"].metrics[glyph_name] = noto_font["hmtx"].metrics[".notdef"]
-
-# cmapコピー
-src_cmap = {}
-for table in src_font["cmap"].tables:
-    src_cmap.update(table.cmap)
-for table in noto_font["cmap"].tables:
-    table.cmap.update(src_cmap)
-
-# ==== 6. glyphOrderをセット ====
+# ==== 7. glyphOrder設定 ====
 noto_font.setGlyphOrder(new_glyph_order)
 
-# ==== 7. 保存 ====
+# ==== 8. 保存 ====
 noto_font.save(OUT_FONT_PATH)
 print(f"[OK] Saved to {OUT_FONT_PATH}")
