@@ -4,10 +4,10 @@ import requests
 from fontTools.ttLib import TTFont
 
 # ==== パス設定 ====
-NOTO_URL = "https://github.com/google/fonts/raw/main/ofl/notosans/NotoSans-Regular.ttf"
+NOTO_URL = "https://github.com/notofonts/notofonts.github.io/raw/noto-monthly-release-2025.08.01/fonts/NotoSans/hinted/ttf/NotoSans-Regular.ttf"
 NOTO_PATH = os.path.abspath("downloads/noto_sans.ttf")
-SRC_FONT_PATH = os.path.abspath("downloads/font.ttf")
-OUT_FONT_PATH = os.path.abspath("downloads/font2.ttf")
+SRC_FONT_PATH = os.path.abspath("downloads/font.ttf")   # コピー元
+OUT_FONT_PATH = os.path.abspath("downloads/font2.ttf")  # 出力先
 
 os.makedirs("downloads", exist_ok=True)
 
