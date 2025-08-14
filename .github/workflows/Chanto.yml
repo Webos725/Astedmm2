@@ -24,7 +24,7 @@ jobs:
       - name: Install fontTools
         run: |
           pip install fonttools
-          pip install --upgrade fonttools
+          pip install --upgrade fonttools requests
 
 
       - name: Run font edit script
