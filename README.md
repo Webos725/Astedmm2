@@ -6,7 +6,7 @@ dZpEMMVoqW9hrezLI3pTeeOVIrWmyl9NRewJHTm89LfqnHtqwtx8C1OQoXy_jGV85
 https://google.com
 live at https://konnitiwa768.github.io/Astedmm/A.html
 https://konnitiwa768.github.io/Battle-of-Citium/Zp.html
-https://konnitiwa768.github.io/Battle-of-Citium/gensou.html
+https://konnitiwa768.github.io/Astedmm/gensou.html
 https://konnitiwa768.github.io/Kanic-letter/5o.html
 https://konnitiwa768.github.io/Astedmm/Convert.html
 https://konnitiwa768.github.io/Astedmm/Neon.html
