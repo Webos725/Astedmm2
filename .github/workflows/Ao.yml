@@ -21,7 +21,7 @@ jobs:
       - name: Run FontForge script
         run: |
           mkdir -p outputs
-          python3 scripts/copy_glyphs_ff.py
+          python3 scripts/copy_glyphs.py
 
       - name: Commit and push new font
         run: |
