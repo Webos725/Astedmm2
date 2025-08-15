@@ -1,0 +1,32 @@
+name: Build and Upload Font (FontForge)
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-font:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install FontForge
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y fontforge python3-fontforge
+
+      - name: Run FontForge script
+        run: |
+          mkdir -p outputs
+          python3 scripts/copy_glyphs_ff.py
+
+      - name: Commit and push new font
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add outputs/new_font.ttf
+          git commit -m "Auto-build new font via FontForge"
+          git push
