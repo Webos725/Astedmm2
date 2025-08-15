@@ -28,30 +28,25 @@ for record in noto_font["name"].names:
     if record.nameID in (1, 4, 6):
         record.string = "jibun font".encode("utf-16-be")
 
-# ==== 4. 新しいグリフ順を作成 ====
+# ==== 4. src_fontのグリフ名リスト取得 ====
 src_glyph_order = src_font.getGlyphOrder()
+src_glyph_set = set(src_glyph_order)
 
-# ==== 5. glyf と hmtx を完全作り直し ====
-# --- まず中身を全削除 ---
-noto_font["glyf"].glyphs.clear()
-noto_font["hmtx"].metrics.clear()
-
-# --- コピー元(src_font)の全グリフを追加 ---
+# ==== 5. src_fontのglyf/hmtx取得 ====
 src_glyf = src_font["glyf"]
 src_hmtx = src_font["hmtx"]
 
-for gname in src_glyph_order:
-    noto_font["glyf"].glyphs[gname] = src_glyf.glyphs[gname]
-    if gname in src_hmtx.metrics:
-        noto_font["hmtx"].metrics[gname] = src_hmtx.metrics[gname]
-    else:
-        noto_font["hmtx"].metrics[gname] = (0, 0)  # メトリクスがない場合のフォールバック
+# ==== 6. Notoの全グリフに対して、src_fontにあれば上書き ====
+for gname in noto_font.getGlyphOrder():
+    if gname in src_glyph_set:
+        # glyfを上書き
+        noto_font["glyf"].glyphs[gname] = src_glyf.glyphs[gname]
+        # hmtxを上書き
+        if gname in src_hmtx.metrics:
+            noto_font["hmtx"].metrics[gname] = src_hmtx.metrics[gname]
+        else:
+            noto_font["hmtx"].metrics[gname] = (0, 0)  # メトリクスがない場合
 
-# ==== 6. cmap はそのまま触らない ====
-
-# ==== 7. glyphOrder設定 ====
-noto_font.setGlyphOrder(src_glyph_order)
-
-# ==== 8. 保存 ====
+# ==== 7. 保存 ====
 noto_font.save(OUT_FONT_PATH)
 print(f"[OK] Saved to {OUT_FONT_PATH}")
