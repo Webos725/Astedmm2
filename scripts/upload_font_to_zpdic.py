@@ -12,8 +12,10 @@ from selenium.webdriver.support import expected_conditions as EC
 SCREENSHOT_DIR = os.path.abspath("scripts/screenshots")
 os.makedirs(SCREENSHOT_DIR, exist_ok=True)
 
+
 def log(tag, msg):
     print(f"[{tag}] {msg}", flush=True)
+
 
 def save_shot(driver, name):
     try:
@@ -23,6 +25,7 @@ def save_shot(driver, name):
         log("SHOT", f"Saved screenshot: {path}")
     except Exception as e:
         log("WARN", f"Failed to save screenshot: {e}")
+
 
 def safe_action(driver, desc, fn, take_shot=True):
     try:
@@ -38,6 +41,7 @@ def safe_action(driver, desc, fn, take_shot=True):
                 save_shot(driver, desc)
             except:
                 pass
+
 
 # ---------- 環境確認 ----------
 USER_ID = os.environ.get("USER_ID")
@@ -58,6 +62,7 @@ chrome_options.add_argument("--headless=new")
 chrome_options.add_argument("--no-sandbox")
 chrome_options.add_argument("--disable-dev-shm-usage")
 chrome_options.add_argument("--window-size=1366,768")
+
 try:
     driver = webdriver.Chrome(options=chrome_options)
 except Exception as e:
@@ -93,8 +98,10 @@ try:
         try:
             uid = driver.find_element(By.NAME, "userId")
             pwd = driver.find_element(By.NAME, "password")
-            uid.clear(); uid.send_keys(USER_ID or "")
-            pwd.clear(); pwd.send_keys(PASS or "")
+            uid.clear()
+            uid.send_keys(USER_ID or "")
+            pwd.clear()
+            pwd.send_keys(PASS or "")
             return
         except:
             pass
@@ -102,10 +109,12 @@ try:
         for n in names:
             try:
                 e = driver.find_element(By.NAME, n)
-                e.clear(); e.send_keys(USER_ID or "")
+                e.clear()
+                e.send_keys(USER_ID or "")
                 break
             except:
                 continue
+
     safe_action(driver, "Fill credentials", fill_credentials)
 
     def click_login():
@@ -132,6 +141,7 @@ try:
                 inputs[1].send_keys("\n")
         except:
             pass
+
     safe_action(driver, "Click login button", click_login)
 
     time.sleep(6)
