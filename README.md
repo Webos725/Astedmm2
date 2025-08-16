@@ -4,6 +4,7 @@ https://huggingface.co
 https://colab.research.google.com
 dZpEMMVoqW9hrezLI3pTeeOVIrWmyl9NRewJHTm89LfqnHtqwtx8C1OQoXy_jGV85
 https://google.com
+https://zpdic.ziphil.com/dictionary/5283?text=&mode=both&type=prefix&orderMode=createdDate&orderDirection=descending&ignoreCase=false&enableSuggestions=true&page=0
 live at https://konnitiwa768.github.io/Astedmm/A.html
 https://konnitiwa768.github.io/Battle-of-Citium/Zp.html
 https://konnitiwa768.github.io/Astedmm/gensou.html
