@@ -4,7 +4,7 @@ import sys
 import traceback
 from fontTools.ttLib import TTFont
 from fontTools.pens.cairoPen import CairoPen
-import cairo
+import cairocffi
 
 FONT_PATH = os.path.abspath("downloads/font9.ttf")
 OUTPUT_DIR = os.path.abspath("glyph_pngs")
