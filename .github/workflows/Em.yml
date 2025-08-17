@@ -22,7 +22,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install fonttools cairocffi
+          pip install fonttools pycairo pillow
 
       - name: Run font check & render glyphs
         run: python3 workflows.py
