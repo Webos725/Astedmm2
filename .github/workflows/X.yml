@@ -1,0 +1,32 @@
+name: Build and Upload Font
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Git pull
+        run: |
+          git config --global user.email "bot@example.com"
+          git config --global user.name "font-bot"
+          git pull
+
+      - name: Install FontForge
+        run: sudo apt-get update && sudo apt-get install -y fontforge python3-fontforge
+
+      - name: Build Font
+        run: python3 X.py
+
+      - name: Commit and Push
+        run: |
+          git add output/*.ttf
+          git commit -m "Auto-build font"
+          git push
