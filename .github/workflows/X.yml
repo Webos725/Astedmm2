@@ -28,5 +28,6 @@ jobs:
       - name: Commit and Push
         run: |
           git add output/*.ttf
+          git pull
           git commit -m "Auto-build font"
           git push
