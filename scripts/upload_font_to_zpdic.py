@@ -207,10 +207,10 @@ try:
     time.sleep(3)
     save_shot(driver, "after_select_radio")
 
-    # ---------- ここから send_keys → JS dispatch fallback ----------
+    # ---------- ここから send_keys ----------
     def upload_file():
         found = False
-        # 1. 通常 send_keys 試行
+        # send_keys 試行
         for inp in driver.find_elements(By.XPATH, "//input[@type='file']"):
             try:
                 driver.execute_script("""
@@ -225,27 +225,6 @@ try:
                 break
             except:
                 continue
-
-        # 2. 3秒待機後、JS dispatch fallback
-        if not found:
-            time.sleep(3)
-            for inp in driver.find_elements(By.XPATH, "//input[@type='file']"):
-                try:
-                    driver.execute_script("""
-                    let fileInput = arguments[0];
-                    let dt = new DataTransfer();
-                    dt.items.add(new File([''], '{}'));
-                    fileInput.files = dt.files;
-                    fileInput.dispatchEvent(new Event('change', {bubbles:true}));
-                    """.format(os.path.basename(FONT_PATH)), inp)
-                    found = True
-                    log("CLEAR", "Font uploaded via JS dispatch fallback")
-                    break
-                except Exception as e:
-                    log("WARN", f"File upload JS dispatch failed: {e}")
-        if not found:
-            log("WARN", "No file input accepted the font path")
-        return found
 
     safe_action(driver, "Upload font file via file input", upload_file)
     time.sleep(12)
