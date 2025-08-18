@@ -23,7 +23,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y fontforge python3-fontforge
 
       - name: Build Font
-        run: python3 X.py
+        run: python3 scripts/X.py
 
       - name: Commit and Push
         run: |
