@@ -1,0 +1,36 @@
+name: Rename Let Files
+
+on:
+  workflow_dispatch: # 手動実行できるように
+
+jobs:
+  rename:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Rename files in Let directory
+        run: |
+          cd Let
+          # ファイルをソートして配列に格納
+          files=($(ls | sort))
+          alphabet=(A B C D E F G H I J K L M N O P Q R S T U V W X Y Z)
+
+          if [ ${#files[@]} -ne 26 ]; then
+            echo "Error: ファイル数が26ではありません (${#files[@]}個)"
+            exit 1
+          fi
+
+          for i in "${!files[@]}"; do
+            ext="${files[$i]##*.}"  # 拡張子を維持
+            mv "${files[$i]}" "${alphabet[$i]}.${ext}"
+          done
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add Let/*
+          git commit -m "Rename Let directory files to A-Z"
+          git push
