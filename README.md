@@ -19,7 +19,7 @@ https://zpdic.ziphil.com/dictionary/2283?text=&mode=content&type=part&orderMode=
 https://zpdic.ziphil.com/dictionary/5139?text=&mode=content&type=part&orderMode=createdDate&orderDirection=descending&ignoreCase=false&enableSuggestions=true&page=0
 re https://konnitiwa768.github.io/Astedmm/fonts/custom_font3.ttf
 アリスは川辺でおねえさんのよこにすわって、なんにもすることがないのでとても退屈しはじめていました。一、二回
-re https://konnitiwa768.github.io/Astedmm/fonts/custom_font3.ttf
+re https://konnitiwa768.github.io/Astedmm/output/MyFont.ttf
 アリスは川辺でおねえさんのよこにすわって、なんにもすることがないのでとても退屈しはじめていました。一、二回はおねえさんの読んでいる本をのぞいてみたけれど、そこには絵も会話もないのです。「絵や会話のない本なんて、なんの役にもたたないじゃないの」とアリスは思いました。
 
 そこでアリスは、頭のなかで、ひなぎくのくさりをつくったら楽しいだろうけれど、起きあがってひなぎくをつむのもめんどくさいし、どうしようかと考えていました（といっても、昼間で暑いし、とってもねむくて頭もまわらなかったので、これもたいへんだったのですが）。そこへいきなり、ピンクの目をした白うさぎが近くを走ってきたのです。
