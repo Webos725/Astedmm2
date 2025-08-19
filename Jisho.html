@@ -140,8 +140,12 @@ h1 {
   text-shadow: 0 0 2px #0ff;
   transition: all 0.2s;
 }
-.pagination button:hover {
+.pagination button:hover:not(:disabled) {
   box-shadow: 0 0 10px #0ff, 0 0 20px #0ff;
+}
+.pagination button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
 }
 
 /* ----------------- 詳細カード ----------------- */
@@ -279,13 +283,36 @@ function renderPagination() {
   const pagination = document.getElementById("pagination");
   pagination.innerHTML = "";
 
-  for (let i = 1; i <= totalPages; i++) {
+  // 前へボタン
+  const prevBtn = document.createElement("button");
+  prevBtn.textContent = "◀";
+  prevBtn.disabled = currentPage === 1;
+  prevBtn.onclick = () => changePage(currentPage - 1);
+  pagination.appendChild(prevBtn);
+
+  // ページ番号（最大10件表示）
+  let startPage = Math.max(1, currentPage - 4);
+  let endPage = Math.min(totalPages, startPage + 9);
+  if (endPage - startPage < 9) startPage = Math.max(1, endPage - 9);
+
+  for (let i = startPage; i <= endPage; i++) {
     const btn = document.createElement("button");
     btn.textContent = i;
-    btn.onclick = () => renderPage(i);
     if (i === currentPage) btn.style.background = "#0ff";
+    btn.onclick = () => changePage(i);
     pagination.appendChild(btn);
   }
+
+  // 次へボタン
+  const nextBtn = document.createElement("button");
+  nextBtn.textContent = "▶";
+  nextBtn.disabled = currentPage === totalPages;
+  nextBtn.onclick = () => changePage(currentPage + 1);
+  pagination.appendChild(nextBtn);
+}
+
+function changePage(page) {
+  renderPage(page);
 }
 
 function showDetail(word) {
@@ -321,8 +348,7 @@ document.getElementById("searchBtn").onclick = () => {
     filtered = words.filter(w => w.entry.form.startsWith(keyword));
   }
 
-  if (filtered.length > 0) words = filtered;
-  else words = [];
+  words = filtered.length > 0 ? filtered : [];
   renderPage(1);
 };
 
