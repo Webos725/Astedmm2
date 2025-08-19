@@ -1,0 +1,42 @@
+name: Update a.json
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  update-json:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install selenium webdriver-manager
+
+      - name: Download a.json from ZpDIC
+        env:
+          USER_ID: ${{ secrets.USER_ID }}
+          PASS: ${{ secrets.PASS }}
+        run: |
+          python scripts/download_ajson.py
+
+      - name: Git Config
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+
+      - name: Commit & Push
+        run: |
+          git add a.json
+          git pull
+          git commit -m "Update a.json" || echo "No changes to commit"
