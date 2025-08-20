@@ -250,13 +250,15 @@ p {
 
 <script>
 let words = [];
+let allWords = [];
 let currentPage = 1;
 const perPage = 50;
 
-async function loadWords() {
+async function loadWords(reset = true) {
   const res = await fetch("a.json");
   const data = await res.json();
-  words = data.words || [];
+  allWords = data.words || [];
+  if (reset) words = [...allWords];
   renderPage(1);
 }
 
@@ -335,24 +337,27 @@ document.getElementById("closeCard").onclick = () => {
   document.getElementById("detailCard").classList.remove("show");
 };
 
-document.getElementById("searchBtn").onclick = () => {
+// 🔍検索時 → JSON再ロード＆フィルタリング
+document.getElementById("searchBtn").onclick = async () => {
   const keyword = document.getElementById("searchInput").value.trim();
   const mode = document.getElementById("searchMode").value;
-  let filtered = [];
 
-  if (mode === "partial") {
-    filtered = words.filter(w => w.entry.form.includes(keyword));
-  } else if (mode === "exact") {
-    filtered = words.filter(w => w.entry.form === keyword);
-  } else if (mode === "prefix") {
-    filtered = words.filter(w => w.entry.form.startsWith(keyword));
+  await loadWords(true);
+
+  if (keyword) {
+    if (mode === "partial") {
+      words = allWords.filter(w => w.entry.form.includes(keyword));
+    } else if (mode === "exact") {
+      words = allWords.filter(w => w.entry.form === keyword);
+    } else if (mode === "prefix") {
+      words = allWords.filter(w => w.entry.form.startsWith(keyword));
+    }
   }
 
-  words = filtered.length > 0 ? filtered : [];
   renderPage(1);
 };
 
-loadWords();
+loadWords(true);
 </script>
 </body>
 </html>
