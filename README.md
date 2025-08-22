@@ -9,6 +9,7 @@ https://zpdic.ziphil.com/dictionary/5283?text=&mode=both&type=prefix&orderMode=c
 live at https://konnitiwa768.github.io/Astedmm/A.html
 https://konnitiwa768.github.io/Battle-of-Citium/Zp.html
 https://konnitiwa768.github.io/Astedmm/Jisho.html
+https://konnitiwa768.github.io/Astedmm/Reimu.html
 https://konnitiwa768.github.io/Astedmm/gensou.html
 https://konnitiwa768.github.io/Kanic-letter/5o.html
 https://konnitiwa768.github.io/Astedmm/Convert.html
