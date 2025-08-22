@@ -285,14 +285,12 @@ function renderPagination() {
   const pagination = document.getElementById("pagination");
   pagination.innerHTML = "";
 
-  // 前へボタン
   const prevBtn = document.createElement("button");
   prevBtn.textContent = "◀";
   prevBtn.disabled = currentPage === 1;
   prevBtn.onclick = () => changePage(currentPage - 1);
   pagination.appendChild(prevBtn);
 
-  // ページ番号（最大10件表示）
   let startPage = Math.max(1, currentPage - 4);
   let endPage = Math.min(totalPages, startPage + 9);
   if (endPage - startPage < 9) startPage = Math.max(1, endPage - 9);
@@ -305,7 +303,6 @@ function renderPagination() {
     pagination.appendChild(btn);
   }
 
-  // 次へボタン
   const nextBtn = document.createElement("button");
   nextBtn.textContent = "▶";
   nextBtn.disabled = currentPage === totalPages;
@@ -337,7 +334,22 @@ document.getElementById("closeCard").onclick = () => {
   document.getElementById("detailCard").classList.remove("show");
 };
 
-// 🔍検索時 → JSON再ロード＆フィルタリング
+// 🔍検索時 → entry.form + equivalents を対象にフィルタ
+function matchKeyword(word, keyword, mode) {
+  const forms = [word.entry.form];
+  if (word.equivalents) {
+    forms.push(...word.equivalents.map(eq => eq.form));
+  }
+  if (mode === "partial") {
+    return forms.some(f => f.includes(keyword));
+  } else if (mode === "exact") {
+    return forms.some(f => f === keyword);
+  } else if (mode === "prefix") {
+    return forms.some(f => f.startsWith(keyword));
+  }
+  return false;
+}
+
 document.getElementById("searchBtn").onclick = async () => {
   const keyword = document.getElementById("searchInput").value.trim();
   const mode = document.getElementById("searchMode").value;
@@ -345,13 +357,7 @@ document.getElementById("searchBtn").onclick = async () => {
   await loadWords(true);
 
   if (keyword) {
-    if (mode === "partial") {
-      words = allWords.filter(w => w.entry.form.includes(keyword));
-    } else if (mode === "exact") {
-      words = allWords.filter(w => w.entry.form === keyword);
-    } else if (mode === "prefix") {
-      words = allWords.filter(w => w.entry.form.startsWith(keyword));
-    }
+    words = allWords.filter(w => matchKeyword(w, keyword, mode));
   }
 
   renderPage(1);
