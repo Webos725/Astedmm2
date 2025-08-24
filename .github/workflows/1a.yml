@@ -1,26 +1,37 @@
 name: Upload MCAddon to Google Drive
 
 on:
-  workflow_dispatch:   # 手動で実行
-  schedule:
-    - cron: '0 0 * * *' # 毎日0時に実行
+  push:
+    branches:
+      - main  # mainブランチへのpush時のみ実行
 
 jobs:
   upload:
     runs-on: ubuntu-latest
+
     steps:
       # 1. GitHubからアドオンを取得
       - name: Download MCAddon from GitHub
         run: |
           curl -L https://github.com/Konnitiwa768/PVPVe/releases/download/v1.0.0/packs.mcaddon -o packs.mcaddon
 
-      # 2. rcloneセットアップ（Google Driveと連携）
-      - name: Setup rclone
-        uses: rclone/rclone@v1
-        with:
-          args: config create mydrive drive service_account_file /github/workspace/credentials.json
+      # 2. rcloneインストール
+      - name: Install rclone
+        run: |
+          curl -Of https://downloads.rclone.org/rclone-current-linux-amd64.zip
+          unzip rclone-current-linux-amd64.zip
+          sudo cp rclone-*-linux-amd64/rclone /usr/bin/rclone
+          sudo chown root:root /usr/bin/rclone
+          sudo chmod 755 /usr/bin/rclone
+          rclone version
 
-      # 3. Google Driveにアップロード
+      # 3. rclone設定（GitHub SecretsにサービスアカウントJSONを登録）
+      - name: Configure rclone
+        run: |
+          echo "${{ secrets.GDRIVE_JSON }}" > credentials.json
+          rclone config create mydrive drive service_account_file ./credentials.json
+
+      # 4. Google Driveにアップロード
       - name: Upload to Google Drive
         run: |
           rclone copy packs.mcaddon mydrive:/PVPVe/ -v
