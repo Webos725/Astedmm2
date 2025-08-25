@@ -1,4 +1,4 @@
-name: Download Fontstruct Fonte
+name: Download Fontstruct Font
 
 on:
   push:
