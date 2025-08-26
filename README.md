@@ -1,4 +1,5 @@
 https://chatgpt.com
+https://discord.gg/UmqczGSvEZ
 https://www.roblox.com/ja/CreateAccount
 https://win32.run
 https://huggingface.co
