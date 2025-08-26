@@ -247,7 +247,7 @@ try:
         return found
 
     safe_action(driver, "Upload font file via file input", upload_file)
-    time.sleep(2)
+    time.sleep(20)
     save_shot(driver, "after_file_upload")
 
     def click_change_button():
