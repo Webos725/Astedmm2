@@ -63,9 +63,15 @@ def force_send_keys(driver, el, file_path):
 
 # ---------- Chrome 起動 ----------
 chrome_options = Options()
+chrome_options.add_argument("--headless=new")   # ★ 新しいheadlessモード
 chrome_options.add_argument("--no-sandbox")
 chrome_options.add_argument("--disable-dev-shm-usage")
+chrome_options.add_argument("--window-size=1366,768")
 chrome_options.binary_location = "/usr/bin/chromium-browser"
+
+# ★ user-data-dir をユニークにする（プロセスID付き）
+user_data_dir = os.path.join(os.getcwd(), f"user_data_{os.getpid()}")
+chrome_options.add_argument(f"--user-data-dir={user_data_dir}")
 
 prefs = {
     "download.default_directory": DOWNLOAD_DIR,
@@ -163,4 +169,3 @@ except Exception as e:
 finally:
     driver.quit()
     log("CLEAR", "Driver quit, exit")
-    log("CLEAR", "Script finished successfully")
