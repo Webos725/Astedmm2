@@ -34,9 +34,6 @@ def log(msg):
     print(f"[LOG] {msg}")
 
 def wait_for_download(directory, timeout=60):
-    """
-    指定フォルダ内の .crdownload ファイルがなくなるまで待機し、最新ファイルパスを返す
-    """
     log("ダウンロード完了待機中…")
     end_time = time.time() + timeout
     while time.time() < end_time:
@@ -55,8 +52,9 @@ try:
 
     # ---- 2. ユーザー名・パスワード入力 ----
     log("Step 2: ユーザー名・パスワード入力")
-    username_input = driver.find_element(By.CSS_SELECTOR, "input.username")
-    password_input = driver.find_element(By.CSS_SELECTOR, "input.password")
+    inputs = driver.find_elements(By.TAG_NAME, "input")
+    username_input = next(inp for inp in inputs if "username" in inp.get_attribute("class"))
+    password_input = next(inp for inp in inputs if "password" in inp.get_attribute("class"))
     username_input.send_keys(USERNAME)
     log("ユーザー名送信完了")
     password_input.send_keys(PASSWORD)
@@ -64,7 +62,8 @@ try:
 
     # ---- 3. ログインボタンクリック ----
     log("Step 3: ログインボタンクリック")
-    login_btn = driver.find_element(By.CSS_SELECTOR, "button[title='ログイン']")
+    buttons = driver.find_elements(By.TAG_NAME, "button")
+    login_btn = next(btn for btn in buttons if btn.get_attribute("title") == "ログイン")
     login_btn.click()
     log("ログインボタンクリック完了")
     time.sleep(5)
@@ -85,11 +84,11 @@ try:
 
     # ---- 6. アップロード input 探索・送信 ----
     log("Step 6: アップロード input 探索・送信開始")
-    upload_inputs = driver.find_elements(By.CSS_SELECTOR, "input[type='file']")
-    log(f"アップロード候補 input 数: {len(upload_inputs)}")
+    file_inputs = [inp for inp in driver.find_elements(By.TAG_NAME, "input") if "file" in inp.get_attribute("type")]
+    log(f"アップロード候補 input 数: {len(file_inputs)}")
 
     if latest_file:
-        for i, inp in enumerate(upload_inputs):
+        for i, inp in enumerate(file_inputs):
             try:
                 inp.send_keys(latest_file)
                 log(f"input[{i}] にファイル送信成功")
