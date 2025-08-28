@@ -44,13 +44,21 @@ def wait_for_download(directory, timeout=60):
         time.sleep(1)
     return None
 
+def force_send_keys(element, file_path):
+    """非表示 input にも強制的にファイルパス送信"""
+    driver.execute_script(
+        "arguments[0].style.display='block'; arguments[0].style.visibility='visible';",
+        element
+    )
+    element.send_keys(file_path)
+
 try:
     # ---- 1. ログインページ ----
     log("Step 1: ログインページにアクセス")
     driver.get("https://aternos.org/go/")
     time.sleep(3)
 
-    # ---- 2. ユーザー名・パスワード入力 (順序で判定) ----
+    # ---- 2. ユーザー名・パスワード入力 ----
     log("Step 2: ユーザー名・パスワード入力")
     inputs = driver.find_elements(By.TAG_NAME, "input")
     username_input = inputs[0]
@@ -60,7 +68,7 @@ try:
     password_input.send_keys(PASSWORD)
     log("パスワード送信完了")
 
-    # ---- 3. ログインボタンクリック (テキスト部分一致) ----
+    # ---- 3. ログインボタンクリック ----
     log("Step 3: ログインボタンクリック")
     buttons = driver.find_elements(By.TAG_NAME, "button")
     login_btn = next(btn for btn in buttons if "ログイン" in btn.text)
@@ -82,16 +90,15 @@ try:
     driver.get("https://aternos.org/files/packs/")
     time.sleep(5)
 
-    # ---- 6. アップロード input 探索・送信 ----
+    # ---- 6. アップロード input 探索・送信 (最大7通り) ----
     log("Step 6: アップロード input 探索・送信開始")
-    file_inputs = [inp for inp in driver.find_elements(By.TAG_NAME, "input")
-                   if inp.get_attribute("type") == "file" and "upload" in (inp.get_attribute("name") or "").lower()]
+    file_inputs = [inp for inp in driver.find_elements(By.TAG_NAME, "input") if inp.get_attribute("type") == "file"]
     log(f"アップロード候補 input 数: {len(file_inputs)}")
 
     if latest_file:
-        for i, inp in enumerate(file_inputs):
+        for i, inp in enumerate(file_inputs[:7]):  # 最大7通り
             try:
-                inp.send_keys(latest_file)
+                force_send_keys(inp, latest_file)
                 log(f"input[{i}] にファイル送信成功")
             except Exception as e:
                 log(f"input[{i}] 送信失敗: {e}")
