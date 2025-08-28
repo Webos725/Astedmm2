@@ -96,14 +96,11 @@ try:
             except Exception as e:
                 log(f"input[{i}] 送信失敗: {e}")
 
-    log("=== 完了 ===")
-    time.sleep(10)
+    log("=== 処理完了 ===")
+
+except Exception as main_e:
+    log(f"エラー発生: {main_e}")
 
 finally:
     driver.quit()
-    log(f"input[{i}] 送信失敗: {e}")
-    log("=== 完了 ===")
-    time.sleep(10)
-
-finally:
-    driver.quit()
+    log("ブラウザ終了")
