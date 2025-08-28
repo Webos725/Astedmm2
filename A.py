@@ -3,6 +3,7 @@ import os
 import time
 import traceback
 from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
@@ -62,10 +63,11 @@ def force_send_keys(driver, el, file_path):
 
 # ---------- Chrome 起動 ----------
 chrome_options = Options()
-chrome_options.add_argument("--headless=new")
+chrome_options.add_argument("--headless")
 chrome_options.add_argument("--no-sandbox")
 chrome_options.add_argument("--disable-dev-shm-usage")
-chrome_options.add_argument(f"--window-size=1366,768")
+chrome_options.binary_location = "/usr/bin/chromium-browser"
+
 prefs = {
     "download.default_directory": DOWNLOAD_DIR,
     "download.prompt_for_download": False,
@@ -74,7 +76,8 @@ prefs = {
 }
 chrome_options.add_experimental_option("prefs", prefs)
 
-driver = webdriver.Chrome(options=chrome_options)
+service = Service(executable_path="/usr/bin/chromedriver")
+driver = webdriver.Chrome(service=service, options=chrome_options)
 wait = WebDriverWait(driver, 15)
 
 # ---------- 実行 ----------
@@ -106,7 +109,7 @@ try:
     time.sleep(6)
     save_shot(driver, "after_login")
 
-    # Google Drive からファイル取得
+    # Google Drive ダウンロード
     safe_action(driver, "Open Google Drive link", lambda: driver.get(DRIVE_URL))
     latest_file = wait_for_download(DOWNLOAD_DIR, 60)
     if not latest_file:
@@ -161,3 +164,4 @@ except Exception as e:
 finally:
     driver.quit()
     log("CLEAR", "Driver quit, exit")
+    log("CLEAR", "Script finished successfully")
