@@ -35,21 +35,30 @@ try:
     driver.get("https://aternos.org/go/")
     time.sleep(3)
 
-    # ページ内すべての input を取得
-    login_inputs = driver.find_elements(By.TAG_NAME, "input")
+    # iframeがあれば切り替え
+    iframes = driver.find_elements(By.TAG_NAME, "iframe")
+    for iframe in iframes:
+        driver.switch_to.frame(iframe)
+        visible_inputs = [inp for inp in driver.find_elements(By.TAG_NAME, "input") if inp.is_displayed()]
+        if visible_inputs:
+            break
+    else:
+        driver.switch_to.default_content()
+        visible_inputs = [inp for inp in driver.find_elements(By.TAG_NAME, "input") if inp.is_displayed()]
+
     username_sent = False
     password_sent = False
 
-    for i, inp in enumerate(login_inputs):
+    for i, inp in enumerate(visible_inputs):
         try:
-            # ユーザー名は type が text または email の input に送信
             type_attr = inp.get_attribute("type")
             if not username_sent and type_attr in ["text", "email"]:
+                inp.click()
                 inp.send_keys(USERNAME)
                 username_sent = True
                 print(f"input[{i}] にユーザー名送信")
-            # パスワードは type=password の input に送信
             elif not password_sent and type_attr == "password":
+                inp.click()
                 inp.send_keys(PASSWORD + Keys.RETURN)
                 password_sent = True
                 print(f"input[{i}] にパスワード送信")
@@ -58,11 +67,12 @@ try:
         except Exception as e:
             print(f"input[{i}] 送信失敗: {e}")
 
+    driver.switch_to.default_content()
     time.sleep(5)
 
     # ---- 2. Google Driveからファイルダウンロード ----
     driver.get(DRIVE_URL)
-    time.sleep(10)  # ダウンロード待機
+    time.sleep(10)
 
     downloaded_files = os.listdir(DOWNLOAD_DIR)
     latest_file = max([os.path.join(DOWNLOAD_DIR, f) for f in downloaded_files], key=os.path.getctime)
@@ -72,8 +82,17 @@ try:
     driver.get("https://aternos.org/files/packs/")
     time.sleep(5)
 
-    # ---- 4. packsページの input にファイル送信 ----
-    pack_inputs = driver.find_elements(By.TAG_NAME, "input")
+    # iframe対応＋表示されている input のみアップロード
+    iframes = driver.find_elements(By.TAG_NAME, "iframe")
+    for iframe in iframes:
+        driver.switch_to.frame(iframe)
+        pack_inputs = [inp for inp in driver.find_elements(By.TAG_NAME, "input") if inp.is_displayed()]
+        if pack_inputs:
+            break
+    else:
+        driver.switch_to.default_content()
+        pack_inputs = [inp for inp in driver.find_elements(By.TAG_NAME, "input") if inp.is_displayed()]
+
     for i, inp in enumerate(pack_inputs):
         try:
             inp.send_keys(latest_file)
