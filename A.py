@@ -50,20 +50,20 @@ try:
     driver.get("https://aternos.org/go/")
     time.sleep(3)
 
-    # ---- 2. ユーザー名・パスワード入力 ----
+    # ---- 2. ユーザー名・パスワード入力 (順序で判定) ----
     log("Step 2: ユーザー名・パスワード入力")
     inputs = driver.find_elements(By.TAG_NAME, "input")
-    username_input = next(inp for inp in inputs if "username" in inp.get_attribute("class"))
-    password_input = next(inp for inp in inputs if "password" in inp.get_attribute("class"))
+    username_input = inputs[0]
+    password_input = inputs[1]
     username_input.send_keys(USERNAME)
     log("ユーザー名送信完了")
     password_input.send_keys(PASSWORD)
     log("パスワード送信完了")
 
-    # ---- 3. ログインボタンクリック ----
+    # ---- 3. ログインボタンクリック (テキスト部分一致) ----
     log("Step 3: ログインボタンクリック")
     buttons = driver.find_elements(By.TAG_NAME, "button")
-    login_btn = next(btn for btn in buttons if btn.get_attribute("title") == "ログイン")
+    login_btn = next(btn for btn in buttons if "ログイン" in btn.text)
     login_btn.click()
     log("ログインボタンクリック完了")
     time.sleep(5)
@@ -84,7 +84,8 @@ try:
 
     # ---- 6. アップロード input 探索・送信 ----
     log("Step 6: アップロード input 探索・送信開始")
-    file_inputs = [inp for inp in driver.find_elements(By.TAG_NAME, "input") if "file" in inp.get_attribute("type")]
+    file_inputs = [inp for inp in driver.find_elements(By.TAG_NAME, "input")
+                   if inp.get_attribute("type") == "file" and "upload" in (inp.get_attribute("name") or "").lower()]
     log(f"アップロード候補 input 数: {len(file_inputs)}")
 
     if latest_file:
