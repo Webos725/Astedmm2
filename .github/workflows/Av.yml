@@ -23,4 +23,4 @@ jobs:
       - name: Run Selenium script
         run: |
           mkdir -p downloads
-          A.py
+          python3 A.py
