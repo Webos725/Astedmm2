@@ -32,27 +32,35 @@ chrome_options.add_experimental_option("prefs", prefs)
 service = Service(executable_path="/usr/bin/chromedriver")
 driver = webdriver.Chrome(service=service, options=chrome_options)
 
+def log(msg):
+    print(f"[LOG] {msg}")
+
 try:
-    # ---- 1. Aternosログイン ----
-    print("Step 1: ログインページに移動")
+    # ---- 1. ログインページ ----
+    log("Step 1: ログインページにアクセス")
     driver.get("https://aternos.org/go/")
     time.sleep(3)
 
-    # iframe探索＋表示 input のみ取得
-    iframes = driver.find_elements(By.TAG_NAME, "iframe")
-    for iframe in iframes:
-        driver.switch_to.frame(iframe)
-        visible_inputs = [inp for inp in driver.find_elements(By.TAG_NAME, "input") if inp.is_displayed()]
-        if visible_inputs:
-            break
-    else:
-        driver.switch_to.default_content()
-        visible_inputs = [inp for inp in driver.find_elements(By.TAG_NAME, "input") if inp.is_displayed()]
+    # ---- 2. ユーザー名・パスワード入力 ----
+    log("Step 2: ユーザー名・パスワード入力開始")
 
+    # iframe探索＋表示 input のみ取得
+    def get_visible_inputs(driver):
+        driver.switch_to.default_content()
+        all_inputs = []
+        iframes = driver.find_elements(By.TAG_NAME, "iframe")
+        for iframe in iframes:
+            driver.switch_to.frame(iframe)
+            all_inputs.extend([inp for inp in driver.find_elements(By.TAG_NAME, "input") if inp.is_displayed()])
+            driver.switch_to.default_content()
+        # ページ直下の input も追加
+        all_inputs.extend([inp for inp in driver.find_elements(By.TAG_NAME, "input") if inp.is_displayed()])
+        return all_inputs
+
+    visible_inputs = get_visible_inputs(driver)
     username_sent = False
     password_sent = False
 
-    print("Step 2: ユーザー名・パスワード入力")
     for i, inp in enumerate(visible_inputs):
         try:
             type_attr = inp.get_attribute("type")
@@ -60,68 +68,72 @@ try:
                 inp.click()
                 inp.send_keys(USERNAME)
                 username_sent = True
-                print(f"  input[{i}] にユーザー名送信")
+                log(f"input[{i}] にユーザー名送信")
             elif not password_sent and type_attr == "password":
                 inp.click()
                 inp.send_keys(PASSWORD)
                 password_sent = True
-                print(f"  input[{i}] にパスワード送信")
+                log(f"input[{i}] にパスワード送信")
             if username_sent and password_sent:
                 break
         except Exception as e:
-            print(f"  input[{i}] 送信失敗: {e}")
+            log(f"input[{i}] 送信失敗: {e}")
 
-    # 「ログイン」と部分的に書かれたボタンをクリック
-    print("Step 3: ログインボタンクリック")
+    # ---- 3. ログインボタンクリック ----
+    log("Step 3: ログインボタンを探してクリック")
+    driver.switch_to.default_content()
     buttons = driver.find_elements(By.TAG_NAME, "button")
+    login_clicked = False
     for i, btn in enumerate(buttons):
         try:
             if "ログイン" in btn.text:
                 btn.click()
-                print(f"  button[{i}] ログインボタンクリック")
+                login_clicked = True
+                log(f"button[{i}] ログインボタンクリック")
                 break
-        except:
-            continue
+        except Exception as e:
+            log(f"button[{i}] クリック失敗: {e}")
+    if not login_clicked:
+        log("ログインボタンが見つかりませんでした")
 
-    driver.switch_to.default_content()
     time.sleep(5)
 
     # ---- 4. Google Driveからダウンロード ----
-    print("Step 4: Google Driveからファイルダウンロード")
+    log("Step 4: Google Driveからファイルダウンロード")
     driver.get(DRIVE_URL)
     time.sleep(10)
-
     downloaded_files = os.listdir(DOWNLOAD_DIR)
     latest_file = max([os.path.join(DOWNLOAD_DIR, f) for f in downloaded_files], key=os.path.getctime)
-    print(f"  ダウンロード完了: {latest_file}")
+    log(f"ダウンロード完了: {latest_file}")
 
-    # ---- 5. packs ページへ移動 ----
-    print("Step 5: packs ページに移動")
+    # ---- 5. packs ページ移動 ----
+    log("Step 5: packs ページに移動")
     driver.get("https://aternos.org/files/packs/")
     time.sleep(5)
 
-    # iframe対応＋「アップロード」ラベルの親要素に input を探す
-    print("Step 6: アップロード input 検索・送信")
-    iframes = driver.find_elements(By.TAG_NAME, "iframe")
-    for iframe in iframes:
-        driver.switch_to.frame(iframe)
-        labels = driver.find_elements(By.TAG_NAME, "label")
-        upload_inputs = []
-        for label in labels:
-            if "アップロード" in label.text:
-                try:
+    # ---- 6. アップロード input 探索・送信 ----
+    log("Step 6: アップロード input 探索・送信開始")
+
+    def find_upload_inputs(driver):
+        driver.switch_to.default_content()
+        inputs_found = []
+        # iframe 内も探索
+        iframes = driver.find_elements(By.TAG_NAME, "iframe")
+        for iframe in iframes:
+            driver.switch_to.frame(iframe)
+            labels = driver.find_elements(By.TAG_NAME, "label")
+            for label in labels:
+                if "アップロード" in label.text:
                     html_for = label.get_attribute("for")
                     if html_for:
-                        inp = driver.find_element(By.ID, html_for)
-                        if inp.is_displayed():
-                            upload_inputs.append(inp)
-                except:
-                    continue
-        if upload_inputs:
-            break
-    else:
-        driver.switch_to.default_content()
-        upload_inputs = []
+                        try:
+                            inp = driver.find_element(By.ID, html_for)
+                            if inp.is_displayed():
+                                inputs_found.append(inp)
+                        except:
+                            continue
+            driver.switch_to.default_content()
+        # ページ直下も探索
         labels = driver.find_elements(By.TAG_NAME, "label")
         for label in labels:
             if "アップロード" in label.text:
@@ -130,21 +142,21 @@ try:
                     try:
                         inp = driver.find_element(By.ID, html_for)
                         if inp.is_displayed():
-                            upload_inputs.append(inp)
+                            inputs_found.append(inp)
                     except:
                         continue
+        return inputs_found
 
-    if not upload_inputs:
-        print("  アップロード用 input が見つかりませんでした")
-    else:
-        for i, inp in enumerate(upload_inputs):
-            try:
-                inp.send_keys(latest_file)
-                print(f"  input[{i}] にファイル送信成功")
-            except Exception as e:
-                print(f"  input[{i}] 送信失敗: {e}")
+    upload_inputs = find_upload_inputs(driver)
+    log(f"アップロード候補 input 数: {len(upload_inputs)}")
+    for i, inp in enumerate(upload_inputs):
+        try:
+            inp.send_keys(latest_file)
+            log(f"input[{i}] にファイル送信成功")
+        except Exception as e:
+            log(f"input[{i}] 送信失敗: {e}")
 
-    print("=== 完了 ===")
+    log("=== 完了 ===")
     time.sleep(10)
 
 finally:
