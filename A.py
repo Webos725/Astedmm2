@@ -33,6 +33,20 @@ driver = webdriver.Chrome(service=service, options=chrome_options)
 def log(msg):
     print(f"[LOG] {msg}")
 
+def wait_for_download(directory, timeout=60):
+    """
+    指定フォルダ内の .crdownload ファイルがなくなるまで待機し、最新ファイルパスを返す
+    """
+    log("ダウンロード完了待機中…")
+    end_time = time.time() + timeout
+    while time.time() < end_time:
+        files = os.listdir(directory)
+        if not any(f.endswith(".crdownload") for f in files) and files:
+            latest_file = max([os.path.join(directory, f) for f in files], key=os.path.getctime)
+            return latest_file
+        time.sleep(1)
+    return None
+
 try:
     # ---- 1. ログインページ ----
     log("Step 1: ログインページにアクセス")
@@ -43,7 +57,6 @@ try:
     log("Step 2: ユーザー名・パスワード入力")
     username_input = driver.find_element(By.CSS_SELECTOR, "input.username")
     password_input = driver.find_element(By.CSS_SELECTOR, "input.password")
-
     username_input.send_keys(USERNAME)
     log("ユーザー名送信完了")
     password_input.send_keys(PASSWORD)
@@ -59,13 +72,11 @@ try:
     # ---- 4. Google Driveからダウンロード ----
     log("Step 4: Google Driveからファイルダウンロード")
     driver.get(DRIVE_URL)
-    time.sleep(10)  # ダウンロード待機
-    downloaded_files = os.listdir(DOWNLOAD_DIR)
-    if downloaded_files:
-        latest_file = max([os.path.join(DOWNLOAD_DIR, f) for f in downloaded_files], key=os.path.getctime)
+    latest_file = wait_for_download(DOWNLOAD_DIR, timeout=60)
+    if latest_file:
         log(f"ダウンロード完了: {latest_file}")
     else:
-        log("ダウンロードファイルが見つかりません")
+        log("ダウンロード失敗またはタイムアウト")
 
     # ---- 5. packs ページ移動 ----
     log("Step 5: packs ページに移動")
@@ -77,22 +88,19 @@ try:
     upload_inputs = driver.find_elements(By.CSS_SELECTOR, "input[type='file']")
     log(f"アップロード候補 input 数: {len(upload_inputs)}")
 
-    for i, inp in enumerate(upload_inputs):
-        try:
-            inp.send_keys(latest_file)
-            log(f"input[{i}] にファイル送信成功")
-        except Exception as e:
-            log(f"input[{i}] 送信失敗: {e}")
+    if latest_file:
+        for i, inp in enumerate(upload_inputs):
+            try:
+                inp.send_keys(latest_file)
+                log(f"input[{i}] にファイル送信成功")
+            except Exception as e:
+                log(f"input[{i}] 送信失敗: {e}")
 
     log("=== 完了 ===")
     time.sleep(10)
 
 finally:
     driver.quit()
-        try:
-            inp.send_keys(latest_file)
-            log(f"input[{i}] にファイル送信成功")
-        except Exception as e:
             log(f"input[{i}] 送信失敗: {e}")
 
     log("=== 完了 ===")
