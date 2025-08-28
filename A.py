@@ -101,8 +101,7 @@ try:
 
 finally:
     driver.quit()
-            log(f"input[{i}] 送信失敗: {e}")
-
+    log(f"input[{i}] 送信失敗: {e}")
     log("=== 完了 ===")
     time.sleep(10)
 
