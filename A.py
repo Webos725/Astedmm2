@@ -63,7 +63,7 @@ try:
                 print(f"  input[{i}] にユーザー名送信")
             elif not password_sent and type_attr == "password":
                 inp.click()
-                inp.send_keys(PASSWORD + Keys.RETURN)
+                inp.send_keys(PASSWORD)
                 password_sent = True
                 print(f"  input[{i}] にパスワード送信")
             if username_sent and password_sent:
@@ -71,11 +71,23 @@ try:
         except Exception as e:
             print(f"  input[{i}] 送信失敗: {e}")
 
+    # 「ログイン」と部分的に書かれたボタンをクリック
+    print("Step 3: ログインボタンクリック")
+    buttons = driver.find_elements(By.TAG_NAME, "button")
+    for i, btn in enumerate(buttons):
+        try:
+            if "ログイン" in btn.text:
+                btn.click()
+                print(f"  button[{i}] ログインボタンクリック")
+                break
+        except:
+            continue
+
     driver.switch_to.default_content()
     time.sleep(5)
 
-    # ---- 3. Google Driveからダウンロード ----
-    print("Step 3: Google Driveからファイルダウンロード")
+    # ---- 4. Google Driveからダウンロード ----
+    print("Step 4: Google Driveからファイルダウンロード")
     driver.get(DRIVE_URL)
     time.sleep(10)
 
@@ -83,13 +95,13 @@ try:
     latest_file = max([os.path.join(DOWNLOAD_DIR, f) for f in downloaded_files], key=os.path.getctime)
     print(f"  ダウンロード完了: {latest_file}")
 
-    # ---- 4. packs ページへ移動 ----
-    print("Step 4: packs ページに移動")
+    # ---- 5. packs ページへ移動 ----
+    print("Step 5: packs ページに移動")
     driver.get("https://aternos.org/files/packs/")
     time.sleep(5)
 
-    # iframe探索＋「アップロード」ラベルの親要素に input を探す
-    print("Step 5: アップロード input 検索・送信")
+    # iframe対応＋「アップロード」ラベルの親要素に input を探す
+    print("Step 6: アップロード input 検索・送信")
     iframes = driver.find_elements(By.TAG_NAME, "iframe")
     for iframe in iframes:
         driver.switch_to.frame(iframe)
@@ -98,7 +110,6 @@ try:
         for label in labels:
             if "アップロード" in label.text:
                 try:
-                    # labelが指す input を取得
                     html_for = label.get_attribute("for")
                     if html_for:
                         inp = driver.find_element(By.ID, html_for)
