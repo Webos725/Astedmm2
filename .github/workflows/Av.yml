@@ -18,13 +18,13 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y wget unzip xvfb libnss3 libxss1 libgbm1 chromium-browser chromium-chromedriver
           python3 -m pip install --upgrade pip
-          pip install selenium undetected_chromedriver
+          pip install selenium undetected_chromedriver playwright
 
       - name: Run Selenium script with xvfb
         run: |
           mkdir -p downloads
           mkdir -p scripts/screenshots_aternos
-          xvfb-run -a python3 A.py
+          xvfb-run -a python3 B.py
 
       - name: Commit & push screenshots
         run: |
