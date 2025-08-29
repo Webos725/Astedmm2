@@ -20,19 +20,21 @@ jobs:
           python3 -m pip install --upgrade pip
           pip install selenium
 
-      - name: Run Selenium script
+      - name: Run Selenium script with xvfb
         run: |
           mkdir -p downloads
-          python3 A.py
-      - name: woff をコミット & push
+          mkdir -p scripts/screenshots_aternos
+          xvfb-run -a python3 A.py
+
+      - name: Commit & push screenshots
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add scripts/screenshots_aternos
-          git pull
+          git pull --rebase
           if git diff --cached --quiet; then
             echo "No changes to commit"
           else
-            git commit -m "Convert Conlang.ttf to Conlang.woff"
+            git commit -m "Update Aternos screenshots"
             git push
           fi
