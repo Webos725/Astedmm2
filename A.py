@@ -2,10 +2,8 @@
 import os
 import time
 import traceback
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
+import undetected_chromedriver as uc
 from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
@@ -13,7 +11,7 @@ from selenium.webdriver.support import expected_conditions as EC
 USERNAME = "komugishomin"
 PASSWORD = "A1B2c!d?"
 
-SCREENSHOT_DIR = os.path.abspath("scripts/screenshots_aternos")
+SCREENSHOT_DIR = os.path.abspath("scripts/screenshots_aternos_uc")
 DOWNLOAD_DIR = os.path.abspath("downloads")
 os.makedirs(SCREENSHOT_DIR, exist_ok=True)
 os.makedirs(DOWNLOAD_DIR, exist_ok=True)
@@ -62,26 +60,14 @@ def force_send_keys(driver, el, file_path):
     el.send_keys(file_path)
 
 # ---------- Chrome 起動 ----------
-chrome_options = Options()
-# ❌ headless を外す → xvfb-run で動かす
-chrome_options.add_argument("--no-sandbox")
-chrome_options.add_argument("--disable-dev-shm-usage")
-chrome_options.add_argument("--window-size=1366,768")
-chrome_options.binary_location = "/usr/bin/chromium-browser"
-
-# bot回避
-chrome_options.add_argument("--disable-blink-features=AutomationControlled")
-chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
-chrome_options.add_experimental_option("useAutomationExtension", False)
-chrome_options.add_argument(
-    "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-    "AppleWebKit/537.36 (KHTML, like Gecko) "
-    "Chrome/117.0.5938.132 Safari/537.36"
-)
+options = uc.ChromeOptions()
+options.add_argument("--no-sandbox")
+options.add_argument("--disable-dev-shm-usage")
+options.add_argument("--window-size=1366,768")
 
 # ユーザーデータ一意化
-user_data_dir = os.path.join(os.getcwd(), f"user_data_{os.getpid()}")
-chrome_options.add_argument(f"--user-data-dir={user_data_dir}")
+user_data_dir = os.path.join(os.getcwd(), f"user_data_uc_{os.getpid()}")
+options.add_argument(f"--user-data-dir={user_data_dir}")
 
 prefs = {
     "download.default_directory": DOWNLOAD_DIR,
@@ -89,10 +75,9 @@ prefs = {
     "download.directory_upgrade": True,
     "safebrowsing.enabled": True,
 }
-chrome_options.add_experimental_option("prefs", prefs)
+options.add_experimental_option("prefs", prefs)
 
-service = Service(executable_path="/usr/bin/chromedriver")
-driver = webdriver.Chrome(service=service, options=chrome_options)
+driver = uc.Chrome(options=options)
 wait = WebDriverWait(driver, 15)
 
 # ---------- 実行 ----------
@@ -114,6 +99,7 @@ try:
             if "ログイン" in (b.text or "") or "Login" in (b.text or ""):
                 driver.execute_script("arguments[0].click()", b)
                 return
+        # fallback
         try:
             inputs = driver.find_elements(By.TAG_NAME, "input")
             if len(inputs) >= 2:
@@ -180,4 +166,3 @@ except Exception as e:
 finally:
     driver.quit()
     log("CLEAR", "Driver quit, exit")
-
