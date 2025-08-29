@@ -24,7 +24,7 @@ jobs:
         run: |
           mkdir -p downloads
           mkdir -p scripts/screenshots_aternos
-          xvfb-run -a python3 B.py
+          xvfb-run -a python3 A.py
 
       - name: Commit & push screenshots
         run: |
