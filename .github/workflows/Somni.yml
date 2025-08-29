@@ -29,7 +29,7 @@ jobs:
         run: |
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
-          git add downloads/yeerial.ttf
+          git add downloads2/yeerial.ttf
           git pull
 
           if ! git diff --cached --quiet; then
