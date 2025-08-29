@@ -181,11 +181,3 @@ finally:
     driver.quit()
     log("CLEAR", "Driver quit, exit")
 
-except Exception as e:
-    log("FAIL", f"Top level error: {e}")
-    traceback.print_exc()
-    try: save_shot(driver, "fatal_error")
-    except: pass
-finally:
-    driver.quit()
-    log("CLEAR", "Driver quit, exit")
