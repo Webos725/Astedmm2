@@ -63,13 +63,23 @@ def force_send_keys(driver, el, file_path):
 
 # ---------- Chrome 起動 ----------
 chrome_options = Options()
-# chrome_options.add_argument("--headless=new")   # ★ 新しいheadlessモード
+# ❌ headless を外す → xvfb-run で動かす
 chrome_options.add_argument("--no-sandbox")
 chrome_options.add_argument("--disable-dev-shm-usage")
 chrome_options.add_argument("--window-size=1366,768")
 chrome_options.binary_location = "/usr/bin/chromium-browser"
 
-# ★ user-data-dir をユニークにする（プロセスID付き）
+# bot回避
+chrome_options.add_argument("--disable-blink-features=AutomationControlled")
+chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
+chrome_options.add_experimental_option("useAutomationExtension", False)
+chrome_options.add_argument(
+    "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+    "AppleWebKit/537.36 (KHTML, like Gecko) "
+    "Chrome/117.0.5938.132 Safari/537.36"
+)
+
+# ユーザーデータ一意化
 user_data_dir = os.path.join(os.getcwd(), f"user_data_{os.getpid()}")
 chrome_options.add_argument(f"--user-data-dir={user_data_dir}")
 
@@ -95,13 +105,14 @@ try:
         inputs = driver.find_elements(By.TAG_NAME, "input")
         if len(inputs) >= 2:
             inputs[0].send_keys(USERNAME)
+            time.sleep(0.5)  # 人間ぽく
             inputs[1].send_keys(PASSWORD)
     safe_action(driver, "Fill credentials", fill_credentials)
 
     def click_login():
         for b in driver.find_elements(By.TAG_NAME, "button"):
             if "ログイン" in (b.text or "") or "Login" in (b.text or ""):
-                b.click()
+                driver.execute_script("arguments[0].click()", b)
                 return
         try:
             inputs = driver.find_elements(By.TAG_NAME, "input")
@@ -160,6 +171,15 @@ try:
     time.sleep(15)
     save_shot(driver, "after_upload")
     log("CLEAR", "Script finished successfully")
+
+except Exception as e:
+    log("FAIL", f"Top level error: {e}")
+    traceback.print_exc()
+    try: save_shot(driver, "fatal_error")
+    except: pass
+finally:
+    driver.quit()
+    log("CLEAR", "Driver quit, exit")
 
 except Exception as e:
     log("FAIL", f"Top level error: {e}")
