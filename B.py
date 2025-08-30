@@ -13,7 +13,7 @@ DOWNLOAD_DIR = os.path.abspath("downloads")
 os.makedirs(SCREENSHOT_DIR, exist_ok=True)
 os.makedirs(DOWNLOAD_DIR, exist_ok=True)
 
-DRIVE_URL = "https://drive.google.com/uc?export=download&id=1-kutpyH8lIg_8aXXhAnosghVHVvqhsdI"
+DRIVE_URL = "https://konnitiwa768.github.io/PVPVe/packs.mcaddon"
 
 def log(tag, msg):
     print(f"[{tag}] {msg}", flush=True)
