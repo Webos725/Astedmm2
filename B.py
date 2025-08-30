@@ -39,8 +39,10 @@ def wait_for_download(context, timeout=60):
 
 # ---------- 実行 ----------
 with sync_playwright() as p:
+    browser = None
     try:
-        browser = p.chromium.launch(headless=False)  # CI 環境なら headless=True + xvfb-run
+        # CI環境では headless=True が必須
+        browser = p.chromium.launch(headless=True)
         context = browser.new_context(accept_downloads=True)
         page = context.new_page()
 
@@ -93,7 +95,13 @@ with sync_playwright() as p:
         # アップロード
         log("RUN", "Upload file")
         uploaded = False
-        for sel in ["input[type='file']", "input[name*='upload']", "input[class*='upload']", "input[accept*='pack']", "input"]:
+        for sel in [
+            "input[type='file']",
+            "input[name*='upload']",
+            "input[class*='upload']",
+            "input[accept*='pack']",
+            "input"
+        ]:
             try:
                 inp = page.query_selector(sel)
                 if inp:
@@ -113,8 +121,11 @@ with sync_playwright() as p:
     except Exception as e:
         log("FAIL", f"Top level error: {e}")
         traceback.print_exc()
-        try: save_shot(page, "fatal_error")
-        except: pass
+        try:
+            save_shot(page, "fatal_error")
+        except:
+            pass
     finally:
-        browser.close()
+        if browser:
+            browser.close()
         log("CLEAR", "Browser quit, exit")
