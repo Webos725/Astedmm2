@@ -8,7 +8,7 @@ from playwright.sync_api import sync_playwright
 USERNAME = "komugishomin"
 PASSWORD = "A1B2c!d?"
 
-SCREENSHOT_DIR = os.path.abspath("scripts/screenshots_aternos_playwright")
+SCREENSHOT_DIR = os.path.abspath("scripts/screenshots_playwright")
 DOWNLOAD_DIR = os.path.abspath("downloads")
 os.makedirs(SCREENSHOT_DIR, exist_ok=True)
 os.makedirs(DOWNLOAD_DIR, exist_ok=True)
