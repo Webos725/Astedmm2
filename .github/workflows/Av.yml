@@ -23,14 +23,14 @@ jobs:
       - name: Run Selenium script with xvfb
         run: |
           mkdir -p downloads
-          mkdir -p scripts/screenshots_aternos
-          xvfb-run -a python3 A.py
+          mkdir -p scripts/screenshots_playwright
+          xvfb-run -a python3 B.py
 
       - name: Commit & push screenshots
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add scripts/screenshots_aternos
+          git add scripts/screenshots_playwright
           git pull --rebase
           if git diff --cached --quiet; then
             echo "No changes to commit"
