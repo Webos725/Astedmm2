@@ -3,7 +3,7 @@ name: Download Fontstruct Font
 on:
   push:
     branches:
-      - main2
+      - main
   workflow_dispatch:
 
 jobs:
