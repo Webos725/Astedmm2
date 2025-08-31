@@ -137,7 +137,7 @@ try:
     time.sleep(6)
     save_shot(driver, "after_login")
 
-    settings_url = "https://zpdic.ziphil.com/dictionary/Nyutagrang/settings"
+    settings_url = "https://zpdic.ziphil.com/dictionary/Nyutagrang/settings/display"
     safe_action(driver, f"Open settings page {settings_url}", lambda: driver.get(settings_url))
     time.sleep(3)
     save_shot(driver, "settings_page_loaded")
