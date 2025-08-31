@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>ファイルダウンロード</title>
+</head>
+<body>
+  <h2>URLから画像を保存</h2>
+  <input type="text" id="url" placeholder="画像のURLを入力してください https://t.novaskin.me/ca7351af2f56c9047bffd20eec0c2e64d33924d6f9c5c2ba0d233ef10546c8db" style="width: 300px;">
+  <button onclick="downloadFile()">ダウンロード</button>
+
+  <script>
+    function downloadFile() {
+      const url = document.getElementById("url").value;
+      if (!url) {
+        alert("URLを入力してください");
+        return;
+      }
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = url.split("/").pop(); // ファイル名を末尾から推定
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+  </script>
+</body>
+</html>
