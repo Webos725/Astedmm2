@@ -1,4 +1,6 @@
 https://chatgpt.com
+https://konnitiwa768.github.io/Astedmm/Ma.html
+
 https://discord.gg/UmqczGSvEZ
 https://www.roblox.com/ja/CreateAccount
 https://win32.run
@@ -14,6 +16,7 @@ live at https://konnitiwa768.github.io/Astedmm/A.html
 https://konnitiwa768.github.io/Battle-of-Citium/Zp.html
 https://konnitiwa768.github.io/Astedmm/Jisho.html
 https://konnitiwa768.github.io/Astedmm/Reimu.html
+
 https://konnitiwa768.github.io/Astedmm/gensou.html
 https://konnitiwa768.github.io/Kanic-letter/5o.html
 https://konnitiwa768.github.io/Astedmm/Convert.html
