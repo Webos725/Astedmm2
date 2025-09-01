@@ -18,7 +18,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y wget unzip xvfb libnss3 libxss1 libgbm1 chromium-browser chromium-chromedriver
           python3 -m pip install --upgrade pip
-          pip install selenium undetected_chromedriver playwright playwright-extra playwright-stealth
+          pip install selenium undetected_chromedriver playwright playwright-stealth
           playwright install --with-deps chromium
 
 
