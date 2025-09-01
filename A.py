@@ -37,14 +37,39 @@ def wait_for_download(context, timeout=60):
     except Exception:
         return None
 
+def solve_cloudflare(page):
+    """Cloudflare Verify Human チェックを探してクリック"""
+    try:
+        frames = page.frames
+        for f in frames:
+            if "challenges.cloudflare.com" in (f.url or ""):
+                log("RUN", f"Found Cloudflare iframe: {f.url}")
+                try:
+                    # セレクタは環境によって違うので柔軟に
+                    target = f.query_selector("input[type='checkbox'], #cf-challenge-running")
+                    if target:
+                        box = target.bounding_box()
+                        if box:
+                            # マウスを動かしてからクリック
+                            page.mouse.move(box["x"] + 5, box["y"] + 5, steps=20)
+                            time.sleep(1.0)
+                            page.mouse.click(box["x"] + 5, box["y"] + 5)
+                            log("CLEAR", "Clicked Cloudflare verify checkbox")
+                            return True
+                except Exception as e:
+                    log("WARN", f"Cloudflare click failed: {e}")
+        return False
+    except Exception as e:
+        log("WARN", f"solve_cloudflare failed: {e}")
+        return False
+
 # ---------- 実行 ----------
 with sync_playwright() as p:
     browser = None
     try:
-        # headless を外す
         browser = p.chromium.launch(
             headless=False,
-            slow_mo=200  # ちょっと人間らしく
+            slow_mo=200  # 少し人間っぽく
         )
         context = browser.new_context(accept_downloads=True)
         page = context.new_page()
@@ -52,6 +77,9 @@ with sync_playwright() as p:
         log("RUN", "Open login page")
         page.goto("https://aternos.org/go/")
         save_shot(page, "login_page")
+
+        # Cloudflare チェックが出る可能性あり
+        solve_cloudflare(page)
 
         # 認証ページが出るまで待つ
         page.wait_for_selector("input[type='text']", timeout=60000)
@@ -78,6 +106,9 @@ with sync_playwright() as p:
 
         page.wait_for_timeout(6000)
         save_shot(page, "after_login")
+
+        # Cloudflare チェックが再度出る場合あり
+        solve_cloudflare(page)
 
         log("RUN", "Open Google Drive link")
         page.goto(DRIVE_URL)
