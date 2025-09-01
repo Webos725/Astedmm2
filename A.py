@@ -3,7 +3,6 @@ import os
 import time
 import traceback
 from playwright.sync_api import sync_playwright
-from playwright_stealth import stealth_sync
 
 # ---------- 設定 ----------
 USERNAME = "komugishomin"
@@ -42,22 +41,20 @@ def wait_for_download(context, timeout=60):
 with sync_playwright() as p:
     browser = None
     try:
+        # headless を外す
         browser = p.chromium.launch(
-            headless=False,   # headlessを外す
-            slow_mo=150       # 少しゆっくり動かす
+            headless=False,
+            slow_mo=200  # ちょっと人間らしく
         )
         context = browser.new_context(accept_downloads=True)
         page = context.new_page()
 
-        # Cloudflare回避
-        stealth_sync(page)
-
         log("RUN", "Open login page")
         page.goto("https://aternos.org/go/")
-
-        # ログインフォームが出るまで待機
-        page.wait_for_selector("input[type='text']", timeout=60000)
         save_shot(page, "login_page")
+
+        # 認証ページが出るまで待つ
+        page.wait_for_selector("input[type='text']", timeout=60000)
 
         log("RUN", "Fill credentials")
         inputs = page.query_selector_all("input")
