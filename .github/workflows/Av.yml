@@ -26,7 +26,7 @@ jobs:
         run: |
           mkdir -p downloads
           mkdir -p scripts/screenshots_playwright
-          xvfb-run -a python3 B.py
+          xvfb-run --auto-servernum -- python A.py
 
       - name: Commit & push screenshots
         run: |
