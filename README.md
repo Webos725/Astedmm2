@@ -1,5 +1,5 @@
 https://chatgpt.com
-https://konnitiwa768.github.io/Astedmm/Ma.html
+https://konnitiwa768.github.io/Astedmm/Ti.html
 https://zpdic.ziphil.com/dictionary/Nyutagrang
 https://discord.gg/UmqczGSvEZ
 https://www.roblox.com/ja/CreateAccount
