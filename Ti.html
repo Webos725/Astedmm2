@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>ファイルダウンロード</title>
+  <style>
+    body { font-family: sans-serif; }
+    #progress {
+      width: 300px;
+      height: 20px;
+      border: 1px solid #888;
+      margin-top: 10px;
+      position: relative;
+    }
+    #bar {
+      background: #4caf50;
+      width: 0%;
+      height: 100%;
+      transition: width 0.2s;
+    }
+  </style>
+</head>
+<body>
+  <h2>URLから画像を保存</h2>
+  <input 
+    type="text" 
+    id="url" 
+    value="https://t.novaskin.me/ca7351af2f56c9047bffd20eec0c2e64d33924d6f9c5c2ba0d233ef10546c8db"
+    style="width: 500px;">
+  <button onclick="downloadFile()">ダウンロード</button>
+
+  <div id="progress">
+    <div id="bar"></div>
+  </div>
+  <p id="status"></p>
+
+  <script>
+    async function downloadFile() {
+      const url = document.getElementById("url").value;
+      if (!url) {
+        alert("URLを入力してください");
+        return;
+      }
+
+      const status = document.getElementById("status");
+      const bar = document.getElementById("bar");
+
+      try {
+        status.textContent = "ダウンロード開始...";
+        bar.style.width = "0%";
+
+        const response = await fetch(url);
+        if (!response.ok) throw new Error("ダウンロード失敗");
+
+        // 全体サイズを取得
+        const contentLength = response.headers.get("Content-Length");
+        const total = contentLength ? parseInt(contentLength, 10) : 0;
+        let loaded = 0;
+
+        const reader = response.body.getReader();
+        const chunks = [];
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          chunks.push(value);
+          loaded += value.length;
+
+          if (total) {
+            const percent = Math.round((loaded / total) * 100);
+            bar.style.width = percent + "%";
+            status.textContent = `ダウンロード中... ${percent}%`;
+          } else {
+            status.textContent = `ダウンロード中... ${loaded} bytes`;
+          }
+        }
+
+        // Blobを作って保存
+        const blob = new Blob(chunks);
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = url.split("/").pop();
+        a.click();
+        URL.revokeObjectURL(a.href);
+
+        status.textContent = "ダウンロード完了！（保存先: ブラウザの標準ダウンロードフォルダ）";
+        bar.style.width = "100%";
+
+      } catch (err) {
+        status.textContent = "エラー: " + err.message;
+      }
+    }
+  </script>
+</body>
+</html>
