@@ -1,6 +1,6 @@
 https://chatgpt.com
 こんにちは
-a
+i
 https://konnitiwa768.github.io/Astedmm/Ti.html
 https://zpdic.ziphil.com/dictionary/Nyutagrang
 https://discord.gg/UmqczGSvEZ
