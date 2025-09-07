@@ -1,0 +1,33 @@
+name: Download TTF from Pentacom
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  download-ttf:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+
+      - name: Run Selenium script
+        run: |
+          python3 DAUN.py
+
+      - name: Commit and push downloaded TTF if changed
+        run: |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+          git add Re_Maturi.png Re_Uwagi.png Mar.png
+          git pull
+
+          if ! git diff --cached --quiet; then
+            git commit -m "Update yeerial.ttf from Pentacom"
+            git push
+          else
+            echo "No changes in font.ttf, skipping commit."
+          fi
