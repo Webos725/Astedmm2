@@ -1,4 +1,4 @@
-い
+
 import requests
 import os
 
