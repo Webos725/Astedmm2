@@ -1,4 +1,4 @@
-name: Download TTF from Pentacom
+name: Download skin
 
 on:
   push:
