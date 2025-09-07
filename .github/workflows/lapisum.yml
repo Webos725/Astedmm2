@@ -12,12 +12,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-
       - name: Run Selenium script
         run: |
           python3 DAUN.py
-
       - name: Commit and push downloaded TTF if changed
         run: |
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
