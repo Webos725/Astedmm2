@@ -1,6 +1,8 @@
 https://chatgpt.com
 こんにちは
 i
+minecraft://komugishomin.aternos.me:59000
+
 https://www.dropbox.com/1/connect?locale=ja_JP&k=09kznzuyaqjovfe&n=0&api=1&state=oauth2code%3AiRfn3E_N7H8K6TMO-lBiyLJWZwVVjCkH-i7z8b_xB2A%3AS256%3Aoffline&extra_query_params=code_challenge%3DiRfn3E_N7H8K6TMO-lBiyLJWZwVVjCkH-i7z8b_xB2A%26code_challenge_method%3DS256%26token_access_type%3Doffline%26response_type%3Dcode
 https://outlook.live.com
 https://konnitiwa768.github.io/Astedmm/Ti.html
