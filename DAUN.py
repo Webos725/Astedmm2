@@ -5,12 +5,14 @@ import os
 urls = [
     "https://s.namemc.com/i/b2d476522e262ea0.png",
     "https://s.namemc.com/i/39d851b54115909d.png",
-    "https://s.namemc.com/i/67d490eadf07207e.png"
+    "https://s.namemc.com/i/67d490eadf07207e.png",
+    "https://s.namemc.com/i/4c92e3982fb83efa.png"
 ]
 names = [
     "Re_Maturi.png",
     "Mar.png",
     "Re_Uwagi.png"
+    "Re.png"
 ]
 
 download_dir = "" # ダウンロード先のディレクトリ
