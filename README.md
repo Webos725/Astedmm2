@@ -1,4 +1,5 @@
 https://chatgpt.com
+https://studio.youtube.com/channel/UC1cph_TJmwIje__lwmVWGsg/editing/profile
 こんにちは
 i
 minecraft://komugishomin.aternos.me:59000
