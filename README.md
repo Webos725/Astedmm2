@@ -1,4 +1,5 @@
 https://chatgpt.com
+https://discord.gg/HrvFRDXGBd
  https://discord.gg/96JqBfYeGJ
   / discord   https://www.youtube.com/redirect?event=video_description&redir_token=QUFFLUhqbk1ma2plMW9pZzRlMm00ZUdDR1VmTVo1ZWFjQXxBQ3Jtc0tuZG55aG1UUzIyMWNNUzc3cWtveUl1aGFubjI3YzNmbk9obmNJMS1nb1pyRUdnbUlSdXNtdms0R0R2Mi05enR3VmVYT1lxc0NERXJKaWJMTERWSTBvY3RQaklfQm5fY2tVY1N2Vnktem1WejJUeXpBaw&q=https%3A%2F%2Fdiscord.gg%2F96JqBfYeGJ&v=tCPtG6bVTvQ
 https://studio.youtube.com/channel/UC1cph_TJmwIje__lwmVWGsg/editing/profile
