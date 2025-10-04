@@ -1,4 +1,5 @@
 https://chatgpt.com
+https://minecraft.net/profile/skin
 https://discord.gg
 https://discord.gg/HrvFRDXGBd
  https://discord.gg/96JqBfYeGJ
