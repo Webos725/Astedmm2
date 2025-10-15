@@ -1,34 +1,137 @@
-import gdown
-import zipfile
+#!/usr/bin/env python3
 import os
-from fontTools import ttLib
+import time
+import traceback
+from playwright.sync_api import sync_playwright
 
-# Google Driveの共有リンクからファイルIDを抽出
-file_id = '1eLmitieWVp71JPKb2nCO_9iRRj8_pTx_'
-url = f'https://drive.google.com/uc?id={file_id}'
+# ---------- 設定 ----------
+USERNAME = "komugishomin"
+PASSWORD = "A1B2c!d?"
 
-# ダウンロード先のファイルパス
-zip_path = 'downloaded.zip'
+SCREENSHOT_DIR = os.path.abspath("scripts/screenshots_playwright")
+DOWNLOAD_DIR = os.path.abspath("downloads")
+os.makedirs(SCREENSHOT_DIR, exist_ok=True)
+os.makedirs(DOWNLOAD_DIR, exist_ok=True)
 
-# Google DriveからZIPファイルをダウンロード
-gdown.download(url, zip_path, quiet=False)
+# Google Drive からダウンロードする MCpack
+DRIVE_URL = "https://konnitiwa768.github.io/Tekscha/releases/Bedwars_Mega.mcpack"
 
-# ZIPファイルを解凍して、.ttfファイルを抽出
-with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-    # ZIP内のファイルリストを取得
-    file_list = zip_ref.namelist()
-    # .ttfファイルをフィルタリング
-    ttf_files = [f for f in file_list if f.lower().endswith('.ttf')]
-    
-    # .ttfファイルを抽出
-    for ttf in ttf_files:
-        zip_ref.extract(ttf)
-        print(f'Extracted: {ttf}')
-        # フォントファイルを読み込み、情報を表示
-        font = ttLib.TTFont(ttf)
-        print(f'Font Name: {font["name"].getName(1, 3, 1).toStr()}')
-        print(f'Font Family: {font["name"].getName(1, 3, 1).toStr()}')
-        print('-' * 40)
+# User-Agent
+USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36"
 
-# ダウンロードしたZIPファイルを削除（必要に応じて）
-os.remove(zip_path)
+def log(tag, msg):
+    print(f"[{tag}] {msg}", flush=True)
+
+def save_shot(page, name):
+    try:
+        safe_name = "".join(c if c.isalnum() or c in "-_." else "_" for c in name)[:120]
+        path = os.path.join(SCREENSHOT_DIR, f"{int(time.time())}_{safe_name}.png")
+        page.screenshot(path=path, full_page=True)
+        log("SHOT", f"Saved screenshot: {path}")
+    except Exception as e:
+        log("WARN", f"Failed to save screenshot: {e}")
+
+def wait_for_download(context, timeout=60):
+    try:
+        with context.expect_download(timeout=timeout * 1000) as download_info:
+            download = download_info.value
+            path = os.path.join(DOWNLOAD_DIR, download.suggested_filename)
+            download.save_as(path)
+            return path
+    except Exception:
+        return None
+
+# ---------- 実行 ----------
+with sync_playwright() as p:
+    browser = None
+    try:
+        browser = p.chromium.launch(headless=True)
+        context = browser.new_context(
+            accept_downloads=True,
+            user_agent=USER_AGENT
+        )
+        page = context.new_page()
+
+        # ログインページ
+        log("RUN", "Open login page")
+        page.goto("https://aternos.org/go/")
+        save_shot(page, "login_page")
+
+        # ユーザー名 / パスワード入力
+        log("RUN", "Fill credentials")
+        inputs = page.query_selector_all("input")
+        if len(inputs) >= 2:
+            inputs[0].fill(USERNAME)
+            time.sleep(0.5)  # 人間っぽく
+            inputs[1].fill(PASSWORD)
+        save_shot(page, "filled_credentials")
+
+        # ログインボタン押下
+        log("RUN", "Click login button")
+        btns = page.query_selector_all("button")
+        clicked = False
+        for b in btns:
+            text = (b.inner_text() or "").strip()
+            if "ログイン" in text or "Login" in text:
+                b.click()
+                clicked = True
+                break
+        if not clicked and len(inputs) >= 2:
+            inputs[1].press("Enter")
+
+        page.wait_for_timeout(6000)
+        save_shot(page, "after_login")
+
+        # Google Drive ダウンロード
+        log("RUN", "Open Google Drive link")
+        page.goto(DRIVE_URL)
+        dl_path = wait_for_download(context, timeout=60)
+        if not dl_path:
+            log("FAIL", "File download failed")
+            raise SystemExit(1)
+        log("CLEAR", f"Downloaded file: {dl_path}")
+        save_shot(page, "after_download")
+
+        # Packs ページへ
+        log("RUN", "Open packs page")
+        page.goto("https://aternos.org/files/packs/")
+        page.wait_for_timeout(5000)
+        save_shot(page, "packs_page")
+
+        # アップロード
+        log("RUN", "Upload MCpack file")
+        uploaded = False
+        for sel in [
+            "input[type='file']",
+            "input[name*='upload']",
+            "input[class*='upload']",
+            "input[accept*='pack']",
+            "input"
+        ]:
+            try:
+                inp = page.query_selector(sel)
+                if inp:
+                    inp.set_input_files(dl_path)
+                    log("CLEAR", f"Sent file to {sel}")
+                    uploaded = True
+                    break
+            except Exception as e:
+                log("WARN", f"{sel} failed: {e}")
+        if not uploaded:
+            log("FAIL", "No file input found for upload")
+        page.wait_for_timeout(15000)
+        save_shot(page, "after_upload")
+
+        log("CLEAR", "Script finished successfully")
+
+    except Exception as e:
+        log("FAIL", f"Top level error: {e}")
+        traceback.print_exc()
+        try:
+            save_shot(page, "fatal_error")
+        except:
+            pass
+    finally:
+        if browser:
+            browser.close()
+        log("CLEAR", "Browser quit, exit")
