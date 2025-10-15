@@ -9,6 +9,8 @@ from playwright.sync_api import sync_playwright, TimeoutError as PWTimeout
 SCREENSHOT_DIR = Path("screenshots4")
 SCREENSHOT_DIR.mkdir(parents=True, exist_ok=True)
 
+USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36"
+
 def log(tag, msg):
     print(f"[{tag}] {msg}", flush=True)
 
@@ -51,7 +53,10 @@ if not FONT_PATH.exists():
 # ---------- Playwright 起動 ----------
 with sync_playwright() as p:
     browser = p.chromium.launch(headless=True)
-    context = browser.new_context(viewport={"width": 1366, "height": 768})
+    context = browser.new_context(
+        viewport={"width": 1366, "height": 768},
+        user_agent=USER_AGENT
+    )
     page = context.new_page()
 
     try:
