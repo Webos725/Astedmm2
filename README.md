@@ -1,4 +1,7 @@
 https://chatgpt.com
+https://www.amazon.co.jp/dp/B00YFHZQ2A
+URL：https://www.microsoft.com/ja-jp/store/b/gift-cards
+（※公式販売者であることを確認）
 https://www.smsonline.cloud/ja
 https://ironnasekai.fandom.com/ja
 9747C-673CV-27369-9VVTT-RCTVZ
