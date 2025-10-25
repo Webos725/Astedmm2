@@ -19,19 +19,15 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y fontforge python3-fontforge inkscape librsvg2-bin
+          sudo apt-get install -y fontforge python3-fontforge librsvg2-bin
 
-      - name: Convert PNG to SVG (Headless)
+      - name: Convert PNG to SVG (rsvg-convert only)
         run: |
           mkdir -p assets/svg
           for f in assets/png/*.png; do
             name=$(basename "$f" .png)
-            if inkscape --without-gui "$f" --export-plain-svg="assets/svg/$name.svg"; then
-              echo "Converted with Inkscape: $f"
-            else
-              echo "Fallback with rsvg-convert: $f"
-              rsvg-convert "$f" -f svg -o "assets/svg/$name.svg"
-            fi
+            rsvg-convert "$f" -f svg -o "assets/svg/$name.svg"
+            echo "Converted: $f -> assets/svg/$name.svg"
           done
 
       - name: Build Font
@@ -42,5 +38,5 @@ jobs:
           git add dist/*.ttf || true
           if ! git diff --cached --quiet; then
             git commit -m "Auto-build ligature font"
-            git push origin main
+            git.push origin main
           fi
