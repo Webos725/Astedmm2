@@ -1,0 +1,41 @@
+name: Auto Build Ligature Font
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set git user
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@github.com"
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y fontforge inkscape python3-fontforge
+
+      - name: Convert PNG to SVG
+        run: |
+          mkdir -p assets/svg
+          for f in assets/png/*.png; do
+            name=$(basename "$f" .png)
+            inkscape "$f" --export-plain-svg="assets/svg/$name.svg"
+          done
+
+      - name: Build Font
+        run: python3 build_font.py
+
+      - name: Commit build result
+        run: |
+          git add dist/*.ttf || true
+          if ! git diff --cached --quiet; then
+            git commit -m "Auto-build ligature font"
+            git push origin main
+          fi
