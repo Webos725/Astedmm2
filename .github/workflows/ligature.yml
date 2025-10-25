@@ -1,10 +1,8 @@
 name: Auto Build Ligature Font
 
 on:
-  workflow_dispatch:
   push:
-    branches: 
-      - main
+    branches: [ "main" ]
 
 jobs:
   build:
@@ -21,18 +19,23 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y fontforge inkscape python3-fontforge
+          sudo apt-get install -y fontforge python3-fontforge inkscape librsvg2-bin
 
-      - name: Convert PNG to SVG
+      - name: Convert PNG to SVG (Headless)
         run: |
           mkdir -p assets/svg
           for f in assets/png/*.png; do
             name=$(basename "$f" .png)
-            inkscape "$f" --export-plain-svg="assets/svg/$name.svg"
+            if inkscape --without-gui "$f" --export-plain-svg="assets/svg/$name.svg"; then
+              echo "Converted with Inkscape: $f"
+            else
+              echo "Fallback with rsvg-convert: $f"
+              rsvg-convert "$f" -f svg -o "assets/svg/$name.svg"
+            fi
           done
 
       - name: Build Font
-        run: python3 liga_build_font.py
+        run: python3 build_font.py
 
       - name: Commit build result
         run: |
