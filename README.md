@@ -1,4 +1,5 @@
 https://chatgpt.com
+https://zpdic.ziphil.com/dictionary/cir-soran0831
 https://www.amazon.co.jp/dp/B00YFHZQ2A
 URL：https://www.microsoft.com/ja-jp/store/b/gift-cards
 （※公式販売者であることを確認）
@@ -10,6 +11,12 @@ https://rewards.bing.com/welcome?rh=25D21AAB&ref=rafsrchae
 https://lite.tiktok.com/t/ZSHnjF9RXcEbB-3W7bi/
 https://minecraft.net/profile/skin
 https://discord.gg
+Some words in Russian may pose a challenge due to the similarities between the letters Ш, Щ, И, Л, М in cursive.
+
+
+The word Шиншилла (shinshilla), which means "Chinchilla". In red, a decomposition of the handwritten text showing the block letter equivalent.
+
+The word Лишишь (lishish), which means "you will deprive". In red, a decomposition of the handwritten text showing the block letter equivalent.
 https://discord.gg/HrvFRDXGBd
  https://discord.gg/96JqBfYeGJ
   / discord   https://www.youtube.com/redirect?event=video_description&redir_token=QUFFLUhqbk1ma2plMW9pZzRlMm00ZUdDR1VmTVo1ZWFjQXxBQ3Jtc0tuZG55aG1UUzIyMWNNUzc3cWtveUl1aGFubjI3YzNmbk9obmNJMS1nb1pyRUdnbUlSdXNtdms0R0R2Mi05enR3VmVYT1lxc0NERXJKaWJMTERWSTBvY3RQaklfQm5fY2tVY1N2Vnktem1WejJUeXpBaw&q=https%3A%2F%2Fdiscord.gg%2F96JqBfYeGJ&v=tCPtG6bVTvQ
